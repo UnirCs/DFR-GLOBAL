@@ -1,0 +1,123 @@
+/* Estilos del componente SeatSelection */
+
+.container {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.container.dark {
+  background-color: transparent;
+}
+
+.seatSelection {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  margin: 2rem 0;
+  transition: background-color 0.3s ease;
+}
+
+.container.dark .seatSelection {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.seatsGrid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 0.5rem;
+  margin: 2rem 0;
+  max-width: 500px;
+  margin: 2rem auto;
+}
+
+.seat {
+  aspect-ratio: 1;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+
+.seatAvailable {
+  background: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.seatSelected {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.seatOccupied {
+  background: #dc3545;
+  color: white;
+  border-color: #dc3545;
+  cursor: not-allowed;
+}
+
+.seat:hover:not(.seatOccupied) {
+  transform: scale(1.1);
+}
+
+/* Botón de navegación */
+.navButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  margin: 0.5rem;
+}
+
+.navButton:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* Pantalla */
+.screen {
+  background: #ddd;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+  color: #333;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Leyenda */
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+/* Resumen */
+.summary {
+  text-align: center;
+  margin: 2rem 0;
+}
+

@@ -1,0 +1,215 @@
+/* Estilos del componente Pelicula */
+
+.movie {
+  background-color: #fff;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0;
+  display: flex;
+  gap: 2rem;
+}
+
+.movie.dark {
+  background-color: #2a2a2a;
+  border-color: #444;
+  color: #e0e0e0;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.movie:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+}
+
+.movie.dark:hover {
+  box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+}
+
+/* Contenedor de la imagen del poster */
+.moviePosterContainer {
+  position: relative;
+  width: 200px;
+  min-width: 200px;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Contenido de la película */
+.movieContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 700;
+  border-bottom: 3px solid #007bff;
+  padding-bottom: 0.5rem;
+  display: inline-block;
+  transition: color 0.3s ease;
+}
+
+.movie.dark .title {
+  color: #64b5f6;
+}
+
+.info {
+  margin: 0.8rem 0;
+  color: #555;
+  font-size: 1rem;
+  line-height: 1.5;
+  transition: color 0.3s ease;
+}
+
+.movie.dark .info {
+  color: #ccc;
+}
+
+.label {
+  color: #333;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.movie.dark .label {
+  color: #e0e0e0;
+}
+
+/* Sesiones */
+.sessions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #f0f0f0;
+  transition: border-color 0.3s ease;
+}
+
+.movie.dark .sessions {
+  border-top-color: #444;
+}
+
+.sessions::before {
+  content: "Horarios disponibles:";
+  display: block;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+}
+
+.movie.dark .sessions::before {
+  color: #e0e0e0;
+}
+
+.sessionLink {
+  margin-right: 0.8rem;
+  margin-bottom: 0.8rem;
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border: none;
+  color: #fff;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  text-decoration: none;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+}
+
+.sessionLink:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004494 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+.sessionLink:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.sessionLink::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.sessionLink:hover::before {
+  left: 100%;
+}
+
+/* Botón de navegación */
+.navButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  margin: 0.5rem;
+}
+
+.navButton:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .movie {
+    padding: 1.5rem;
+    flex-direction: column;
+  }
+
+  .moviePosterContainer {
+    width: 100%;
+    min-width: unset;
+    height: 250px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .sessionLink {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .movie {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .sessionLink {
+    width: 100%;
+    margin-right: 0;
+  }
+}
+

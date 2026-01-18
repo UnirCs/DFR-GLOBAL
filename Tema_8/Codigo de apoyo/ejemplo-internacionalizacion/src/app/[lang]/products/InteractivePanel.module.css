@@ -1,0 +1,73 @@
+.panel {
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.title {
+  margin-bottom: 1rem;
+  color: var(--foreground);
+  font-size: 1.1rem;
+}
+
+.categoryButtons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.categoryButton {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground-muted);
+  border-radius: 2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.categoryButton:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.categoryButton.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.cartSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cartButton {
+  padding: 0.75rem 1.5rem;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cartButton:hover {
+  background: var(--accent-hover);
+}
+
+.langIndicator {
+  background: var(--background-tertiary);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  color: var(--foreground-muted);
+  font-size: 0.9rem;
+}

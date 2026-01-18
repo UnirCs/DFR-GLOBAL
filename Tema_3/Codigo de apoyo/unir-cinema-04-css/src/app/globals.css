@@ -1,0 +1,56 @@
+/* ===========================================
+   ESTILOS GLOBALES - UNIR Cinema
+   Este archivo contiene ÚNICAMENTE estilos globales:
+   - Reset CSS
+   - Variables CSS
+   - Estilos del body y html
+   - Preferencias del sistema (color scheme)
+
+   Los estilos de componentes y páginas están en sus
+   respectivos CSS Modules (.module.css)
+   =========================================== */
+
+/* Reset específico */
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+/* Variables CSS globales */
+:root {
+  --color-primary: #007bff;
+  --color-primary-dark: #0056b3;
+  --color-danger: #dc3545;
+  --color-success: #28a745;
+  --color-text-light: #333;
+  --color-text-dark: #e0e0e0;
+  --color-bg-light: #f5f5f5;
+  --color-bg-dark: #1a1a1a;
+  --color-card-light: #fff;
+  --color-card-dark: #2a2a2a;
+  --transition-base: 0.3s ease;
+}
+
+/* Estilos base del body */
+body {
+  margin: 0;
+  font-family: var(--font-nunito), 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+  line-height: 1.6;
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+/* Enlaces globales - Reset de estilos por defecto */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Preferencia del sistema para modo oscuro */
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}

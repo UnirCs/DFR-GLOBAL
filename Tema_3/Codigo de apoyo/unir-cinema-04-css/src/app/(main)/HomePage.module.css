@@ -1,0 +1,22 @@
+/* Estilos de la página HomePage */
+.homePage {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+.homePage.dark {
+  background-color: #1a1a1a;
+}
+/* Responsive */
+@media (max-width: 768px) {
+  .homePage {
+    padding: 1rem;
+  }
+}
+@media (max-width: 480px) {
+  .homePage {
+    padding: 0.5rem;
+  }
+}

@@ -1,0 +1,31 @@
+.switcher {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.langButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  border-radius: 0.5rem;
+  background-color: var(--background-tertiary);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.langButton:hover {
+  background-color: var(--border);
+  transform: scale(1.05);
+}
+
+.langButton.active {
+  background-color: var(--accent);
+}
+
+.flag {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+

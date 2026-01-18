@@ -1,0 +1,59 @@
+/* Estilos del componente CineSelector */
+
+.cineSelector {
+  margin-bottom: 2.5rem;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.cineSelector.dark {
+  background: #2a2a2a;
+  color: #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+}
+
+.cineSelector.dark .label {
+  color: #e0e0e0;
+}
+
+.select {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  background-color: #fff;
+  font-size: 1rem;
+  color: #333;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.cineSelector.dark .select {
+  background-color: #333;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.select:hover {
+  border-color: #007bff;
+}
+

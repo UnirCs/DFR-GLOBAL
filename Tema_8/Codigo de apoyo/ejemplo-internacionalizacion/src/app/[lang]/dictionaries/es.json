@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "products": "Productos",
+    "about": "Acerca de"
+  },
+  "home": {
+    "title": "Bienvenido a nuestra tienda",
+    "subtitle": "Descubre los mejores productos",
+    "description": "Explora nuestra amplia selección de productos de alta calidad. Tenemos todo lo que necesitas.",
+    "featuredProducts": "Productos destacados",
+    "viewAll": "Ver todos los productos",
+    "newsletter": "Suscríbete a nuestro boletín",
+    "newsletterPlaceholder": "Tu correo electrónico",
+    "subscribe": "Suscribirse"
+  },
+  "products": {
+    "title": "Nuestros Productos",
+    "description": "Explora nuestra colección completa de productos.",
+    "addToCart": "Añadir al carrito",
+    "price": "Precio",
+    "stock": "En stock",
+    "outOfStock": "Agotado",
+    "cart": "Carrito",
+    "details": "Ver detalles",
+    "categories": "Categorías",
+    "all": "Todos",
+    "electronics": "Electrónica",
+    "clothing": "Ropa",
+    "books": "Libros"
+  },
+  "about": {
+    "title": "Sobre Nosotros",
+    "description": "Somos una empresa dedicada a ofrecer los mejores productos a nuestros clientes.",
+    "mission": "Nuestra Misión",
+    "missionText": "Proporcionar productos de calidad excepcional con un servicio al cliente inigualable.",
+    "vision": "Nuestra Visión",
+    "visionText": "Ser líderes en el mercado de comercio electrónico, reconocidos por nuestra innovación y compromiso con la excelencia.",
+    "team": "Nuestro Equipo",
+    "foundedIn": "Fundada en"
+  },
+  "common": {
+    "learnMore": "Saber más",
+    "contact": "Contacto",
+    "loading": "Cargando...",
+    "error": "Ha ocurrido un error",
+    "language": "Idioma",
+    "changeLanguage": "Cambiar idioma"
+  },
+  "stats": {
+    "title": "Estadísticas",
+    "visitors": "Visitantes",
+    "sales": "Ventas",
+    "products": "Productos",
+    "lastUpdated": "Última actualización"
+  }
+}
+

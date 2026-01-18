@@ -1,0 +1,128 @@
+/* Estilos de la página AboutUs */
+
+.aboutContent {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.aboutTitle {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  border-bottom: 3px solid #007bff;
+  padding-bottom: 1rem;
+}
+
+:global(.dark) .aboutTitle {
+  color: #64b5f6;
+}
+
+.aboutSection {
+  margin-bottom: 3rem;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+:global(.dark) .aboutSection {
+  background: #2a2a2a;
+  color: #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.sectionTitle {
+  color: #007bff;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+:global(.dark) .sectionTitle {
+  color: #64b5f6;
+}
+
+.sectionText {
+  line-height: 1.7;
+  color: #555;
+  font-size: 1.1rem;
+}
+
+:global(.dark) .sectionText {
+  color: #ccc;
+}
+
+.citiesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.cityCard {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+:global(.dark) .cityCard {
+  background: #333;
+}
+
+.cityCard:hover {
+  transform: translateY(-5px);
+}
+
+.cityName {
+  margin: 0 0 1rem 0;
+  color: #007bff;
+  font-size: 1.3rem;
+}
+
+:global(.dark) .cityName {
+  color: #64b5f6;
+}
+
+.contactInfo {
+  background: #007bff;
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.contactTitle {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+.contactText {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .citiesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .aboutContent {
+    padding: 1rem 0;
+  }
+
+  .aboutTitle {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .aboutSection {
+    padding: 1.5rem;
+  }
+}
+
