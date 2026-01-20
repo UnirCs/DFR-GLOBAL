@@ -1,6 +1,5 @@
 import React from 'react';
 import {Nav} from "@/app/page";
-import RefreshOnFocus from './RefreshOnFocus';
 
 export const revalidate = 20; // Revalidar cada 20 segundos
 
@@ -18,7 +17,6 @@ async function Page(props) {
     const movies = await getMovies();
     return (
         <div>
-            <RefreshOnFocus />
             <Nav></Nav>
             <h1>ISR</h1>
             <h2>Incremental static generation</h2>
