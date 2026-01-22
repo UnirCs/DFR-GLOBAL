@@ -14,9 +14,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getCinemasFromStore, getMetricsFromStore, getTopMoviesFromStore } from '@/lib/api-server';
 
-// Requerido para usar pg (PostgreSQL)
-export const runtime = "nodejs";
-
 // ISR REAL: Regenera toda la página cada 15 segundos
 // Nota: Durante el build usamos funciones que acceden directamente al store
 // porque las URLs relativas no funcionan sin servidor corriendo

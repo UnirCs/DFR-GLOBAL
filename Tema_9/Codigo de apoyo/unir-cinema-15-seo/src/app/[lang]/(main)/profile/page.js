@@ -8,7 +8,6 @@ import { getDictionary } from '@/lib/i18n/dictionaries';
 import clsx from 'clsx';
 import OrderCard from './OrderCard';
 
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export default async function ProfilePage({ params }) {

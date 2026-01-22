@@ -5,7 +5,6 @@ import { getMovieDetailsFromStoreWithLocale, getCinemaMoviesFromStore } from '@/
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import MovieDetailsClient from './MovieDetailsClient';
 
-export const runtime = "nodejs";
 
 const DEFAULT_CITY = 'madrid';
 

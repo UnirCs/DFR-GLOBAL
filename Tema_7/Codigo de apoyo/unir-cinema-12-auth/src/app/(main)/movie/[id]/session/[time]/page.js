@@ -6,9 +6,6 @@ import { notFound } from 'next/navigation';
 import { getMovieDetailsFromStore } from '@/lib/api-server';
 import SeatSelectionClient from './SeatSelectionClient';
 
-// Requerido para usar pg (PostgreSQL)
-export const runtime = "nodejs";
-
 
 export default async function SessionPage({ params }) {
   const { id, time } = await params;

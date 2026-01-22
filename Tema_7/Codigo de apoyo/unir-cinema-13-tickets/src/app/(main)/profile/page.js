@@ -9,7 +9,6 @@ import { redirect } from 'next/navigation';
 import clsx from 'clsx';
 import OrderCard from './OrderCard';
 
-export const runtime = 'nodejs';
 // Desactivar cache para mostrar siempre datos actualizados
 export const dynamic = 'force-dynamic';
 

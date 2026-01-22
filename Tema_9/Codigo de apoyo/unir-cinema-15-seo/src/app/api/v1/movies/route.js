@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { listMovies } from "../_store";
 
-export const runtime = "nodejs";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);

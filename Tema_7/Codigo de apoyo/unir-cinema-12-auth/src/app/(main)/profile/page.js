@@ -7,7 +7,6 @@ import { findUserByEmail } from '@/app/api/v1/_store';
 import { redirect } from 'next/navigation';
 import clsx from 'clsx';
 
-export const runtime = 'nodejs';
 
 export default async function ProfilePage() {
   console.log("[SERVER] Obteniendo sesion de usuario desde ProfilePage...");

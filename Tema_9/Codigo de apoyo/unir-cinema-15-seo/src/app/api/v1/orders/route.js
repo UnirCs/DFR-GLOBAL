@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { auth0 } from "@/lib/auth0";
 import { findUserByEmail, createOrderWithTickets, getUserOrders } from "../_store";
 
-// Necesitamos Node.js runtime para acceder a PostgreSQL
-export const runtime = "nodejs";
 
 /**
  * GET /api/v1/orders

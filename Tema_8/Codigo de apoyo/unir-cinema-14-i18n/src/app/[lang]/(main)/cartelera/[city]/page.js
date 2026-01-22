@@ -7,7 +7,6 @@ import { getDictionary } from '@/lib/i18n/dictionaries';
 import MoviesList from './MoviesList';
 import CitySyncClient from './CitySyncClient';
 
-export const runtime = "nodejs";
 
 export default async function CarteleraPage({ params }) {
   const { city, lang } = await params;

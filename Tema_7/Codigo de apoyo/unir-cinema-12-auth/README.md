@@ -23,7 +23,7 @@ Este proyecto forma parte de la serie **UNIR Cinema**. En esta fase, se implemen
 | Archivo | Descripción |
 |---------|-------------|
 | `src/lib/auth0.js` | Cliente Auth0 para Server Components |
-| `src/app/api/v1/sync/route.js` | Endpoint para sincronizar usuario con BD (Node.js runtime) |
+| `src/app/api/v1/sync/route.js` | Endpoint para sincronizar usuario con BD |
 | `src/app/(main)/auth-callback/page.js` | Página intermedia post-login que llama a `/api/v1/sync` |
 
 ### Archivos modificados
@@ -129,7 +129,6 @@ Este cliente se usa en:
 import { auth0 } from "@/lib/auth0";
 import { findOrCreateUserFromAuth0 } from "../_store";
 
-export const runtime = "nodejs"; // Necesario para PostgreSQL
 
 export async function POST(request) {
   const session = await auth0.getSession(request);
@@ -491,7 +490,7 @@ src/
 │   │   ├── auth-callback/page.js   # POST /api/v1/sync + redirect (con Suspense)
 │   │   └── profile/page.js         # Muestra perfil del usuario
 │   └── api/v1/
-│       ├── sync/route.js           # POST: findOrCreateUserFromAuth0() [nodejs runtime]
+│       ├── sync/route.js           # POST: findOrCreateUserFromAuth0()
 │       └── _store.js               # Funciones de acceso a BD
 ├── context/
 │   └── AuthContext.jsx             # useUser() de Auth0

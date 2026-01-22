@@ -5,7 +5,6 @@ import { getMovieDetailsFromStoreWithLocale, getScreeningFromStore } from '@/lib
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import SeatSelectionClient from './SeatSelectionClient';
 
-export const runtime = "nodejs";
 
 const DEFAULT_CITY = 'Madrid';
 

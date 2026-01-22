@@ -10,8 +10,6 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCinemasFromStore } from '@/lib/api-server';
 
-// Requerido para usar pg (PostgreSQL)
-export const runtime = "nodejs";
 
 // SSG: Pre-genera todas las rutas de cines en build time
 // Usamos getCinemasFromStore (acceso directo) porque durante el build

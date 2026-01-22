@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { getCinemasFromStore, getMetricsFromStore, getTopMoviesFromStoreWithLocale } from '@/lib/api-server';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 
-export const runtime = "nodejs";
 export const revalidate = 15;
 
 // Generar metadatos dinámicos con Open Graph

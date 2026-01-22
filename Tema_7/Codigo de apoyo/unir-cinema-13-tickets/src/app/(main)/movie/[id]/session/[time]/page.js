@@ -6,8 +6,6 @@ import { notFound } from 'next/navigation';
 import { getMovieDetailsFromStore, getScreeningFromStore } from '@/lib/api-server';
 import SeatSelectionClient from './SeatSelectionClient';
 
-// Requerido para usar pg (PostgreSQL)
-export const runtime = "nodejs";
 
 // Ciudad por defecto
 const DEFAULT_CITY = 'Madrid';

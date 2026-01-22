@@ -14,8 +14,6 @@ import { getCinemasFromStore, getCinemaMoviesWithDetailsFromStore } from '@/lib/
 import MoviesList from './MoviesList';
 import CitySyncClient from './CitySyncClient';
 
-// Requerido para usar pg (PostgreSQL)
-export const runtime = "nodejs";
 
 export default async function CarteleraPage({ params }) {
   const { city } = await params;

@@ -6,7 +6,6 @@ import { getCinemasFromStore } from '@/lib/api-server';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import clsx from 'clsx';
 
-export const runtime = "nodejs";
 
 export async function generateStaticParams() {
   const cinemas = await getCinemasFromStore();

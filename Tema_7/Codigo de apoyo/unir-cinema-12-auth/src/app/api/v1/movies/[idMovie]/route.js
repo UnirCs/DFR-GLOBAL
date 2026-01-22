@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getMovieById } from "../../_store";
 
-export const runtime = "nodejs";
 
 export async function GET(request, { params }) {
   const { idMovie } = await params;

@@ -7,7 +7,6 @@ import { getDictionary } from '@/lib/i18n/dictionaries';
 import MoviesList from './MoviesList';
 import CitySyncClient from './CitySyncClient';
 
-export const runtime = "nodejs";
 
 // Generar metadatos dinámicos con Open Graph
 export async function generateMetadata({ params }) {

@@ -10,8 +10,6 @@ import { notFound } from 'next/navigation';
 import { getMovieDetailsFromStore, getCinemaMoviesFromStore } from '@/lib/api-server';
 import MovieDetailsClient from './MovieDetailsClient';
 
-// Requerido para usar pg (PostgreSQL)
-export const runtime = "nodejs";
 
 // Ciudad por defecto si no se especifica
 const DEFAULT_CITY = 'madrid';

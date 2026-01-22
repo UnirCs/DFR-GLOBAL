@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { findUserByUsername } from "../_store";
 
-export const runtime = "nodejs";
 
 export async function POST(request) {
   try {

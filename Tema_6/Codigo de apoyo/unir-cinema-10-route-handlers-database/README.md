@@ -13,7 +13,6 @@ Este proyecto forma parte de la serie **UNIR Cinema**. En esta fase, la aplicaci
 | **Persistencia** | `Map` de JavaScript | Base de datos PostgreSQL |
 | **Datos** | Hardcodeados en `_store.js` | Definidos en `database.sql` |
 | **Conexión** | N/A | Pool de conexiones con `pg` |
-| **Runtime** | Edge (por defecto) | Node.js (obligatorio) |
 | **Funciones store** | Síncronas | Asíncronas (`async/await`) |
 | **Acceso directo** | `lib/api.js` con import directo | `lib/api-server.js` separado |
 
@@ -30,7 +29,6 @@ Este proyecto forma parte de la serie **UNIR Cinema**. En esta fase, la aplicaci
 | Archivo | Cambios principales |
 |---------|---------------------|
 | `src/app/api/v1/_store.js` | Funciones ahora son `async` y ejecutan queries SQL |
-| `src/app/api/v1/*/route.js` | Añaden `export const runtime = "nodejs"` |
 | `package.json` | Nueva dependencia `pg` |
 
 ---
@@ -155,7 +153,7 @@ export async function withTransaction(fn) {
 
 ## ⚙️ Runtime: Node.js vs Edge
 
-### ¿Por qué `runtime = "nodejs"`?
+### ¿Por qué funciona con PostgreSQL?
 
 El paquete `pg` (node-postgres) utiliza APIs nativas de Node.js que **no están disponibles en Edge Runtime**:
 
@@ -164,16 +162,14 @@ El paquete `pg` (node-postgres) utiliza APIs nativas de Node.js que **no están 
 - `dns` (resolución DNS)
 - `stream` (streams de Node)
 
-Por ello, **todos los Route Handlers que acceden a la base de datos** deben declarar explícitamente:
+Afortunadamente, **Node.js es el runtime por defecto en Next.js**, por lo que no es necesario declarar explícitamente `export const runtime = "nodejs"` en cada archivo. El proyecto funciona correctamente porque usa el runtime de Node.js automáticamente.
 
-```javascript
-export const runtime = "nodejs";
-```
+> **Nota:** Solo sería necesario declarar el runtime explícitamente si quisieras usar Edge Runtime con `export const runtime = "edge"`, lo cual NO es compatible con PostgreSQL.
 
 ### Comparativa de Runtimes
 
-| Característica | Edge Runtime | Node.js Runtime |
-|----------------|--------------|-----------------|
+| Característica | Edge Runtime | Node.js Runtime (por defecto) |
+|----------------|--------------|-------------------------------|
 | **Arranque** | ~0ms (instantáneo) | ~50-100ms |
 | **Ubicación** | CDN global (edge) | Servidor central |
 | **APIs Node** | ❌ No disponibles | ✅ Completas |
@@ -182,16 +178,6 @@ export const runtime = "nodejs";
 | **Límite tiempo** | ~30s | Configurable |
 | **Casos de uso** | Auth, redirects, A/B testing | BD, filesystem, cómputo pesado |
 
-### Dónde se usa cada runtime en el proyecto
-
-| Archivo | Runtime | Motivo |
-|---------|---------|--------|
-| `api/v1/movies/route.js` | `nodejs` | Consulta `listMovies()` a PostgreSQL |
-| `api/v1/movies/[idMovie]/route.js` | `nodejs` | Consulta `getMovieById()` |
-| `api/v1/cinemas/route.js` | `nodejs` | Consulta `getCinemas()` |
-| `api/v1/cinemas/[cinema]/movies/route.js` | `nodejs` | Consulta `getCinemaMoviesToday()` |
-| `api/v1/sessions/route.js` | `nodejs` | Consulta `findUserByUsername()` |
-| `api/v1/metrics/route.js` | `nodejs` | Consistencia (podría ser edge) |
 
 ---
 
