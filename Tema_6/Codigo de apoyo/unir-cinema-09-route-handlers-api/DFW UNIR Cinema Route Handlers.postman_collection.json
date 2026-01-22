@@ -1,0 +1,156 @@
+{
+  "info": {
+    "_postman_id": "c5f6f878-aea7-4b65-9ff2-cbb03e9063ab",
+    "name": "DFW UNIR Cinema Route Handlers",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "3472643"
+  },
+  "item": [
+    {
+      "name": "Obtener todos los cines",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/v1/cinemas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "v1",
+            "cinemas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener peliculas y sesiones de cine",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/v1/cinemas/madrid/movies",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "v1",
+            "cinemas",
+            "madrid",
+            "movies"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener metricas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/v1/metrics",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "v1",
+            "metrics"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener peliculas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/v1/movies",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "v1",
+            "movies"
+          ],
+          "query": [
+            {
+              "key": "rating",
+              "value": "top",
+              "type": "text",
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener detalle de pelicula",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/v1/movies/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "v1",
+            "movies",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login (Crear sesion)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\":\"user\",\n    \"password\":\"user123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/v1/sessions",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "v1",
+            "sessions"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
