@@ -29,9 +29,9 @@ src/lib/i18n/
     └── fr.json              # Traducciones en francés
 ```
 
-#### 3. Middleware de Redirección por Accept-Language
+#### 3. Proxy de Redirección por Accept-Language
 
-El middleware (`src/middleware.js`) detecta automáticamente el idioma preferido del navegador y redirige a la URL correspondiente:
+El proxy (`src/proxy.js`) detecta automáticamente el idioma preferido del navegador y redirige a la URL correspondiente:
 
 ```javascript
 // Usuario con navegador en francés visitando /cartelera/madrid
