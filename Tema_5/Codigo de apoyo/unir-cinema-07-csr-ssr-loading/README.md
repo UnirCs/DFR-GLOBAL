@@ -23,7 +23,6 @@ El **Client-Side Rendering** ocurre cuando el código se ejecuta en el navegador
 | `providers.js` | `src/app/providers.js` | Provee contextos globales (AuthContext, GlobalContext) |
 | `AuthContext.jsx` | `src/context/AuthContext.jsx` | Manejo de estado de autenticación con useState/useEffect |
 | `GlobalContext.jsx` | `src/context/GlobalContext.jsx` | Estado global de la ciudad seleccionada |
-| `useMovies.js` | `src/hooks/useMovies.js` | Hook personalizado con useEffect para fetch en cliente |
 | `useLogin.js` | `src/hooks/useLogin.js` | Hook de autenticación con estado |
 | `login/page.js` | `src/app/(main)/login/page.js` | Formulario interactivo de login |
 | `admin/page.js` | `src/app/(main)/admin/page.js` | Panel que requiere verificación de autenticación |
@@ -32,9 +31,7 @@ El **Client-Side Rendering** ocurre cuando el código se ejecuta en el navegador
 | `CitySyncClient.jsx` | `src/app/(main)/cartelera/[city]/CitySyncClient.jsx` | Sincroniza URL con contexto global |
 | `MovieDetailsClient.jsx` | `src/app/(main)/movie/[id]/MovieDetailsClient.jsx` | Botones interactivos, navegación |
 | `SeatSelectionClient.jsx` | `src/app/(main)/movie/[id]/session/[time]/SeatSelectionClient.jsx` | Selección interactiva de asientos |
-| `CineSelector.jsx` | `src/components/CineSelector.jsx` | Dropdown de selección de ciudad |
 | `SessionButton.jsx` | `src/components/SessionButton.jsx` | Botón con eventos onClick |
-| `SeatSelection.jsx` | `src/components/SeatSelection.jsx` | Grid interactivo de asientos |
 | `Pelicula.jsx` | `src/components/Pelicula.jsx` | Efectos hover, enlaces dinámicos |
 | `PrivateRoute.jsx` | `src/components/PrivateRoute.jsx` | Verificación de autenticación en cliente |
 | `not-found.js` | `src/app/(main)/not-found.js` | Botón de navegación interactivo |
@@ -220,7 +217,6 @@ El efecto shimmer da la sensación de que algo se está cargando mediante una an
 │  MovieDetailsClient  → Botón volver, enlaces a sesiones      │
 │  Pelicula.jsx        → Hover effects, link con ?city=        │
 │  login/page.js       → Formulario de login                   │
-│  SeatSelection.jsx   → Selección interactiva de asientos     │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -262,21 +258,18 @@ src/
 │               ├── page.js       # 🔵 SSR
 │               └── SeatSelectionClient.jsx  # 🟢 CSR
 ├── components/
-│   ├── CineSelector.jsx          # 🟢 CSR
 │   ├── Footer.jsx                # 🔵 SSR
 │   ├── Header.jsx                # 🔵 SSR (con partes CSR)
 │   ├── MainLayoutWrapper.jsx     # 🔵 SSR
 │   ├── PageContainer.jsx         # 🔵 SSR
 │   ├── Pelicula.jsx              # 🟢 CSR
 │   ├── PrivateRoute.jsx          # 🟢 CSR
-│   ├── SeatSelection.jsx         # 🟢 CSR
 │   └── SessionButton.jsx         # 🟢 CSR
 ├── context/
 │   ├── AuthContext.jsx           # 🟢 CSR
 │   └── GlobalContext.jsx         # 🟢 CSR
 ├── hooks/
-│   ├── useLogin.js               # 🟢 CSR
-│   └── useMovies.js              # 🟢 CSR
+│   └── useLogin.js               # 🟢 CSR
 └── lib/
     ├── api.js                    # Funciones de fetch (usado en SSR)
     └── actions.js                # Server Actions

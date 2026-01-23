@@ -257,8 +257,7 @@ Estas páginas son **SSR** (se renderizan en cada request), pero usan cache de d
 │                    CLIENTE (CSR)                                │
 ├────────────────────────────────────────────────────────────────┤
 │  AuthContext, GlobalContext  → Estado de la aplicación         │
-│  Header, CineSelector        → Interactividad                  │
-│  SeatSelection               → Selección de asientos           │
+│  Header                      → Interactividad                  │
 │  login/page.js               → Formulario de login             │
 └────────────────────────────────────────────────────────────────┘
 ```
