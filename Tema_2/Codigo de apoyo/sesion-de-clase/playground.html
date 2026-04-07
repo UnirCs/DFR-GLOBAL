@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next.js Playground — Server vs Client Components</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&display=swap');
+
+:root {
+  --bg: #0c0f0a;
+  --surface: #131710;
+  --surface2: #1a1f17;
+  --border: #2e3829;
+  --server: #6ee89a;
+  --server-dim: #1a3d26;
+  --server-mid: #4ade80;
+  --client: #fdba74;
+  --client-dim: #3d2210;
+  --client-mid: #fb923c;
+  --neutral: #c8d5b4;
+  --text: #f0f7e8;
+  --muted: #8fa07a;
+  --error: #fca5a5;
+  --warning: #fde68a;
+  --code-bg: #080a07;
+  --accent: #bef264;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Fraunces', Georgia, serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ─── HEADER ─── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 40px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky; top: 0; z-index: 200;
+}
+
+.logo {
+  display: flex; align-items: center; gap: 14px;
+}
+
+.logo-icon {
+  width: 38px; height: 38px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; font-weight: 900;
+  color: var(--bg);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.logo h1 {
+  font-size: 1rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.logo p {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 400;
+}
+
+.tabs {
+  display: flex; gap: 4px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.tab {
+  padding: 7px 18px;
+  border-radius: 7px;
+  font-size: 0.78rem;
+  font-family: 'IBM Plex Mono', monospace;
+  cursor: pointer;
+  color: #7a9068;
+  transition: all 0.2s;
+  border: none;
+  background: transparent;
+  font-weight: 600;
+}
+
+.tab.active {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.tab:hover:not(.active) { color: var(--text); }
+
+/* ─── PROGRESS ─── */
+.progress-track {
+  height: 2px; background: var(--border);
+  position: sticky; top: 73px; z-index: 199;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--server), var(--accent));
+  transition: width 0.5s ease;
+}
+
+/* ─── LAYOUT ─── */
+.main { max-width: 1400px; margin: 0 auto; padding: 0 40px 100px; }
+
+/* ─── SECTION ─── */
+.section { display: none; animation: fadeUp 0.4s ease; }
+.section.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── HERO SECTION ─── */
+.hero-block {
+  padding: 60px 0 40px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 48px;
+}
+
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+
+.eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 24px; height: 1px;
+  background: var(--accent);
+}
+
+.hero-block h2 {
+  font-size: 3rem;
+  font-weight: 900;
+  font-style: italic;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.hero-block h2 em { color: var(--accent); font-style: normal; }
+
+.hero-block p {
+  font-size: 1.05rem;
+  color: var(--neutral);
+  max-width: 580px;
+  font-weight: 300;
+  line-height: 1.75;
+}
+
+/* ─── MENTAL MODEL VISUAL ─── */
+.mental-model {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 40px 0;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.mm-zone {
+  flex: 1;
+  padding: 32px 28px;
+  position: relative;
+}
+
+.mm-zone.server {
+  background: linear-gradient(135deg, #0d1f12, #0c1a0e);
+  border-right: 1px solid var(--border);
+}
+
+.mm-zone.transfer {
+  flex: 0 0 120px;
+  background: var(--surface2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-right: 1px solid var(--border);
+}
+
+.mm-zone.client {
+  background: linear-gradient(135deg, #1f0d05, #1a0c04);
+}
+
+.mm-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.mm-label.s { color: var(--server); }
+.mm-label.c { color: var(--client); }
+.mm-label.t { color: var(--muted); font-size: 0.6rem; }
+
+.mm-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+.mm-can, .mm-cannot {
+  font-size: 0.75rem;
+  line-height: 1.8;
+}
+
+.mm-can { color: #7ef0a0; }
+.mm-cannot { color: #fca5a5; }
+
+.mm-can li, .mm-cannot li {
+  list-style: none;
+  display: flex; gap: 8px;
+}
+
+.mm-can li::before { content: '✓'; }
+.mm-cannot li::before { content: '✗'; }
+
+.transfer-arrow {
+  font-size: 1.6rem;
+  color: var(--neutral);
+}
+
+.transfer-label {
+  font-size: 0.6rem;
+  color: #8fa07a;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ─── CODE BLOCK ─── */
+.code-wrap {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+.code-filename {
+  font-size: 0.75rem;
+  color: var(--neutral);
+  display: flex; align-items: center; gap: 8px;
+}
+
+.code-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+
+.code-dot.server { background: var(--server); }
+.code-dot.client { background: var(--client); }
+.code-dot.neutral { background: var(--neutral); }
+
+.code-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.badge-server { background: var(--server-dim); color: var(--server); }
+.badge-client { background: var(--client-dim); color: var(--client); }
+.badge-error { background: rgba(248,113,113,0.1); color: var(--error); }
+
+pre {
+  padding: 20px;
+  font-size: 0.8rem;
+  line-height: 1.75;
+  overflow-x: auto;
+  color: #d4e8c2;
+}
+
+.kw { color: #d9a0e0; }
+.fn { color: #93dcfd; }
+.str { color: #f0b97a; }
+.cmt { color: #6e8f5a; font-style: italic; }
+.dir { color: var(--client); font-weight: 700; }
+.tag { color: #6fd5c0; }
+.attr { color: #b8e0ff; }
+.ok { color: var(--server); }
+.bad { color: var(--error); }
+.hl { background: rgba(190,242,100,0.08); display: block; margin: 0 -20px; padding: 0 20px; border-left: 2px solid var(--accent); }
+
+/* ─── GRID ─── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
+
+/* ─── CARD ─── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.card.server-card { border-color: var(--server-dim); background: linear-gradient(135deg, var(--surface), #0f1e14); }
+.card.client-card { border-color: var(--client-dim); background: linear-gradient(135deg, var(--surface), #1e0f05); }
+
+.card-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+
+.card-title.s { color: var(--server); }
+.card-title.c { color: var(--client); }
+
+.card p, .card li {
+  font-size: 0.87rem;
+  color: #c0d0a8;
+  line-height: 1.7;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.card ul { padding-left: 16px; display: flex; flex-direction: column; gap: 6px; }
+
+/* ─── INFO BOX ─── */
+.info {
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 20px 0;
+  font-size: 0.83rem;
+  font-family: 'IBM Plex Mono', monospace;
+  line-height: 1.65;
+  border-left: 3px solid;
+}
+
+.info.tip { background: rgba(74,222,128,0.07); border-color: var(--server); color: #86efac; }
+.info.warn { background: rgba(251,191,36,0.07); border-color: var(--warning); color: #fde68a; }
+.info.note { background: rgba(163,230,53,0.07); border-color: var(--accent); color: #d9f99d; }
+.info.err { background: rgba(248,113,113,0.07); border-color: var(--error); color: #fca5a5; }
+
+.info strong { display: block; font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px; }
+
+/* ─── SECTION TITLE ─── */
+.s-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  margin: 40px 0 16px;
+  color: var(--text);
+}
+
+.s-title span { color: var(--accent); }
+
+/* ─── DECISION TREE ─── */
+.tree {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  margin: 24px 0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--neutral);
+  line-height: 2;
+}
+
+/* ─── INTERACTIVE CLASSIFIER ─── */
+.classifier {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 32px 0;
+}
+
+.classifier-header {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.classifier-header h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--text);
+}
+
+.classifier-header p {
+  font-size: 0.75rem;
+  color: #8fa07a;
+  font-family: 'IBM Plex Mono', monospace;
+  margin-top: 3px;
+}
+
+.classifier-body { padding: 28px; }
+
+.questions { display: flex; flex-direction: column; gap: 16px; }
+
+.question {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 22px;
+  transition: all 0.25s;
+}
+
+.question.answered.yes { border-color: var(--server-dim); background: linear-gradient(135deg, #0f1e14, var(--surface2)); }
+.question.answered.no { border-color: var(--client-dim); background: linear-gradient(135deg, #1e0f05, var(--surface2)); }
+
+.q-text {
+  font-size: 0.88rem;
+  font-family: 'IBM Plex Mono', monospace;
+  color: #dcecd0;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.q-btns { display: flex; gap: 10px; }
+
+.q-btn {
+  padding: 7px 20px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.2s;
+}
+
+.q-btn.yes {
+  background: var(--server-dim);
+  border-color: var(--server);
+  color: var(--server);
+}
+
+.q-btn.yes:hover { background: var(--server); color: var(--bg); }
+.q-btn.yes.selected { background: var(--server); color: var(--bg); }
+
+.q-btn.no {
+  background: var(--client-dim);
+  border-color: var(--client);
+  color: var(--client);
+}
+
+.q-btn.no:hover { background: var(--client); color: var(--bg); }
+.q-btn.no.selected { background: var(--client); color: var(--bg); }
+
+.classifier-result {
+  margin-top: 24px;
+  padding: 24px;
+  border-radius: 12px;
+  display: none;
+  font-family: 'IBM Plex Mono', monospace;
+  animation: fadeUp 0.3s ease;
+}
+
+.result-server { background: linear-gradient(135deg, #0d2016, #0f1e12); border: 2px solid var(--server); }
+.result-client { background: linear-gradient(135deg, #200d05, #1a0c04); border: 2px solid var(--client); }
+
+.result-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.result-server .result-title { color: var(--server); }
+.result-client .result-title { color: var(--client); }
+
+.result-desc { font-size: 0.82rem; color: #c0d0a8; line-height: 1.7; }
+
+/* ─── COMPONENT TREE BUILDER ─── */
+.tree-builder {
+  display: flex;
+  gap: 24px;
+  margin: 24px 0;
+  align-items: flex-start;
+}
+
+.tree-panel {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tree-panel-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #8fa07a;
+}
+
+.tree-panel-body { padding: 20px; }
+
+.comp-palette {
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.palette-item {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.2s;
+  user-select: none;
+  display: flex; align-items: center; gap: 10px;
+}
+
+.palette-item.s { background: var(--server-dim); border-color: var(--server); color: var(--server); }
+.palette-item.c { background: var(--client-dim); border-color: var(--client); color: var(--client); }
+
+.palette-item:hover { transform: translateX(4px); }
+
+.tree-visual {
+  padding: 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  min-height: 200px;
+}
+
+.tree-node {
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 4px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  position: relative;
+  animation: fadeUp 0.25s ease;
+}
+
+.tree-node.s { background: var(--server-dim); border: 1px solid var(--server); color: var(--server); }
+.tree-node.c { background: var(--client-dim); border: 1px solid var(--client); color: var(--client); }
+.tree-node.err { background: rgba(248,113,113,0.1); border: 1px solid var(--error); color: var(--error); }
+
+.tree-node .del {
+  margin-left: 6px;
+  opacity: 0.5;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.tree-node .del:hover { opacity: 1; }
+
+.tree-indent { padding-left: 24px; border-left: 1px solid var(--border); margin-left: 12px; }
+
+.tree-validation {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  display: none;
+}
+
+/* ─── QUIZ ─── */
+.quiz { background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin: 40px 0; }
+
+.quiz h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-style: italic;
+  margin-bottom: 6px;
+  color: var(--accent);
+}
+
+.quiz-sub { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); margin-bottom: 28px; }
+
+.quiz-q { margin-bottom: 28px; }
+.quiz-qtext { font-size: 0.92rem; font-weight: 700; margin-bottom: 14px; color: var(--text); }
+
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+
+.quiz-opt {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 11px 18px;
+  cursor: pointer;
+  font-size: 0.83rem;
+  font-family: 'IBM Plex Mono', monospace;
+  color: #a8be90;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.quiz-opt:hover { border-color: var(--accent); color: var(--text); }
+.quiz-opt.correct { background: rgba(74,222,128,0.1); border-color: var(--server); color: var(--server); }
+.quiz-opt.wrong { background: rgba(248,113,113,0.1); border-color: var(--error); color: var(--error); }
+
+.quiz-score {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  color: #8fa07a;
+  margin-top: 20px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.score-num { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+
+/* ─── HANDS ON ─── */
+.challenge {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 24px 0;
+}
+
+.challenge-header {
+  padding: 18px 24px;
+  background: linear-gradient(135deg, #0f1a0c, #131710);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.challenge-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.challenge-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+.challenge-body { padding: 24px; }
+
+.ecommerce-mock {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: 'IBM Plex Mono', monospace;
+  margin: 16px 0;
+}
+
+.mock-topbar {
+  background: #0a0c09;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.mock-logo { font-size: 0.85rem; font-weight: 700; color: var(--accent); }
+.mock-nav { display: flex; gap: 16px; font-size: 0.72rem; color: #8fa07a; }
+
+.mock-body { padding: 20px; background: var(--surface2); }
+.mock-filter { display: flex; gap: 8px; margin-bottom: 16px; }
+
+.mock-filter-btn {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  transition: all 0.2s;
+}
+
+.mock-filter-btn:hover, .mock-filter-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mock-products { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+.mock-product {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  position: relative;
+  cursor: pointer;
+}
+
+.mock-product-img { height: 60px; background: var(--surface2); border-radius: 6px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+.mock-product-name { font-size: 0.72rem; color: #dcecd0; margin-bottom: 4px; }
+.mock-product-price { font-size: 0.85rem; color: var(--accent); font-weight: 700; margin-bottom: 10px; }
+
+.mock-add-btn {
+  width: 100%;
+  padding: 7px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: #a8be90;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.mock-add-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+.comp-label {
+  position: absolute;
+  top: -1px; right: -1px;
+  font-size: 0.58rem;
+  padding: 3px 7px;
+  border-radius: 0 8px 0 6px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.comp-label.s { background: var(--server-dim); color: var(--server); }
+.comp-label.c { background: var(--client-dim); color: var(--client); }
+
+.show-labels .comp-label { opacity: 1; }
+.show-labels .mock-product.server-comp { border-color: var(--server-dim); }
+.show-labels .mock-product.client-comp { border-color: var(--client-dim); }
+.show-labels .mock-topbar { border-bottom-color: var(--server-dim); outline: 1px solid var(--server-dim); }
+.show-labels .mock-body.client-comp { outline: 1px solid var(--client-dim); border-radius: 4px; }
+
+.toggle-labels-btn {
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.toggle-labels-btn:hover, .toggle-labels-btn.on { background: var(--accent); color: var(--bg); }
+
+/* cart badge */
+.cart-icon { position: relative; cursor: pointer; }
+.cart-badge {
+  position: absolute;
+  top: -6px; right: -8px;
+  background: var(--client);
+  color: var(--bg);
+  font-size: 0.55rem;
+  font-weight: 700;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s;
+}
+
+.cart-badge.bump { animation: bump 0.3s ease; }
+@keyframes bump { 0%,100%{transform:scale(1)} 50%{transform:scale(1.4)} }
+
+/* ─── OPTIMIZATION SECTION ─── */
+.perf-compare {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0;
+}
+
+.perf-card {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.perf-card-header {
+  padding: 14px 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+}
+
+.perf-card-header.bad { background: rgba(248,113,113,0.08); color: var(--error); }
+.perf-card-header.good { background: rgba(74,222,128,0.08); color: var(--server); }
+
+.perf-card pre { font-size: 0.76rem; }
+
+.perf-metric {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 20px;
+  border-top: 1px solid var(--border);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: #8fa07a;
+}
+
+.metric-val { font-weight: 700; }
+.metric-val.bad { color: var(--error); }
+.metric-val.good { color: var(--server); }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ─── KEYBOARD ─── */
+kbd {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--accent);
+  box-shadow: 0 2px 0 #040604;
+}
+
+/* ─── TABLE ─── */
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace; margin: 16px 0; }
+th { background: var(--surface2); padding: 10px 16px; text-align: left; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: #8fa07a; border-bottom: 1px solid var(--border); }
+td { padding: 10px 16px; border-bottom: 1px solid rgba(46,56,41,0.6); color: #c0d0a8; }
+td strong { color: var(--text); }
+tr:last-child td { border-bottom: none; }
+
+@media (max-width: 900px) {
+  header { padding: 14px 16px; }
+  .tabs { display: none; }
+  .main { padding: 0 16px 80px; }
+  .hero-block h2 { font-size: 2rem; }
+  .mental-model { flex-direction: column; }
+  .mm-zone.transfer { flex: 0 0 60px; flex-direction: row; border-right: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .grid-2, .perf-compare { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .mock-products { grid-template-columns: 1fr 1fr; }
+  .tree-builder { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">N</div>
+    <div>
+      <h1>Next.js Playground</h1>
+      <p>Tema 2 · Server & Client Components</p>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="goSection(0)">01 Conceptos</button>
+    <button class="tab" onclick="goSection(1)">02 Clasificador</button>
+    <button class="tab" onclick="goSection(2)">03 Árbol</button>
+    <button class="tab" onclick="goSection(3)">04 Optimización</button>
+    <button class="tab" onclick="goSection(4)">05 Hands On</button>
+    <button class="tab" onclick="goSection(5)">06 Quiz</button>
+  </div>
+</header>
+
+<div class="progress-track">
+  <div class="progress-fill" id="progress" style="width:16.6%"></div>
+</div>
+
+<div class="main">
+
+<!-- ══════════════════════════════════════════
+     SECCIÓN 0 — CONCEPTOS
+══════════════════════════════════════════ -->
+<div class="section active" id="sec-0">
+  <div class="hero-block">
+    <div class="eyebrow">Tema 2.4</div>
+    <h2>¿Dónde se ejecuta<br><em>tu componente?</em></h2>
+    <p>En Next.js 13+, React puede ejecutarse en el servidor <strong>o</strong> en el navegador. Entender la diferencia lo cambia todo.</p>
+  </div>
+
+  <div class="s-title">El modelo mental <span>fundamental</span></div>
+
+  <div class="mental-model">
+    <div class="mm-zone server">
+      <div class="mm-label s">🖥️ Servidor</div>
+      <div class="mm-icon">🗄️</div>
+      <ul class="mm-can">
+        <li>fetch() con datos privados</li>
+        <li>Acceso directo a la DB</li>
+        <li>Leer env secrets</li>
+        <li>async / await nativo</li>
+        <li>Sin JS enviado al browser</li>
+      </ul>
+      <br>
+      <ul class="mm-cannot">
+        <li>useState / useEffect</li>
+        <li>onClick / onChange</li>
+        <li>window / document</li>
+        <li>localStorage</li>
+      </ul>
+    </div>
+    <div class="mm-zone transfer">
+      <div class="transfer-arrow">→</div>
+      <div class="transfer-label">HTML<br>renderizado</div>
+      <div class="transfer-arrow">→</div>
+    </div>
+    <div class="mm-zone client">
+      <div class="mm-label c">🌐 Navegador</div>
+      <div class="mm-icon">💻</div>
+      <ul class="mm-can" style="color:var(--client)">
+        <li>useState / useReducer</li>
+        <li>useEffect / useRef</li>
+        <li>onClick / onSubmit</li>
+        <li>window / document</li>
+        <li>localStorage / cookies</li>
+      </ul>
+      <br>
+      <ul class="mm-cannot">
+        <li>Acceso directo a DB</li>
+        <li>Variables de entorno privadas</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="info note">
+    <strong>💡 Regla de oro</strong>
+    En Next.js 13+, <strong>todos los componentes son Server por defecto</strong>. Solo añades <code>'use client'</code> cuando necesitas interactividad. Piénsalo al revés: la pregunta no es "¿puede ser Server?" sino <em>"¿tiene alguna razón para ser Client?"</em>
+  </div>
+
+  <div class="s-title">Server Component — <span>ejemplo real</span></div>
+  <p style="font-size:0.88rem;color:var(--neutral);font-family:'IBM Plex Mono',monospace;margin-bottom:16px;">No tiene <code>'use client'</code> → es Server por defecto. Fíjate en el <code>async/await</code> directo:</p>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-filename"><div class="code-dot server"></div>app/productos/page.tsx</div>
+      <div class="code-badge badge-server">Server Component</div>
+    </div>
+    <pre><span class="cmt">// ✅ No necesita 'use client' — es Server por defecto</span>
+
+<span class="cmt">// async/await directamente en el componente 🤯</span>
+<span class="kw">export default async function</span> <span class="fn">Productos</span>() {
+
+  <span class="cmt">// Esto corre en el SERVIDOR — el token nunca llega al browser</span>
+  <span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://api.ejemplo.com/productos'</span>, {
+    headers: { Authorization: <span class="str">`Bearer ${process.env.API_SECRET}`</span> }
+  })
+  <span class="kw">const</span> productos = <span class="kw">await</span> data.<span class="fn">json</span>()
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;ul&gt;</span>
+      {productos.<span class="fn">map</span>(p =&gt; (
+        <span class="tag">&lt;li</span> <span class="attr">key</span>={p.id}<span class="tag">&gt;</span>{p.nombre}<span class="tag">&lt;/li&gt;</span>
+      ))}
+    <span class="tag">&lt;/ul&gt;</span>
+  )
+}
+
+<span class="cmt">// 👆 JS enviado al navegador: 0 bytes</span></pre>
+  </div>
+
+  <div class="s-title">Client Component — <span>con 'use client'</span></div>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-filename"><div class="code-dot client"></div>components/Contador.tsx</div>
+      <div class="code-badge badge-client">Client Component</div>
+    </div>
+    <pre><span class="hl"><span class="dir">'use client'</span>  <span class="cmt">// ← Esta directiva lo convierte en Client</span>
+</span>
+<span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>
+
+<span class="kw">export default function</span> <span class="fn">Contador</span>() {
+  <span class="kw">const</span> [n, setN] = <span class="fn">useState</span>(0)  <span class="cmt">// ✅ hooks OK aquí</span>
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;button</span> <span class="attr">onClick</span>={() =&gt; <span class="fn">setN</span>(n + 1)}<span class="tag">&gt;</span>
+      Clicks: {n}
+    <span class="tag">&lt;/button&gt;</span>
+  )
+}
+
+<span class="cmt">// 👆 Este JS SÍ se envía al navegador (hidratación)</span></pre>
+  </div>
+
+  <div class="s-title">La <span>metáfora</span> del restaurante</div>
+  <div class="grid-2">
+    <div class="card server-card">
+      <div class="card-title s">🍳 Server = La Cocina</div>
+      <p>El cliente nunca la ve. Allí se prepara todo, se accede a ingredientes privados (la base de datos), se usan herramientas caras (el servidor). Se entrega el plato ya hecho.</p>
+    </div>
+    <div class="card client-card">
+      <div class="card-title c">🍽️ Client = La Sala</div>
+      <p>El cliente la ve, interactúa con el camarero, puede pedir cambios (eventos). Necesita respuesta inmediata. No tiene acceso a los secretos de la cocina.</p>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:32px">
+    <button class="toggle-labels-btn" onclick="goSection(1)">Siguiente: Clasificador interactivo →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECCIÓN 1 — CLASIFICADOR
+══════════════════════════════════════════ -->
+<div class="section" id="sec-1">
+  <div class="hero-block">
+    <div class="eyebrow">Interactivo</div>
+    <h2>Árbol de<br><em>decisión</em></h2>
+    <p>Responde las preguntas sobre tu componente y descubre si debe ser Server o Client.</p>
+  </div>
+
+  <div class="s-title">El <span>framework</span> de decisión</div>
+
+  <div class="tree">
+<pre style="background:transparent;border:none;padding:0;color:inherit;font-size:0.8rem">
+¿El componente usa <span style="color:var(--client)">hooks</span> (useState, useEffect, useReducer...)?
+├── <span style="color:var(--client)">SÍ</span> ──→ <span style="color:var(--client);font-weight:700">'use client'</span>  (necesita hidratación)
+└── NO → ¿Responde a <span style="color:var(--client)">eventos del usuario</span> (onClick, onSubmit...)?
+          ├── <span style="color:var(--client)">SÍ</span> ──→ <span style="color:var(--client);font-weight:700">'use client'</span>
+          └── NO → ¿Usa <span style="color:var(--client)">APIs del browser</span> (window, localStorage, document)?
+                    ├── <span style="color:var(--client)">SÍ</span> ──→ <span style="color:var(--client);font-weight:700">'use client'</span>
+                    └── NO → ¿Usa librerías <span style="color:var(--client)">solo-browser</span> (animaciones, mapas)?
+                              ├── <span style="color:var(--client)">SÍ</span> ──→ <span style="color:var(--client);font-weight:700">'use client'</span>
+                              └── NO → ✅ <span style="color:var(--server);font-weight:700">Server Component</span> (por defecto)
+</pre>
+  </div>
+
+  <!-- INTERACTIVE CLASSIFIER -->
+  <div class="classifier">
+    <div class="classifier-header">
+      <div>
+        <h3>🎯 Clasificador interactivo</h3>
+        <p>Responde sobre tu componente para saber qué tipo debe ser</p>
+      </div>
+      <button class="toggle-labels-btn" onclick="resetClassifier()" style="font-size:0.72rem;padding:6px 14px">↺ Reiniciar</button>
+    </div>
+    <div class="classifier-body">
+      <div class="questions" id="questions">
+        <div class="question" id="q1">
+          <div class="q-text">¿El componente usa <code style="color:var(--client)">useState</code>, <code style="color:var(--client)">useEffect</code>, <code style="color:var(--client)">useReducer</code> u otros hooks?</div>
+          <div class="q-btns">
+            <button class="q-btn yes" onclick="answer(1, true)">Sí</button>
+            <button class="q-btn no" onclick="answer(1, false)">No</button>
+          </div>
+        </div>
+        <div class="question" id="q2" style="opacity:0.35;pointer-events:none">
+          <div class="q-text">¿Responde a eventos del usuario? (<code style="color:var(--client)">onClick</code>, <code style="color:var(--client)">onChange</code>, <code style="color:var(--client)">onSubmit</code>...)</div>
+          <div class="q-btns">
+            <button class="q-btn yes" onclick="answer(2, true)">Sí</button>
+            <button class="q-btn no" onclick="answer(2, false)">No</button>
+          </div>
+        </div>
+        <div class="question" id="q3" style="opacity:0.35;pointer-events:none">
+          <div class="q-text">¿Usa APIs exclusivas del browser? (<code style="color:var(--client)">window</code>, <code style="color:var(--client)">localStorage</code>, <code style="color:var(--client)">document</code>, geolocation...)</div>
+          <div class="q-btns">
+            <button class="q-btn yes" onclick="answer(3, true)">Sí</button>
+            <button class="q-btn no" onclick="answer(3, false)">No</button>
+          </div>
+        </div>
+        <div class="question" id="q4" style="opacity:0.35;pointer-events:none">
+          <div class="q-text">¿Usa librerías que solo funcionan en el browser? (animaciones, mapas, canvas, players de video...)</div>
+          <div class="q-btns">
+            <button class="q-btn yes" onclick="answer(4, true)">Sí</button>
+            <button class="q-btn no" onclick="answer(4, false)">No</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="classifier-result" id="clf-result"></div>
+    </div>
+  </div>
+
+  <div class="s-title">Ejemplos <span>reales</span></div>
+  <table>
+    <tr><th>Componente</th><th>Tipo</th><th>¿Por qué?</th></tr>
+    <tr><td><strong>Lista de productos (solo lectura)</strong></td><td><span style="color:var(--server);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:700">Server</span></td><td>Fetch de datos, sin interacción</td></tr>
+    <tr><td><strong>Botón "Añadir al carrito"</strong></td><td><span style="color:var(--client);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:700">Client</span></td><td>onClick + useState para el contador</td></tr>
+    <tr><td><strong>Header de navegación</strong></td><td><span style="color:var(--server);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:700">Server</span></td><td>Solo renderiza links estáticos</td></tr>
+    <tr><td><strong>Menú hamburguesa móvil</strong></td><td><span style="color:var(--client);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:700">Client</span></td><td>Toggle de visibilidad con estado</td></tr>
+    <tr><td><strong>Gráfica con Chart.js</strong></td><td><span style="color:var(--client);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:700">Client</span></td><td>Chart.js requiere canvas (browser)</td></tr>
+    <tr><td><strong>Página de detalles de producto</strong></td><td><span style="color:var(--server);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:700">Server</span></td><td>Datos de DB + SEO, sin interacción</td></tr>
+    <tr><td><strong>Formulario de contacto</strong></td><td><span style="color:var(--client);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:700">Client</span></td><td>onChange, validación en tiempo real</td></tr>
+    <tr><td><strong>Footer con copyright</strong></td><td><span style="color:var(--server);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:700">Server</span></td><td>HTML estático, 0 JS necesario</td></tr>
+  </table>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:32px">
+    <button class="toggle-labels-btn" onclick="goSection(2)">Siguiente: Árbol de componentes →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECCIÓN 2 — ÁRBOL DE COMPONENTES
+══════════════════════════════════════════ -->
+<div class="section" id="sec-2">
+  <div class="hero-block">
+    <div class="eyebrow">Composición</div>
+    <h2>El árbol de<br><em>componentes</em></h2>
+    <p>La regla más contraintuitiva de Next.js 13 y cómo mezclar Server y Client correctamente.</p>
+  </div>
+
+  <div class="s-title">La regla <span>más importante</span></div>
+  <div class="grid-2">
+    <div class="card server-card">
+      <div class="card-title s">✅ Server puede importar Client</div>
+      <div class="code-wrap" style="margin:12px 0 0">
+        <pre style="font-size:0.75rem"><span class="cmt">// ProductPage.tsx (Server)</span>
+<span class="kw">import</span> <span class="fn">ProductList</span> <span class="kw">from</span> <span class="str">'./ProductList'</span>   <span class="ok">✓</span>
+<span class="kw">import</span> <span class="fn">AddToCart</span> <span class="kw">from</span> <span class="str">'./AddToCart'</span>     <span class="ok">✓</span>
+<span class="cmt">// AddToCart tiene 'use client' — OK</span>
+
+<span class="kw">export default async function</span> <span class="fn">Page</span>() {
+  <span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">getProducts</span>()
+  <span class="kw">return</span> &lt;<span class="fn">ProductList</span> products={data} /&gt;
+}</pre>
+      </div>
+    </div>
+    <div class="card client-card">
+      <div class="card-title c">❌ Client NO puede importar Server</div>
+      <div class="code-wrap" style="margin:12px 0 0">
+        <pre style="font-size:0.75rem"><span class="dir">'use client'</span>
+
+<span class="cmt">// ❌ ESTO FALLA</span>
+<span class="kw">import</span> <span class="fn">ServerComp</span> <span class="kw">from</span> <span class="str">'./ServerComp'</span>  <span class="bad">✗</span>
+
+<span class="kw">export default function</span> <span class="fn">ClientComp</span>() {
+  <span class="kw">return</span> &lt;<span class="fn">ServerComp</span> /&gt;  <span class="bad">// ✗ Error!</span>
+}
+
+<span class="cmt">// El Server Component se convierte</span>
+<span class="cmt">// en Client al ser importado así</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="info warn">
+    <strong>⚠️ La solución: pasar como children (props)</strong>
+    Un Client Component SÍ puede recibir un Server Component como <code>children</code>. El Server se renderiza en el servidor y se pasa como HTML al Client. Esta es la forma correcta de componer ambos tipos.
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-filename"><div class="code-dot neutral"></div>El patrón children — la solución correcta</div>
+    </div>
+    <pre><span class="cmt">// ✅ ClientWrapper.tsx — solo gestiona el click/estado</span>
+<span class="dir">'use client'</span>
+
+<span class="kw">export default function</span> <span class="fn">ClientWrapper</span>({ children }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div</span> <span class="attr">onClick</span>={() =&gt; console.<span class="fn">log</span>(<span class="str">'clicked'</span>)}<span class="tag">&gt;</span>
+      {children}  <span class="cmt">// ← aquí puede vivir un Server Component</span>
+    <span class="tag">&lt;/div&gt;</span>
+  )
+}
+
+<span class="cmt">// ✅ Page.tsx (Server) — orquesta todo</span>
+<span class="kw">import</span> <span class="fn">ClientWrapper</span> <span class="kw">from</span> <span class="str">'./ClientWrapper'</span>
+<span class="kw">import</span> <span class="fn">ServerContent</span> <span class="kw">from</span> <span class="str">'./ServerContent'</span>
+
+<span class="kw">export default async function</span> <span class="fn">Page</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;ClientWrapper&gt;</span>
+      <span class="tag">&lt;ServerContent</span> <span class="tag">/&gt;</span>  <span class="cmt">// ← Server como children ✅</span>
+    <span class="tag">&lt;/ClientWrapper&gt;</span>
+  )
+}</pre>
+  </div>
+
+  <div class="s-title">Constructor de <span>árbol</span></div>
+  <p style="font-size:0.85rem;color:var(--neutral);font-family:'IBM Plex Mono',monospace;margin-bottom:20px;">Arrastra componentes a tu árbol y el playground detectará patrones incorrectos en tiempo real.</p>
+
+  <div class="tree-builder">
+    <div class="tree-panel" style="flex:0 0 240px">
+      <div class="tree-panel-header">📦 Paleta de componentes</div>
+      <div class="tree-panel-body">
+        <div class="comp-palette">
+          <div class="palette-item s" onclick="addNode('Page', 'server', 0)">🖥️ Page (Server)</div>
+          <div class="palette-item s" onclick="addNode('ProductList', 'server', 1)">🖥️ ProductList (Server)</div>
+          <div class="palette-item s" onclick="addNode('Header', 'server', 0)">🖥️ Header (Server)</div>
+          <div class="palette-item s" onclick="addNode('Footer', 'server', 0)">🖥️ Footer (Server)</div>
+          <div class="palette-item c" onclick="addNode('AddToCart', 'client', 2)">💻 AddToCart (Client)</div>
+          <div class="palette-item c" onclick="addNode('SearchBar', 'client', 1)">💻 SearchBar (Client)</div>
+          <div class="palette-item c" onclick="addNode('CartModal', 'client', 0)">💻 CartModal (Client)</div>
+          <div class="palette-item c" onclick="addNode('FilterUI', 'client', 1)">💻 FilterUI (Client)</div>
+        </div>
+        <button class="toggle-labels-btn" onclick="clearTree()" style="width:100%;margin-top:12px;font-size:0.72rem;justify-content:center">↺ Limpiar árbol</button>
+      </div>
+    </div>
+
+    <div class="tree-panel" style="flex:1">
+      <div class="tree-panel-header">🌳 Árbol de componentes</div>
+      <div class="tree-panel-body">
+        <div class="tree-visual" id="tree-visual">
+          <p style="color:var(--muted);font-size:0.75rem;font-family:'IBM Plex Mono',monospace">← Haz clic en los componentes para añadirlos al árbol</p>
+        </div>
+        <div class="tree-validation" id="tree-valid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="s-title">Ejemplo canónico: <span>e-commerce</span></div>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-filename"><div class="code-dot neutral"></div>Árbol correcto — mezcla Server + Client</div>
+    </div>
+    <pre><span class="ok">Page</span>                   <span class="cmt">← Server ✅ (async, fetches data)</span>
+<span class="ok">├── Header</span>             <span class="cmt">← Server ✅ (links estáticos)</span>
+<span class="ok">│   └── NavLinks</span>       <span class="cmt">← Server ✅ (renderiza HTML)</span>
+<span class="ok">├── ProductList</span>        <span class="cmt">← Server ✅ (lee BD)</span>
+<span class="ok">│   └── ProductCard</span>    <span class="cmt">← Server ✅ (solo muestra datos)</span>
+<span style="color:var(--client)">│       └── AddToCart</span>  <span class="cmt">← Client 💻 (onClick + useState)</span>
+<span style="color:var(--client)">├── SearchBar</span>          <span class="cmt">← Client 💻 (onChange + estado)</span>
+<span class="ok">└── Footer</span>             <span class="cmt">← Server ✅ (HTML estático)</span>
+
+<span class="cmt">// 👆 Solo los componentes hoja con interacción son Client</span>
+<span class="cmt">// El resto permanece en el servidor → menos JS al browser</span></pre>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:32px">
+    <button class="toggle-labels-btn" onclick="goSection(3)">Siguiente: Optimización →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECCIÓN 3 — OPTIMIZACIÓN
+══════════════════════════════════════════ -->
+<div class="section" id="sec-3">
+  <div class="hero-block">
+    <div class="eyebrow">Tema 2.5</div>
+    <h2>Optimización de<br><em>recursos estáticos</em></h2>
+    <p>Next.js incluye optimizaciones automáticas para imágenes, fuentes y navegación. Aprende a usarlas.</p>
+  </div>
+
+  <div class="s-title">next/image — <span>nunca más &lt;img&gt;</span></div>
+
+  <div class="perf-compare">
+    <div class="perf-card">
+      <div class="perf-card-header bad">❌ HTML nativo — &lt;img&gt;</div>
+      <pre style="background:var(--code-bg)"><span class="bad">&lt;img</span>
+  <span class="attr">src</span>=<span class="str">"/hero.jpg"</span>
+  <span class="attr">alt</span>=<span class="str">"Hero"</span>
+<span class="bad">/&gt;</span>
+
+<span class="cmt">// Problemas:</span>
+<span class="bad">✗</span> <span class="cmt">Carga aunque esté fuera de viewport</span>
+<span class="bad">✗</span> <span class="cmt">Sin resize según dispositivo</span>
+<span class="bad">✗</span> <span class="cmt">Formato original (jpg, png = pesado)</span>
+<span class="bad">✗</span> <span class="cmt">Layout shift (CLS alto)</span></pre>
+      <div class="perf-metric"><span>LCP típico</span><span class="metric-val bad">4.2s</span></div>
+      <div class="perf-metric"><span>CLS</span><span class="metric-val bad">0.35</span></div>
+      <div class="perf-metric"><span>Tamaño imagen</span><span class="metric-val bad">~800KB</span></div>
+    </div>
+    <div class="perf-card">
+      <div class="perf-card-header good">✅ next/image — &lt;Image&gt;</div>
+      <pre style="background:var(--code-bg)"><span class="kw">import</span> <span class="fn">Image</span> <span class="kw">from</span> <span class="str">'next/image'</span>
+
+<span class="ok">&lt;Image</span>
+  <span class="attr">src</span>=<span class="str">"/hero.jpg"</span>
+  <span class="attr">alt</span>=<span class="str">"Hero"</span>
+  <span class="attr">width</span>={800}
+  <span class="attr">height</span>={400}
+  <span class="attr">priority</span>   <span class="cmt">← solo para above-the-fold</span>
+<span class="ok">/&gt;</span>
+
+<span class="ok">✓</span> <span class="cmt">Lazy load automático</span>
+<span class="ok">✓</span> <span class="cmt">Resize por dispositivo (srcset)</span>
+<span class="ok">✓</span> <span class="cmt">WebP/AVIF automático</span>
+<span class="ok">✓</span> <span class="cmt">Reserva espacio → CLS = 0</span></pre>
+      <div class="perf-metric"><span>LCP típico</span><span class="metric-val good">1.1s</span></div>
+      <div class="perf-metric"><span>CLS</span><span class="metric-val good">0.00</span></div>
+      <div class="perf-metric"><span>Tamaño imagen</span><span class="metric-val good">~85KB</span></div>
+    </div>
+  </div>
+
+  <div class="s-title">next/font — <span>fuentes sin layout shift</span></div>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-filename"><div class="code-dot server"></div>app/layout.tsx</div>
+      <div class="code-badge badge-server">Server Component</div>
+    </div>
+    <pre><span class="kw">import</span> { Inter, Roboto_Mono } <span class="kw">from</span> <span class="str">'next/font/google'</span>
+
+<span class="cmt">// ✅ Se auto-hostea en tu servidor — sin petición a Google</span>
+<span class="kw">const</span> inter = <span class="fn">Inter</span>({
+  subsets: [<span class="str">'latin'</span>],
+  display: <span class="str">'swap'</span>,   <span class="cmt">// ← evita texto invisible durante carga</span>
+})
+
+<span class="kw">const</span> mono = <span class="fn">Roboto_Mono</span>({
+  subsets: [<span class="str">'latin'</span>],
+  variable: <span class="str">'--font-mono'</span>,  <span class="cmt">// ← CSS custom property</span>
+})
+
+<span class="kw">export default function</span> <span class="fn">RootLayout</span>({ children }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;html</span> <span class="attr">className</span>={inter.className}<span class="tag">&gt;</span>
+      <span class="tag">&lt;body&gt;</span>{children}<span class="tag">&lt;/body&gt;</span>
+    <span class="tag">&lt;/html&gt;</span>
+  )
+}
+
+<span class="cmt">// 🏆 Resultado: 0 layout shift, 0 peticiones externas</span></pre>
+  </div>
+
+  <div class="s-title">next/link — <span>prefetch automático</span></div>
+
+  <div class="grid-2">
+    <div class="code-wrap" style="margin:0">
+      <div class="code-header">
+        <div class="code-filename"><div class="code-dot client"></div>❌ Sin next/link</div>
+      </div>
+      <pre style="font-size:0.76rem"><span class="cmt">// Recarga completa de página</span>
+<span class="bad">&lt;a href="/productos"&gt;</span>
+  Ver productos
+<span class="bad">&lt;/a&gt;</span>
+
+<span class="bad">✗</span> <span class="cmt">Recarga completa del browser</span>
+<span class="bad">✗</span> <span class="cmt">Sin prefetch</span>
+<span class="bad">✗</span> <span class="cmt">Navegación lenta</span></pre>
+    </div>
+    <div class="code-wrap" style="margin:0">
+      <div class="code-header">
+        <div class="code-filename"><div class="code-dot server"></div>✅ Con next/link</div>
+      </div>
+      <pre style="font-size:0.76rem"><span class="kw">import</span> <span class="fn">Link</span> <span class="kw">from</span> <span class="str">'next/link'</span>
+
+<span class="ok">&lt;Link</span> <span class="attr">href</span>=<span class="str">"/productos"</span><span class="ok">&gt;</span>
+  Ver productos
+<span class="ok">&lt;/Link&gt;</span>
+
+<span class="ok">✓</span> <span class="cmt">Prefetch al hacer hover</span>
+<span class="ok">✓</span> <span class="cmt">Navegación instantánea (SPA)</span>
+<span class="ok">✓</span> <span class="cmt">Solo actualiza lo que cambia</span></pre>
+    </div>
+  </div>
+
+  <div class="info tip" style="margin-top:24px">
+    <strong>✅ Resumen de optimizaciones</strong>
+    <code>next/image</code> → imágenes · <code>next/font</code> → fuentes · <code>next/link</code> → navegación. Estas tres directivas son las primeras que debes aplicar en cualquier proyecto Next.js para mejorar Core Web Vitals sin esfuerzo extra.
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:32px">
+    <button class="toggle-labels-btn" onclick="goSection(4)">Siguiente: Hands On →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECCIÓN 4 — HANDS ON
+══════════════════════════════════════════ -->
+<div class="section" id="sec-4">
+  <div class="hero-block">
+    <div class="eyebrow">Clase 4 · 60 min</div>
+    <h2><em>Hands On:</em><br>E-commerce real</h2>
+    <p>Clasifica componentes en una tienda real, interactúa con ella y descubre la respuesta.</p>
+  </div>
+
+  <!-- CHALLENGE 1 -->
+  <div class="challenge">
+    <div class="challenge-header">
+      <div>
+        <div class="challenge-num">Fase 1 · 15 min — Diagnóstico</div>
+        <div class="challenge-title">¿Qué tipo es cada componente?</div>
+      </div>
+      <button class="toggle-labels-btn" id="toggle-btn" onclick="toggleLabels()">👁️ Revelar solución</button>
+    </div>
+    <div class="challenge-body">
+      <p style="font-size:0.82rem;color:var(--neutral);font-family:'IBM Plex Mono',monospace;margin-bottom:16px;">Antes de revelar la solución: interactúa con la tienda e intenta decidir qué componente es Server y cuál Client. Luego haz clic en "Revelar solución".</p>
+
+      <div class="ecommerce-mock" id="ecommerce-mock">
+        <!-- Topbar -->
+        <div class="mock-topbar" style="position:relative">
+          <div style="position:absolute;top:-1px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--server-dim),var(--server-dim))"></div>
+          <div class="mock-logo">ShopNext</div>
+          <div class="mock-nav">
+            <span>Inicio</span>
+            <span>Productos</span>
+            <span>Contacto</span>
+            <div class="cart-icon" onclick="addToCartGlobal()">
+              🛒
+              <div class="cart-badge" id="cart-badge">0</div>
+            </div>
+          </div>
+          <div class="comp-label s" style="position:static;border-radius:4px;margin-left:8px">Server</div>
+        </div>
+
+        <div class="mock-body" id="mock-body">
+          <!-- Filters -->
+          <div class="mock-filter" style="position:relative">
+            <span style="font-size:0.72rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;align-self:center;margin-right:8px">Filtrar:</span>
+            <button class="mock-filter-btn active" onclick="filterProducts('all', this)">Todos</button>
+            <button class="mock-filter-btn" onclick="filterProducts('tech', this)">Tech</button>
+            <button class="mock-filter-btn" onclick="filterProducts('clothes', this)">Ropa</button>
+            <button class="mock-filter-btn" onclick="filterProducts('home', this)">Hogar</button>
+            <div class="comp-label c" style="position:static;border-radius:4px;margin-left:auto">Client</div>
+          </div>
+
+          <!-- Products -->
+          <div class="mock-products" id="mock-products">
+            <div class="mock-product server-comp" data-cat="tech">
+              <div class="comp-label s">Server</div>
+              <div class="mock-product-img">💻</div>
+              <div class="mock-product-name">MacBook Pro M3</div>
+              <div class="mock-product-price">€2,499</div>
+              <button class="mock-add-btn" onclick="addItem(this)">+ Añadir al carrito</button>
+              <div class="comp-label c" style="bottom:-1px;top:auto;right:auto;left:-1px;border-radius:0 6px 0 8px">Client btn</div>
+            </div>
+            <div class="mock-product server-comp" data-cat="clothes">
+              <div class="comp-label s">Server</div>
+              <div class="mock-product-img">👕</div>
+              <div class="mock-product-name">Sudadera Next.js</div>
+              <div class="mock-product-price">€49</div>
+              <button class="mock-add-btn" onclick="addItem(this)">+ Añadir al carrito</button>
+              <div class="comp-label c" style="bottom:-1px;top:auto;right:auto;left:-1px;border-radius:0 6px 0 8px">Client btn</div>
+            </div>
+            <div class="mock-product server-comp" data-cat="home">
+              <div class="comp-label s">Server</div>
+              <div class="mock-product-img">☕</div>
+              <div class="mock-product-name">Cafetera Premium</div>
+              <div class="mock-product-price">€189</div>
+              <button class="mock-add-btn" onclick="addItem(this)">+ Añadir al carrito</button>
+              <div class="comp-label c" style="bottom:-1px;top:auto;right:auto;left:-1px;border-radius:0 6px 0 8px">Client btn</div>
+            </div>
+            <div class="mock-product server-comp" data-cat="tech">
+              <div class="comp-label s">Server</div>
+              <div class="mock-product-img">🎧</div>
+              <div class="mock-product-name">AirPods Pro</div>
+              <div class="mock-product-price">€279</div>
+              <button class="mock-add-btn" onclick="addItem(this)">+ Añadir al carrito</button>
+              <div class="comp-label c" style="bottom:-1px;top:auto;right:auto;left:-1px;border-radius:0 6px 0 8px">Client btn</div>
+            </div>
+            <div class="mock-product server-comp" data-cat="tech">
+              <div class="comp-label s">Server</div>
+              <div class="mock-product-img">📱</div>
+              <div class="mock-product-name">iPhone 15 Pro</div>
+              <div class="mock-product-price">€1,199</div>
+              <button class="mock-add-btn" onclick="addItem(this)">+ Añadir al carrito</button>
+              <div class="comp-label c" style="bottom:-1px;top:auto;right:auto;left:-1px;border-radius:0 6px 0 8px">Client btn</div>
+            </div>
+            <div class="mock-product server-comp" data-cat="clothes">
+              <div class="comp-label s">Server</div>
+              <div class="mock-product-img">🧢</div>
+              <div class="mock-product-name">Gorra TypeScript</div>
+              <div class="mock-product-price">€29</div>
+              <button class="mock-add-btn" onclick="addItem(this)">+ Añadir al carrito</button>
+              <div class="comp-label c" style="bottom:-1px;top:auto;right:auto;left:-1px;border-radius:0 6px 0 8px">Client btn</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="solution-text" style="display:none;margin-top:20px">
+        <div class="info tip">
+          <strong>✅ Solución explicada</strong>
+          <strong style="font-size:0.85rem;opacity:1;display:block;margin:8px 0 4px">Server Components (verde):</strong>
+          Header de navegación (solo HTML estático), ProductCard (muestra datos del servidor). No necesitan JS en el browser.
+          <strong style="font-size:0.85rem;opacity:1;display:block;margin:8px 0 4px">Client Components (naranja):</strong>
+          Filtros de categoría (usan useState para la categoría activa), botón "Añadir al carrito" (onClick + actualiza el contador del carrito). Toda la interactividad está aislada en componentes Client pequeños.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE 2 -->
+  <div class="challenge" style="margin-top:32px">
+    <div class="challenge-header">
+      <div>
+        <div class="challenge-num">Fase 2 · Reto — El patrón children</div>
+        <div class="challenge-title">¿Cómo hacer que coexistan?</div>
+      </div>
+    </div>
+    <div class="challenge-body">
+      <p style="font-size:0.82rem;color:var(--neutral);font-family:'IBM Plex Mono',monospace;margin-bottom:20px;">En el código de abajo, el componente <code>FilterWrapper</code> es Client (necesita estado para los filtros). Pero la lista de productos es Server (lee la BD). ¿Cómo los combinas sin romper las reglas?</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-filename"><div class="code-dot neutral"></div>Solución — patrón children</div>
+        </div>
+        <pre><span class="cmt">// 1️⃣ FilterWrapper.tsx — Client (necesita estado)</span>
+<span class="dir">'use client'</span>
+<span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>
+
+<span class="kw">export function</span> <span class="fn">FilterWrapper</span>({ children }) {
+  <span class="kw">const</span> [cat, setCat] = <span class="fn">useState</span>(<span class="str">'all'</span>)
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;FilterButtons</span> <span class="attr">active</span>={cat} <span class="attr">onChange</span>={setCat} <span class="tag">/&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">data-category</span>={cat}<span class="tag">&gt;</span>
+        {children}  <span class="cmt">← aquí van los productos (Server)</span>
+      <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  )
+}
+
+<span class="cmt">// 2️⃣ page.tsx — Server (lee BD, async/await)</span>
+<span class="kw">import</span> { <span class="fn">FilterWrapper</span> } <span class="kw">from</span> <span class="str">'./FilterWrapper'</span>
+<span class="kw">import</span> { <span class="fn">ProductList</span> } <span class="kw">from</span> <span class="str">'./ProductList'</span>
+
+<span class="kw">export default async function</span> <span class="fn">Page</span>() {
+  <span class="kw">const</span> products = <span class="kw">await</span> <span class="fn">db.query</span>(<span class="str">'SELECT * FROM products'</span>)
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;FilterWrapper&gt;</span>
+      <span class="ok">&lt;ProductList products={products} /&gt;</span>  <span class="cmt">← Server como children ✅</span>
+    <span class="tag">&lt;/FilterWrapper&gt;</span>
+  )
+}</pre>
+      </div>
+
+      <div class="info note">
+        <strong>💡 Por qué funciona</strong>
+        <code>ProductList</code> se renderiza en el servidor y Next.js pasa su HTML como <code>children</code> al <code>FilterWrapper</code>. El Client Component nunca "importa" el Server Component — solo recibe HTML ya renderizado. Esto permite mantener el máximo código en el servidor.
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:32px">
+    <button class="toggle-labels-btn" onclick="goSection(5)">Siguiente: Quiz final →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECCIÓN 5 — QUIZ
+══════════════════════════════════════════ -->
+<div class="section" id="sec-5">
+  <div class="hero-block">
+    <div class="eyebrow">Evaluación</div>
+    <h2>Quiz<br><em>final</em></h2>
+    <p>Comprueba que has interiorizado los conceptos clave de la clase.</p>
+  </div>
+
+  <div class="quiz">
+    <h3>🧠 Evalúa tu comprensión</h3>
+    <p class="quiz-sub">8 preguntas · Responde sin volver atrás</p>
+
+    <div class="quiz-q">
+      <div class="quiz-qtext">1. ¿Cuál es el tipo de componente por defecto en Next.js 13+?</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="qa(this,false)">A) Client Component</button>
+        <button class="quiz-opt" onclick="qa(this,true)">B) Server Component</button>
+        <button class="quiz-opt" onclick="qa(this,false)">C) Depende del hook que uses</button>
+        <button class="quiz-opt" onclick="qa(this,false)">D) No tiene tipo por defecto</button>
+      </div>
+    </div>
+
+    <div class="quiz-q">
+      <div class="quiz-qtext">2. ¿Qué directiva convierte un componente en Client Component?</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="qa(this,false)">A) 'use server'</button>
+        <button class="quiz-opt" onclick="qa(this,false)">B) // @client</button>
+        <button class="quiz-opt" onclick="qa(this,true)">C) 'use client'</button>
+        <button class="quiz-opt" onclick="qa(this,false)">D) export client default</button>
+      </div>
+    </div>
+
+    <div class="quiz-q">
+      <div class="quiz-qtext">3. Tienes un componente que usa <code>useState</code>. ¿Qué tipo DEBE ser?</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="qa(this,false)">A) Server Component</button>
+        <button class="quiz-opt" onclick="qa(this,true)">B) Client Component</button>
+        <button class="quiz-opt" onclick="qa(this,false)">C) Puede ser cualquiera</button>
+        <button class="quiz-opt" onclick="qa(this,false)">D) Shared Component</button>
+      </div>
+    </div>
+
+    <div class="quiz-q">
+      <div class="quiz-qtext">4. ¿Un Client Component puede importar directamente un Server Component?</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="qa(this,false)">A) Sí, siempre</button>
+        <button class="quiz-opt" onclick="qa(this,false)">B) Sí, si usas 'use server' en el importado</button>
+        <button class="quiz-opt" onclick="qa(this,true)">C) No, pero puede recibirlo como children</button>
+        <button class="quiz-opt" onclick="qa(this,false)">D) Sí, mediante dynamic import</button>
+      </div>
+    </div>
+
+    <div class="quiz-q">
+      <div class="quiz-qtext">5. ¿Qué ventaja principal tiene usar <code>next/image</code> sobre <code>&lt;img&gt;</code>?</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="qa(this,false)">A) Permite usar imágenes SVG</button>
+        <button class="quiz-opt" onclick="qa(this,true)">B) Lazy loading, resize automático y formato WebP/AVIF</button>
+        <button class="quiz-opt" onclick="qa(this,false)">C) Solo funciona con imágenes locales</button>
+        <button class="quiz-opt" onclick="qa(this,false)">D) Requiere un CDN externo</button>
+      </div>
+    </div>
+
+    <div class="quiz-q">
+      <div class="quiz-qtext">6. Un componente que solo muestra una lista de artículos leídos de BD sin botones ni eventos: ¿qué tipo debería ser?</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="qa(this,true)">A) Server Component</button>
+        <button class="quiz-opt" onclick="qa(this,false)">B) Client Component</button>
+        <button class="quiz-opt" onclick="qa(this,false)">C) Shared Component</button>
+        <button class="quiz-opt" onclick="qa(this,false)">D) Cualquiera es igual</button>
+      </div>
+    </div>
+
+    <div class="quiz-q">
+      <div class="quiz-qtext">7. ¿Qué problema resuelve <code>next/font</code>?</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="qa(this,false)">A) Permite usar fuentes de pago gratis</button>
+        <button class="quiz-opt" onclick="qa(this,false)">B) Aumenta el tamaño de las fuentes automáticamente</button>
+        <button class="quiz-opt" onclick="qa(this,true)">C) Elimina el layout shift y auto-hostea las fuentes</button>
+        <button class="quiz-opt" onclick="qa(this,false)">D) Comprime el CSS de las fuentes</button>
+      </div>
+    </div>
+
+    <div class="quiz-q">
+      <div class="quiz-qtext">8. ¿Qué hace <code>next/link</code> que no hace un <code>&lt;a&gt;</code> normal?</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="qa(this,false)">A) Abre el enlace en una nueva pestaña</button>
+        <button class="quiz-opt" onclick="qa(this,false)">B) Valida que la URL existe</button>
+        <button class="quiz-opt" onclick="qa(this,true)">C) Hace prefetch de la ruta al hacer hover y navega sin recarga completa</button>
+        <button class="quiz-opt" onclick="qa(this,false)">D) Añade animaciones de transición</button>
+      </div>
+    </div>
+
+    <div class="quiz-score" id="quiz-score" style="display:none">
+      <span class="score-num" id="score-num">0</span>
+      <span>/ 8 correctas</span>
+      <span id="score-msg" style="margin-left:12px"></span>
+    </div>
+  </div>
+
+  <div class="card" style="border-color:var(--accent);background:linear-gradient(135deg,#0d1a08,#131710);margin-top:32px">
+    <div class="card-title" style="color:var(--accent);font-size:1rem">🎉 ¡Clase completada!</div>
+    <p style="color:var(--neutral)">Has visto los conceptos teóricos, el clasificador interactivo, el árbol de composición, las optimizaciones de Next.js y el Hands On. El siguiente paso es implementar estos patrones en tu propio proyecto.</p>
+    <br>
+    <p style="font-size:0.78rem;color:var(--muted)">Docs: <strong style="color:var(--accent)">nextjs.org/docs/app/building-your-application/rendering</strong></p>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ── NAVIGATION ──
+let currentSection = 0;
+
+function goSection(n) {
+  document.getElementById('sec-' + currentSection).classList.remove('active');
+  document.querySelectorAll('.tab')[currentSection].classList.remove('active');
+  currentSection = n;
+  document.getElementById('sec-' + n).classList.add('active');
+  document.querySelectorAll('.tab')[n].classList.add('active');
+  const pct = ((n + 1) / 6) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── CLASSIFIER ──
+const answers = {};
+
+function answer(q, val) {
+  answers[q] = val;
+
+  const qEl = document.getElementById('q' + q);
+  qEl.classList.add('answered', val ? 'yes' : 'no');
+  qEl.querySelectorAll('.q-btn').forEach(b => {
+    b.style.pointerEvents = 'none';
+    if (b.classList.contains(val ? 'yes' : 'no')) b.classList.add('selected');
+  });
+
+  if (val) {
+    // Client → show result
+    showResult('client');
+  } else {
+    // unlock next
+    const next = document.getElementById('q' + (q + 1));
+    if (next) {
+      next.style.opacity = '1';
+      next.style.pointerEvents = 'auto';
+    } else {
+      // all No → Server
+      showResult('server');
+    }
+  }
+}
+
+function showResult(type) {
+  const el = document.getElementById('clf-result');
+  el.style.display = 'block';
+  if (type === 'server') {
+    el.className = 'classifier-result result-server';
+    el.innerHTML = `
+      <div class="result-title">✅ Server Component</div>
+      <div class="result-desc">
+        Este componente no necesita ninguna característica del browser. Déjalo como Server Component (sin directiva).<br><br>
+        Beneficio: <strong style="color:var(--server)">0 JS enviado al browser</strong> para este componente. El servidor renderiza el HTML y lo envía listo.
+      </div>`;
+  } else {
+    el.className = 'classifier-result result-client';
+    el.innerHTML = `
+      <div class="result-title">💻 Client Component</div>
+      <div class="result-desc">
+        Este componente necesita capacidades del browser. Añade <code style="color:var(--client)">'use client'</code> en la primera línea del archivo.<br><br>
+        Intenta aislar solo la parte interactiva en un componente Client pequeño, y mantener el resto como Server.
+      </div>`;
+  }
+}
+
+function resetClassifier() {
+  Object.keys(answers).forEach(k => delete answers[k]);
+  ['q1','q2','q3','q4'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('answered','yes','no');
+    el.querySelectorAll('.q-btn').forEach(b => {
+      b.style.pointerEvents = 'auto';
+      b.classList.remove('selected');
+    });
+    if (i > 0) { el.style.opacity = '0.35'; el.style.pointerEvents = 'none'; }
+  });
+  const res = document.getElementById('clf-result');
+  res.style.display = 'none';
+}
+
+// ── TREE BUILDER ──
+const treeNodes = [];
+
+function addNode(name, type, indent) {
+  treeNodes.push({ name, type, indent });
+  renderTree();
+}
+
+function removeNode(i) {
+  treeNodes.splice(i, 1);
+  renderTree();
+}
+
+function clearTree() {
+  treeNodes.length = 0;
+  renderTree();
+}
+
+function renderTree() {
+  const tv = document.getElementById('tree-visual');
+  const tv2 = document.getElementById('tree-valid');
+
+  if (treeNodes.length === 0) {
+    tv.innerHTML = '<p style="color:var(--muted);font-size:0.75rem;font-family:\'IBM Plex Mono\',monospace">← Haz clic en los componentes para añadirlos al árbol</p>';
+    tv2.style.display = 'none';
+    return;
+  }
+
+  // Check for violations: Client importing Server (simplified)
+  let violations = [];
+  for (let i = 1; i < treeNodes.length; i++) {
+    const parent = treeNodes[i - 1];
+    const child = treeNodes[i];
+    if (parent.type === 'client' && child.type === 'server' && child.indent > parent.indent) {
+      violations.push(`❌ ${parent.name} (Client) no puede importar ${child.name} (Server) directamente`);
+    }
+  }
+
+  let html = '';
+  treeNodes.forEach((n, i) => {
+    const prefix = '│  '.repeat(n.indent);
+    const connector = i === 0 ? '' : (prefix ? '└── ' : '├── ');
+    const violating = violations.some(v => v.includes(n.name));
+    const cls = violating ? 'err' : n.type === 'server' ? 's' : 'c';
+    const icon = n.type === 'server' ? '🖥️' : '💻';
+    html += `<div style="padding-left:${n.indent * 20}px">
+      <div class="tree-node ${cls}">
+        ${icon} ${n.name}
+        <span class="del" onclick="removeNode(${i})">✕</span>
+      </div>
+    </div>`;
+  });
+
+  tv.innerHTML = html;
+
+  if (violations.length > 0) {
+    tv2.style.display = 'block';
+    tv2.style.background = 'rgba(248,113,113,0.08)';
+    tv2.style.border = '1px solid var(--error)';
+    tv2.style.color = 'var(--error)';
+    tv2.innerHTML = violations.join('<br>') + '<br><span style="color:var(--neutral);font-size:0.72rem;margin-top:6px;display:block">Solución: usa el patrón <code>children</code> — pasa el Server Component como prop al Client</span>';
+  } else {
+    tv2.style.display = 'block';
+    tv2.style.background = 'rgba(74,222,128,0.07)';
+    tv2.style.border = '1px solid var(--server)';
+    tv2.style.color = 'var(--server)';
+    tv2.innerHTML = '✅ Árbol válido — ninguna violación de reglas detectada';
+  }
+}
+
+// ── E-COMMERCE MOCK ──
+let cartCount = 0;
+let labelsOn = false;
+
+function toggleLabels() {
+  labelsOn = !labelsOn;
+  const mock = document.getElementById('ecommerce-mock');
+  const btn = document.getElementById('toggle-btn');
+  const sol = document.getElementById('solution-text');
+  mock.classList.toggle('show-labels', labelsOn);
+  btn.classList.toggle('on', labelsOn);
+  btn.textContent = labelsOn ? '🙈 Ocultar solución' : '👁️ Revelar solución';
+  sol.style.display = labelsOn ? 'block' : 'none';
+}
+
+function addItem(btn) {
+  addToCartGlobal();
+  btn.textContent = '✓ Añadido';
+  btn.style.background = 'var(--server-dim)';
+  btn.style.color = 'var(--server)';
+  btn.style.borderColor = 'var(--server)';
+  setTimeout(() => {
+    btn.textContent = '+ Añadir al carrito';
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }, 1500);
+}
+
+function addToCartGlobal() {
+  cartCount++;
+  const badge = document.getElementById('cart-badge');
+  badge.textContent = cartCount;
+  badge.classList.remove('bump');
+  void badge.offsetWidth;
+  badge.classList.add('bump');
+}
+
+function filterProducts(cat, btn) {
+  document.querySelectorAll('.mock-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.mock-product').forEach(p => {
+    p.style.display = (cat === 'all' || p.dataset.cat === cat) ? '' : 'none';
+  });
+}
+
+// ── QUIZ ──
+let score = 0;
+let answered = 0;
+const total = 8;
+
+function qa(btn, correct) {
+  if (btn.classList.contains('correct') || btn.classList.contains('wrong')) return;
+  const opts = btn.parentElement.querySelectorAll('.quiz-opt');
+  opts.forEach(o => {
+    o.style.pointerEvents = 'none';
+    // mark correct answer green
+    if (o === btn) {
+      o.classList.add(correct ? 'correct' : 'wrong');
+    }
+  });
+  // If wrong, highlight the correct one
+  if (!correct) {
+    // find and show correct — we need a way, mark them with data
+  }
+  if (correct) score++;
+  answered++;
+  if (answered >= total) {
+    const scoreEl = document.getElementById('quiz-score');
+    scoreEl.style.display = 'flex';
+    document.getElementById('score-num').textContent = score;
+    const msg = score >= 7 ? '🏆 ¡Excelente! Dominas los conceptos.' :
+                score >= 5 ? '👍 Buen trabajo. Repasa los puntos fallados.' :
+                '📖 Revisa la teoría y vuelve a intentarlo.';
+    document.getElementById('score-msg').textContent = msg;
+  }
+}
+</script>
+</body>
+</html>
