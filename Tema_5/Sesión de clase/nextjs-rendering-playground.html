@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next.js Rendering Playground</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab-button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .intro-section {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .intro-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .intro-section p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .rendering-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .rendering-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card-header {
+            padding: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        .card-header.csr {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .card-header.ssr {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .card-header.ssg {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-content h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .card-content p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .simulation {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .simulation h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .browser-window {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .browser-toolbar {
+            background: linear-gradient(to right, #f0f0f0, #e8e8e8);
+            padding: 10px 15px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85em;
+        }
+
+        .toolbar-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .red { background: #ff5f57; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #28c940; }
+
+        .browser-content {
+            padding: 20px;
+            background: #f5f5f5;
+            min-height: 200px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes loading-pulse {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-line {
+            height: 15px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading-pulse 1.5s infinite;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .skeleton-title {
+            height: 24px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading-pulse 1.5s infinite;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            width: 70%;
+        }
+
+        .code-section {
+            margin: 25px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            border: 2px solid #e0e0e0;
+        }
+
+        .code-tabs {
+            display: flex;
+            border-bottom: 3px solid #667eea;
+            background: #f8f9fa;
+            overflow-x: auto;
+        }
+
+        .code-tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            border: none;
+            background: #f8f9fa;
+            color: #666;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-size: 0.95em;
+        }
+
+        .code-tab:hover {
+            background: #efefef;
+            color: #667eea;
+        }
+
+        .code-tab.active {
+            background: #667eea;
+            color: white;
+            border-bottom: none;
+        }
+
+        .code-content {
+            display: none;
+            padding: 25px;
+            background: #1e1e1e;
+            min-height: 400px;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .code-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .code-block {
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .code-keyword { color: #569cd6; font-weight: bold; }
+        .code-string { color: #ce9178; }
+        .code-function { color: #dcdcaa; }
+        .code-comment { color: #6a9955; font-style: italic; }
+        .code-property { color: #9cdcfe; }
+        .code-number { color: #b5cea8; }
+
+        .setup-guide {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+
+        .setup-guide h4 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setup-guide ol {
+            margin-left: 25px;
+            line-height: 2;
+        }
+
+        .setup-guide li {
+            margin-bottom: 12px;
+            background: rgba(255,255,255,0.1);
+            padding: 12px 15px;
+            border-radius: 6px;
+            border-left: 3px solid rgba(255,255,255,0.5);
+        }
+
+        .setup-guide code {
+            background: rgba(0,0,0,0.3);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .pros-cons > div {
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .pros {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+
+        .cons {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+
+        .pros h4, .cons h4 {
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .pros h4 { color: #2e7d32; }
+        .cons h4 { color: #c62828; }
+
+        .pros ul, .cons ul {
+            list-style-position: inside;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .pros li, .cons li {
+            margin-bottom: 5px;
+        }
+
+        .metric {
+            display: inline-block;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            margin: 5px;
+            border-left: 4px solid #667eea;
+            font-size: 0.9em;
+        }
+
+        .metric-value {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .loading-stage {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stage-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stage-description {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .demo-button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .demo-button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .loading-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .loading-example {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .loading-example h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            margin-top: 10px;
+        }
+
+        .loading-example p {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .alert-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        .alert-box strong {
+            color: #856404;
+        }
+
+        .alert-box p {
+            color: #856404;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                width: 100%;
+            }
+
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+
+            .code-tabs {
+                flex-direction: column;
+            }
+
+            .code-tab {
+                width: 100%;
+                border-bottom: 1px solid #e0e0e0 !important;
+            }
+
+            .code-tab.active {
+                border-bottom: 3px solid #667eea !important;
+                border-left: 3px solid #667eea;
+            }
+
+            .code-content {
+                min-height: 250px;
+                max-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Next.js Rendering Playground</h1>
+            <p>Explora interactivamente cómo funciona el renderizado en Next.js</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="mainSwitchTab(event, 'intro')">Introducción</button>
+            <button class="tab-button" onclick="mainSwitchTab(event, 'csr')">Client-Side Rendering</button>
+            <button class="tab-button" onclick="mainSwitchTab(event, 'ssr')">Server-Side Rendering</button>
+            <button class="tab-button" onclick="mainSwitchTab(event, 'ssg')">Static Generation</button>
+            <button class="tab-button" onclick="mainSwitchTab(event, 'comparison')">Comparación</button>
+            <button class="tab-button" onclick="mainSwitchTab(event, 'loading')">Loading.js</button>
+        </div>
+
+        <!-- INTRODUCCIÓN -->
+        <div id="intro" class="tab-content active">
+            <div class="intro-section">
+                <h2>📚 ¿Qué es el Renderizado?</h2>
+                <p>El renderizado es el proceso de convertir el código JavaScript en HTML que el navegador pueda mostrar. En Next.js tienes varias opciones:</p>
+                
+                <div style="margin-top: 30px;">
+                    <div class="comparison-grid">
+                        <div class="rendering-card">
+                            <div class="card-header csr">CSR</div>
+                            <div class="card-content">
+                                <h3>Client-Side Rendering</h3>
+                                <p>El navegador renderiza el contenido usando JavaScript.</p>
+                                <p style="font-size: 0.85em; color: #999;">👤 Renderizado en: Navegador</p>
+                            </div>
+                        </div>
+                        <div class="rendering-card">
+                            <div class="card-header ssr">SSR</div>
+                            <div class="card-content">
+                                <h3>Server-Side Rendering</h3>
+                                <p>El servidor renderiza el HTML en cada solicitud.</p>
+                                <p style="font-size: 0.85em; color: #999;">🖥️ Renderizado en: Servidor</p>
+                            </div>
+                        </div>
+                        <div class="rendering-card">
+                            <div class="card-header ssg">SSG</div>
+                            <div class="card-content">
+                                <h3>Static Site Generation</h3>
+                                <p>El HTML se genera una sola vez en tiempo de compilación.</p>
+                                <p style="font-size: 0.85em; color: #999;">⚡ Renderizado en: Build time</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 30px; color: #667eea;">🎯 Objetivos de este playground:</h2>
+                <ul style="margin-left: 20px; color: #555; line-height: 2;">
+                    <li>Entender las diferencias entre CSR, SSR y SSG</li>
+                    <li>Visualizar cómo funciona cada estrategia de renderizado</li>
+                    <li>Aprender cómo configurar cada una en tu proyecto</li>
+                    <li>Comparar ventajas y desventajas</li>
+                    <li>Aprender a usar Loading.js para mejorar UX</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- CLIENT-SIDE RENDERING -->
+        <div id="csr" class="tab-content">
+            <div class="intro-section">
+                <h2>🎨 Client-Side Rendering (CSR)</h2>
+                <p>El navegador descarga un archivo JavaScript y lo ejecuta para renderizar el contenido dinámicamente.</p>
+            </div>
+
+            <div class="simulation">
+                <h3>Flujo de CSR</h3>
+                
+                <div class="loading-stage">
+                    <div class="stage-title">1️⃣ El navegador pide el HTML</div>
+                    <div class="stage-description">GET /page → El servidor devuelve un HTML casi vacío (solo estructura)</div>
+                </div>
+
+                <div class="loading-stage">
+                    <div class="stage-title">2️⃣ Se descarga el JavaScript</div>
+                    <div class="stage-description">El navegador descarga y parsea el bundle de JavaScript</div>
+                </div>
+
+                <div class="loading-stage">
+                    <div class="stage-title">3️⃣ Se ejecuta el JavaScript</div>
+                    <div class="stage-description">El código JavaScript se ejecuta en el navegador y genera el HTML dinámicamente</div>
+                </div>
+
+                <div class="loading-stage">
+                    <div class="stage-title">4️⃣ Contenido visible</div>
+                    <div class="stage-description">El usuario finalmente ve el contenido renderizado ✓</div>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>📊 Simulación Visual</h3>
+                <button class="demo-button" onclick="simulateCSR()">▶️ Simular CSR</button>
+                
+                <div class="browser-window">
+                    <div class="browser-toolbar">
+                        <span class="toolbar-button red"></span>
+                        <span class="toolbar-button yellow"></span>
+                        <span class="toolbar-button green"></span>
+                        <span style="margin-left: 10px;">localhost:3000</span>
+                    </div>
+                    <div class="browser-content" id="csrSimulation">
+                        <p style="color: #999; text-align: center;">Presiona "Simular CSR" para ver la demostración</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setup-guide">
+                <h4>⚙️ Cómo configurar CSR en Next.js</h4>
+                <ol>
+                    <li><strong>Usa <code>'use client'</code></strong> al inicio del archivo (Next.js 13+)</li>
+                    <li><strong>Usa hooks de React:</strong> <code>useState</code>, <code>useEffect</code>, <code>useContext</code></li>
+                    <li><strong>Ideal para:</strong> Dashboards, aplicaciones interactivas, paneles de usuario</li>
+                </ol>
+            </div>
+
+            <div class="code-section">
+                <div class="code-tabs">
+                    <button class="code-tab active" onclick="switchCode(event, 'csr', 'component')">📄 Component (CSR)</button>
+                    <button class="code-tab" onclick="switchCode(event, 'csr', 'structure')">📁 Estructura</button>
+                </div>
+
+                <div id="csr-component" class="code-content active">
+                    <pre class="code-block"><span class="code-comment">// app/posts/page.jsx</span>
+<span class="code-string">'use client'</span>; <span class="code-comment">// ← Renderizado en CLIENTE</span>
+
+<span class="code-keyword">import</span> { useState, useEffect } <span class="code-keyword">from</span> <span class="code-string">'react'</span>;
+
+<span class="code-keyword">export default function</span> <span class="code-function">PostsPage</span>() {
+  <span class="code-keyword">const</span> [posts, setPosts] = <span class="code-function">useState</span>([]);
+  <span class="code-keyword">const</span> [loading, setLoading] = <span class="code-function">useState</span>(<span class="code-keyword">true</span>);
+
+  <span class="code-function">useEffect</span>(() => {
+    <span class="code-comment">// Se ejecuta SOLO en el navegador</span>
+    <span class="code-function">fetch</span>(<span class="code-string">'/api/posts'</span>)
+      .<span class="code-function">then</span>(res => res.<span class="code-function">json</span>())
+      .<span class="code-function">then</span>(data => {
+        <span class="code-function">setPosts</span>(data);
+        <span class="code-function">setLoading</span>(<span class="code-keyword">false</span>);
+      });
+  }, []);
+
+  <span class="code-keyword">if</span> (loading) {
+    <span class="code-keyword">return</span> &lt;<span class="code-function">div</span>&gt;Cargando...&lt;/<span class="code-function">div</span>&gt;;
+  }
+
+  <span class="code-keyword">return</span> (
+    &lt;<span class="code-function">div</span>&gt;
+      {posts.<span class="code-function">map</span>(post => (
+        &lt;<span class="code-function">article</span> <span class="code-property">key</span>={post.id}&gt;
+          &lt;<span class="code-function">h2</span>&gt;{post.title}&lt;/<span class="code-function">h2</span>&gt;
+        &lt;/<span class="code-function">article</span>&gt;
+      ))}
+    &lt;/<span class="code-function">div</span>&gt;
+  );
+}</pre>
+                </div>
+
+                <div id="csr-structure" class="code-content">
+                    <pre class="code-block">tu-proyecto-next/
+├── app/
+│   ├── layout.jsx
+│   └── posts/
+│       └── page.jsx  ← Agregar 'use client'
+├── public/
+└── package.json
+
+<span class="code-comment">// Con 'use client': componente CSR
+// Sin 'use client': componente servidor (SSR)</span></pre>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>✅ Ventajas y ❌ Desventajas</h3>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ Ventajas</h4>
+                        <ul>
+                            <li>Servidor menos cargado</li>
+                            <li>Ideal para apps interactivas</li>
+                            <li>Fácil de escalar</li>
+                            <li>Actualizaciones en tiempo real</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ Desventajas</h4>
+                        <ul>
+                            <li>SEO pobre</li>
+                            <li>First Contentful Paint alto</li>
+                            <li>Mayor carga en navegador</li>
+                            <li>JavaScript es obligatorio</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>⏱️ Métricas típicas</h3>
+                <div>
+                    <div class="metric"><div class="metric-value">2-3s</div> TTFB</div>
+                    <div class="metric"><div class="metric-value">4-6s</div> FCP</div>
+                    <div class="metric"><div class="metric-value">Variable</div> LCP</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVER-SIDE RENDERING -->
+        <div id="ssr" class="tab-content">
+            <div class="intro-section">
+                <h2>⚡ Server-Side Rendering (SSR)</h2>
+                <p>El servidor renderiza el HTML completo en cada solicitud. El contenido es visible inmediatamente.</p>
+            </div>
+
+            <div class="simulation">
+                <h3>Flujo de SSR</h3>
+                
+                <div class="loading-stage">
+                    <div class="stage-title">1️⃣ El navegador pide el HTML</div>
+                    <div class="stage-description">GET /page → El servidor recibe la solicitud</div>
+                </div>
+
+                <div class="loading-stage">
+                    <div class="stage-title">2️⃣ El servidor renderiza</div>
+                    <div class="stage-description">El servidor ejecuta React y genera HTML completo</div>
+                </div>
+
+                <div class="loading-stage">
+                    <div class="stage-title">3️⃣ Se envía el HTML</div>
+                    <div class="stage-description">El navegador recibe HTML renderizado y lo muestra</div>
+                </div>
+
+                <div class="loading-stage">
+                    <div class="stage-title">4️⃣ Hidratación</div>
+                    <div class="stage-description">El JavaScript se descarga y hidrata el HTML (añade interactividad)</div>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>📊 Simulación Visual</h3>
+                <button class="demo-button" onclick="simulateSSR()">▶️ Simular SSR</button>
+                
+                <div class="browser-window">
+                    <div class="browser-toolbar">
+                        <span class="toolbar-button red"></span>
+                        <span class="toolbar-button yellow"></span>
+                        <span class="toolbar-button green"></span>
+                        <span style="margin-left: 10px;">localhost:3000</span>
+                    </div>
+                    <div class="browser-content" id="ssrSimulation">
+                        <p style="color: #999; text-align: center;">Presiona "Simular SSR" para ver</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setup-guide">
+                <h4>⚙️ Cómo configurar SSR en Next.js</h4>
+                <ol>
+                    <li><strong>NO uses <code>'use client'</code></strong> - Por defecto es componente servidor</li>
+                    <li><strong>Usa <code>async/await</code></strong> directamente en el componente</li>
+                    <li><strong>Usa <code>fetch()</code> directamente</strong> sin useEffect</li>
+                    <li><strong>Ideal para:</strong> Blogs, tiendas, sitios dinámicos con SEO</li>
+                </ol>
+            </div>
+
+            <div class="code-section">
+                <div class="code-tabs">
+                    <button class="code-tab active" onclick="switchCode(event, 'ssr', 'component')">📄 Component (SSR)</button>
+                    <button class="code-tab" onclick="switchCode(event, 'ssr', 'structure')">📁 Estructura</button>
+                </div>
+
+                <div id="ssr-component" class="code-content active">
+                    <pre class="code-block"><span class="code-comment">// app/posts/page.jsx</span>
+<span class="code-comment">// Sin 'use client' → SERVIDOR</span>
+
+<span class="code-keyword">async function</span> <span class="code-function">PostsPage</span>() {
+  <span class="code-keyword">const</span> res = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(
+    <span class="code-string">'https://api.example.com/posts'</span>,
+    { <span class="code-property">next</span>: { <span class="code-property">revalidate</span>: <span class="code-number">60</span> } }
+  );
+  <span class="code-keyword">const</span> posts = <span class="code-keyword">await</span> res.<span class="code-function">json</span>();
+
+  <span class="code-keyword">return</span> (
+    &lt;<span class="code-function">div</span>&gt;
+      {posts.<span class="code-function">map</span>(post => (
+        &lt;<span class="code-function">article</span> <span class="code-property">key</span>={post.id}&gt;
+          &lt;<span class="code-function">h2</span>&gt;{post.title}&lt;/<span class="code-function">h2</span>&gt;
+        &lt;/<span class="code-function">article</span>&gt;
+      ))}
+    &lt;/<span class="code-function">div</span>&gt;
+  );
+}
+
+<span class="code-keyword">export default</span> PostsPage;</pre>
+                </div>
+
+                <div id="ssr-structure" class="code-content">
+                    <pre class="code-block">tu-proyecto-next/
+├── app/
+│   ├── layout.jsx
+│   └── posts/
+│       └── page.jsx  ← Sin 'use client'
+│                       Componente async
+├── public/
+└── package.json
+
+<span class="code-comment">// fetch() ejecuta en el SERVIDOR
+// Se renderiza en cada solicitud
+// HTML completo llega al navegador</span></pre>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>✅ Ventajas y ❌ Desventajas</h3>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ Ventajas</h4>
+                        <ul>
+                            <li>Excelente SEO</li>
+                            <li>Contenido visible rápidamente</li>
+                            <li>Datos siempre actualizados</li>
+                            <li>HTML completo desde servidor</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ Desventajas</h4>
+                        <ul>
+                            <li>Servidor muy cargado</li>
+                            <li>Tiempo de respuesta más lento</li>
+                            <li>Difícil de escalar</li>
+                            <li>No funciona bien en serverless</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>⏱️ Métricas típicas</h3>
+                <div>
+                    <div class="metric"><div class="metric-value">0.5-1s</div> TTFB</div>
+                    <div class="metric"><div class="metric-value">1-2s</div> FCP</div>
+                    <div class="metric"><div class="metric-value">2-3s</div> LCP</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATIC GENERATION -->
+        <div id="ssg" class="tab-content">
+            <div class="intro-section">
+                <h2>⚙️ Static Site Generation (SSG)</h2>
+                <p>El HTML se genera una sola vez durante el build. Súper rápido y escalable.</p>
+            </div>
+
+            <div class="simulation">
+                <h3>Flujo de SSG</h3>
+                
+                <div class="loading-stage">
+                    <div class="stage-title">1️⃣ Tiempo de BUILD</div>
+                    <div class="stage-description">npm run build → Next.js pre-renderiza todas las páginas</div>
+                </div>
+
+                <div class="loading-stage">
+                    <div class="stage-title">2️⃣ Se guarda en el servidor/CDN</div>
+                    <div class="stage-description">Los archivos HTML estáticos se almacenan</div>
+                </div>
+
+                <div class="loading-stage">
+                    <div class="stage-title">3️⃣ El navegador pide el HTML</div>
+                    <div class="stage-description">GET /page → El servidor envía el HTML listo (instantáneo)</div>
+                </div>
+
+                <div class="loading-stage">
+                    <div class="stage-title">4️⃣ Hidratación</div>
+                    <div class="stage-description">JavaScript se descarga y hidrata</div>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>📊 Simulación Visual</h3>
+                <button class="demo-button" onclick="simulateSSG()">▶️ Simular SSG</button>
+                
+                <div class="browser-window">
+                    <div class="browser-toolbar">
+                        <span class="toolbar-button red"></span>
+                        <span class="toolbar-button yellow"></span>
+                        <span class="toolbar-button green"></span>
+                        <span style="margin-left: 10px;">localhost:3000</span>
+                    </div>
+                    <div class="browser-content" id="ssgSimulation">
+                        <p style="color: #999; text-align: center;">Presiona "Simular SSG" para ver</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setup-guide">
+                <h4>⚙️ Cómo configurar SSG en Next.js</h4>
+                <ol>
+                    <li><strong>NO uses <code>'use client'</code></strong> - Componente servidor</li>
+                    <li><strong>Usa ISR:</strong> <code>revalidate: 3600</code> (regenera cada hora)</li>
+                    <li><strong>Para rutas dinámicas:</strong> Usa <code>generateStaticParams()</code></li>
+                    <li><strong>Ideal para:</strong> Blogs, docs, landing pages</li>
+                </ol>
+            </div>
+
+            <div class="code-section">
+                <div class="code-tabs">
+                    <button class="code-tab active" onclick="switchCode(event, 'ssg', 'static')">📄 Estática Simple</button>
+                    <button class="code-tab" onclick="switchCode(event, 'ssg', 'dynamic')">📄 Ruta Dinámica</button>
+                    <button class="code-tab" onclick="switchCode(event, 'ssg', 'structure')">📁 Estructura</button>
+                </div>
+
+                <div id="ssg-static" class="code-content active">
+                    <pre class="code-block"><span class="code-comment">// app/blog/page.jsx - Página estática</span>
+
+<span class="code-keyword">async function</span> <span class="code-function">BlogPage</span>() {
+  <span class="code-keyword">const</span> res = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(
+    <span class="code-string">'https://api.example.com/posts'</span>,
+    { <span class="code-property">next</span>: { <span class="code-property">revalidate</span>: <span class="code-number">3600</span> } }
+  );
+  <span class="code-keyword">const</span> posts = <span class="code-keyword">await</span> res.<span class="code-function">json</span>();
+
+  <span class="code-keyword">return</span> (
+    &lt;<span class="code-function">div</span>&gt;
+      {posts.<span class="code-function">map</span>(post => (
+        &lt;<span class="code-function">div</span> <span class="code-property">key</span>={post.id}&gt;
+          &lt;<span class="code-function">h2</span>&gt;{post.title}&lt;/<span class="code-function">h2</span>&gt;
+        &lt;/<span class="code-function">div</span>&gt;
+      ))}
+    &lt;/<span class="code-function">div</span>&gt;
+  );
+}
+
+<span class="code-keyword">export default</span> BlogPage;
+<span class="code-comment">// Se pre-renderiza en BUILD</span></pre>
+                </div>
+
+                <div id="ssg-dynamic" class="code-content">
+                    <pre class="code-block"><span class="code-comment">// app/blog/[slug]/page.jsx</span>
+
+<span class="code-keyword">async function</span> <span class="code-function">PostPage</span>({ params }) {
+  <span class="code-keyword">const</span> res = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(
+    <span class="code-string">`https://api.example.com/posts/${params.slug}`</span>,
+    { <span class="code-property">next</span>: { <span class="code-property">revalidate</span>: <span class="code-number">3600</span> } }
+  );
+  <span class="code-keyword">const</span> post = <span class="code-keyword">await</span> res.<span class="code-function">json</span>();
+
+  <span class="code-keyword">return</span> &lt;<span class="code-function">article</span>&gt;{post.title}&lt;/<span class="code-function">article</span>&gt;;
+}
+
+<span class="code-comment">// Define qué rutas generar en BUILD</span>
+<span class="code-keyword">export async function</span> <span class="code-function">generateStaticParams</span>() {
+  <span class="code-keyword">const</span> res = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(
+    <span class="code-string">'https://api.example.com/posts'</span>
+  );
+  <span class="code-keyword">const</span> posts = <span class="code-keyword">await</span> res.<span class="code-function">json</span>();
+
+  <span class="code-keyword">return</span> posts.<span class="code-function">map</span>(post => ({
+    <span class="code-property">slug</span>: post.slug,
+  }));
+}
+
+<span class="code-keyword">export default</span> PostPage;</pre>
+                </div>
+
+                <div id="ssg-structure" class="code-content">
+                    <pre class="code-block">tu-proyecto-next/
+├── app/
+│   ├── layout.jsx
+│   ├── blog/
+│   │   ├── page.jsx         ← SSG simple
+│   │   └── [slug]/
+│   │       └── page.jsx     ← SSG dinámico
+│   └── page.jsx             ← SSG
+├── public/
+└── package.json
+
+<span class="code-comment">// Resultado después de build:</span>
+<span class="code-comment">// .next/static/pages/blog/index.html</span>
+<span class="code-comment">// .next/static/pages/blog/post-1/index.html</span>
+<span class="code-comment">// .next/static/pages/blog/post-2/index.html</span></pre>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>✅ Ventajas y ❌ Desventajas</h3>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ Ventajas</h4>
+                        <ul>
+                            <li>Rendimiento extraordinario ⚡</li>
+                            <li>Excelente para SEO</li>
+                            <li>Escalable sin límites</li>
+                            <li>Bajo costo del servidor</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ Desventajas</h4>
+                        <ul>
+                            <li>Build time puede ser largo</li>
+                            <li>Contenido no es real-time</li>
+                            <li>Requiere ISR para dinámico</li>
+                            <li>Necesita rebuild para cambios</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>⏱️ Métricas típicas</h3>
+                <div>
+                    <div class="metric"><div class="metric-value">&lt;0.1s</div> TTFB</div>
+                    <div class="metric"><div class="metric-value">&lt;0.5s</div> FCP</div>
+                    <div class="metric"><div class="metric-value">0.5-1s</div> LCP</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPARACIÓN -->
+        <div id="comparison" class="tab-content">
+            <div class="intro-section">
+                <h2>📊 Comparación de Estrategias</h2>
+            </div>
+
+            <div class="simulation">
+                <h3>Tabla Comparativa</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                        <thead>
+                            <tr style="background: #667eea; color: white;">
+                                <th style="padding: 15px; text-align: left; border: 1px solid #ddd;">Aspecto</th>
+                                <th style="padding: 15px; text-align: center; border: 1px solid #ddd;">🎨 CSR</th>
+                                <th style="padding: 15px; text-align: center; border: 1px solid #ddd;">⚡ SSR</th>
+                                <th style="padding: 15px; text-align: center; border: 1px solid #ddd;">⚙️ SSG</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #ddd;">Performance</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">⭐⭐</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">⭐⭐⭐</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">⭐⭐⭐⭐⭐</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 12px; border: 1px solid #ddd;">SEO</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">⭐</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">⭐⭐⭐⭐⭐</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">⭐⭐⭐⭐⭐</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #ddd;">Escalabilidad</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">⭐⭐⭐⭐⭐</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">⭐⭐</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">⭐⭐⭐⭐⭐</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 12px; border: 1px solid #ddd;">Costo</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">$</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">$$$</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">$$</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #ddd;">Tiempo Real</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">✅</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">✅</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">⚠️ (ISR)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>🎯 Casos de Uso</h3>
+                
+                <div style="margin: 20px 0;">
+                    <h4 style="color: #f5576c; margin-bottom: 10px;">CSR: Dashboards, Apps interactivas</h4>
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <h4 style="color: #00f2fe; margin-bottom: 10px;">SSR: E-commerce, Redes sociales</h4>
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <h4 style="color: #38f9d7; margin-bottom: 10px;">SSG: Blogs, Documentación, Landing pages</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOADING.JS -->
+        <div id="loading" class="tab-content">
+            <div class="intro-section">
+                <h2>📍 Loading.js: Mejorando UX</h2>
+                <p>Loading.js muestra un estado de carga mientras se renderiza la página. Mejora la experiencia del usuario.</p>
+            </div>
+
+            <div class="alert-box">
+                <strong>⚠️ Importante:</strong>
+                <p><strong>Next.js NO crea el skeleton automáticamente.</strong> Tienes que escribir toda la lógica y estilos manualmente. Next.js solo proporciona el archivo loading.jsx como punto de entrada para mostrar el estado de carga.</p>
+            </div>
+
+            <div class="simulation">
+                <h3>📊 Comparación Visual</h3>
+                <button class="demo-button" onclick="simulateWithoutLoading()">Sin Loading.js</button>
+                <button class="demo-button" onclick="simulateWithLoading()">Con Loading.js (Spinner)</button>
+                <button class="demo-button" onclick="simulateSkeletonLoading()">Con Skeleton Loader</button>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div>
+                        <h4 style="color: #667eea; margin-bottom: 10px;">❌ Sin Loading.js</h4>
+                        <div class="browser-window">
+                            <div class="browser-toolbar">
+                                <span class="toolbar-button red"></span>
+                                <span class="toolbar-button yellow"></span>
+                                <span class="toolbar-button green"></span>
+                                <span style="margin-left: 10px;">localhost:3000</span>
+                            </div>
+                            <div class="browser-content" id="withoutLoadingDemo">
+                                <p style="color: #999; text-align: center;">Pantalla en blanco...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="color: #667eea; margin-bottom: 10px;">✅ Con Loading.js (Spinner)</h4>
+                        <div class="browser-window">
+                            <div class="browser-toolbar">
+                                <span class="toolbar-button red"></span>
+                                <span class="toolbar-button yellow"></span>
+                                <span class="toolbar-button green"></span>
+                                <span style="margin-left: 10px;">localhost:3000</span>
+                            </div>
+                            <div class="browser-content" id="withLoadingDemo">
+                                <p style="color: #999; text-align: center;">Presiona "Con Loading.js"</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="color: #667eea; margin-bottom: 10px;">✨ Con Skeleton Loader</h4>
+                        <div class="browser-window">
+                            <div class="browser-toolbar">
+                                <span class="toolbar-button red"></span>
+                                <span class="toolbar-button yellow"></span>
+                                <span class="toolbar-button green"></span>
+                                <span style="margin-left: 10px;">localhost:3000</span>
+                            </div>
+                            <div class="browser-content" id="withSkeletonDemo">
+                                <p style="color: #999; text-align: center;">Presiona "Con Skeleton Loader"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setup-guide">
+                <h4>⚙️ Cómo configurar Loading.js</h4>
+                <ol>
+                    <li><strong>Crea <code>loading.jsx</code></strong> en el directorio de ruta</li>
+                    <li><strong>Exporta un componente por defecto</strong> con tu diseño</li>
+                    <li><strong>Escribe todo el código CSS/HTML</strong> - Next.js solo muestra el componente</li>
+                    <li><strong>Se muestra automáticamente</strong> mientras carga el page.jsx</li>
+                </ol>
+            </div>
+
+            <div class="code-section">
+                <div class="code-tabs">
+                    <button class="code-tab active" onclick="switchCode(event, 'loading', 'file')">📄 Loading.jsx (Spinner)</button>
+                    <button class="code-tab" onclick="switchCode(event, 'loading', 'skeleton')">🎨 Skeleton Loader</button>
+                    <button class="code-tab" onclick="switchCode(event, 'loading', 'css')">🎨 Estilos CSS</button>
+                    <button class="code-tab" onclick="switchCode(event, 'loading', 'page')">📄 Page.jsx</button>
+                    <button class="code-tab" onclick="switchCode(event, 'loading', 'structure')">📁 Estructura</button>
+                </div>
+
+                <div id="loading-file" class="code-content active">
+                    <pre class="code-block"><span class="code-comment">// app/posts/loading.jsx - TÚ ESCRIBES TODO</span>
+
+<span class="code-keyword">export default function</span> <span class="code-function">Loading</span>() {
+  <span class="code-keyword">return</span> (
+    &lt;<span class="code-function">div</span> style={{
+      padding: <span class="code-string">'40px'</span>,
+      textAlign: <span class="code-string">'center'</span>
+    }}&gt;
+      <span class="code-comment">// TÚ CREAS EL SPINNER CON CSS/JS</span>
+      &lt;<span class="code-function">div</span> style={{
+        width: <span class="code-string">'40px'</span>,
+        height: <span class="code-string">'40px'</span>,
+        border: <span class="code-string">'4px solid #f0f0f0'</span>,
+        borderTop: <span class="code-string">'4px solid #667eea'</span>,
+        borderRadius: <span class="code-string">'50%'</span>,
+        animation: <span class="code-string">'spin 1s linear infinite'</span>,
+        margin: <span class="code-string">'0 auto 20px'</span>
+      }} /&gt;
+      &lt;<span class="code-function">p</span> style={{ color: <span class="code-string">'#666'</span> }}&gt;
+        ⏳ Cargando posts...
+      &lt;/<span class="code-function">p</span>&gt;
+    &lt;/<span class="code-function">div</span>&gt;
+  );
+}
+
+<span class="code-comment">// Next.js muestra este componente automáticamente
+// mientras renderiza page.jsx</span></pre>
+                </div>
+
+                <div id="loading-skeleton" class="code-content">
+                    <pre class="code-block"><span class="code-comment">// app/posts/loading.jsx - Skeleton TÚ LO HACES</span>
+
+<span class="code-keyword">export default function</span> <span class="code-function">Loading</span>() {
+  <span class="code-keyword">return</span> (
+    &lt;<span class="code-function">div</span> style={{ padding: <span class="code-string">'20px'</span> }}&gt;
+      <span class="code-comment">// TÚ CREAS ESTOS ELEMENTOS</span>
+      &lt;<span class="code-function">div</span> style={{
+        height: <span class="code-string">'32px'</span>,
+        background: <span class="code-string">'linear-gradient(...)'</span>,
+        borderRadius: <span class="code-string">'8px'</span>,
+        marginBottom: <span class="code-string">'20px'</span>,
+        animation: <span class="code-string">'pulse 1.5s infinite'</span>
+      }} /&gt;
+
+      {[1, 2, 3].<span class="code-function">map</span>(i => (
+        &lt;<span class="code-function">div</span> <span class="code-property">key</span>={i} style={{ marginBottom: <span class="code-string">'20px'</span> }}&gt;
+          &lt;<span class="code-function">div</span> style={{
+            height: <span class="code-string">'16px'</span>,
+            background: <span class="code-string">'linear-gradient(...)'</span>,
+            borderRadius: <span class="code-string">'4px'</span>,
+            marginBottom: <span class="code-string">'10px'</span>,
+            animation: <span class="code-string">'pulse 1.5s infinite'</span>
+          }} /&gt;
+          &lt;<span class="code-function">div</span> style={{
+            height: <span class="code-string">'12px'</span>,
+            background: <span class="code-string">'linear-gradient(...)'</span>,
+            borderRadius: <span class="code-string">'4px'</span>,
+            width: <span class="code-string">'60%'</span>,
+            animation: <span class="code-string">'pulse 1.5s infinite'</span>
+          }} /&gt;
+        &lt;/<span class="code-function">div</span>&gt;
+      ))}
+    &lt;/<span class="code-function">div</span>&gt;
+  );
+}</pre>
+                </div>
+
+                <div id="loading-css" class="code-content">
+                    <pre class="code-block"><span class="code-comment">// app/globals.css - TÚ ESCRIBES LOS ESTILOS</span>
+
+<span class="code-comment">/* Animación del spinner */</span>
+@keyframes spin {
+  <span class="code-keyword">from</span> {
+    transform: rotate(<span class="code-number">0deg</span>);
+  }
+  <span class="code-keyword">to</span> {
+    transform: rotate(<span class="code-number">360deg</span>);
+  }
+}
+
+<span class="code-comment">/* Animación del skeleton loader */</span>
+@keyframes pulse {
+  <span class="code-number">0</span>% {
+    background-position: <span class="code-number">200</span>% <span class="code-number">0</span>;
+  }
+  <span class="code-number">100</span>% {
+    background-position: -<span class="code-number">200</span>% <span class="code-number">0</span>;
+  }
+}
+
+<span class="code-comment">/* Estilos personalizados para skeleton */</span>
+.skeleton-line {
+  height: <span class="code-number">15px</span>;
+  background: linear-gradient(
+    <span class="code-number">90deg</span>,
+    <span class="code-string">#f0f0f0</span> <span class="code-number">25</span>%,
+    <span class="code-string">#e0e0e0</span> <span class="code-number">50</span>%,
+    <span class="code-string">#f0f0f0</span> <span class="code-number">75</span>%
+  );
+  background-size: <span class="code-number">200</span>% <span class="code-number">100</span>%;
+  animation: pulse <span class="code-number">1.5s</span> infinite;
+  border-radius: <span class="code-number">4px</span>;
+}</parameter>
+                </div>
+
+                <div id="loading-page" class="code-content">
+                    <pre class="code-block"><span class="code-comment">// app/posts/page.jsx</span>
+<span class="code-comment">// Mientras esto renderiza, se muestra loading.jsx</span>
+
+<span class="code-keyword">async function</span> <span class="code-function">PostsPage</span>() {
+  <span class="code-comment">// Simular API lenta</span>
+  <span class="code-keyword">await</span> <span class="code-keyword">new</span> Promise(resolve =>
+    setTimeout(resolve, <span class="code-number">2000</span>)
+  );
+
+  <span class="code-keyword">const</span> res = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(
+    <span class="code-string">'https://api.example.com/posts'</span>
+  );
+  <span class="code-keyword">const</span> posts = <span class="code-keyword">await</span> res.<span class="code-function">json</span>();
+
+  <span class="code-keyword">return</span> (
+    &lt;<span class="code-function">div</span>&gt;
+      {posts.<span class="code-function">map</span>(post => (
+        &lt;<span class="code-function">article</span> <span class="code-property">key</span>={post.id}&gt;
+          &lt;<span class="code-function">h2</span>&gt;{post.title}&lt;/<span class="code-function">h2</span>&gt;
+        &lt;/<span class="code-function">article</span>&gt;
+      ))}
+    &lt;/<span class="code-function">div</span>&gt;
+  );
+}
+
+<span class="code-keyword">export default</span> PostsPage;</pre>
+                </div>
+
+                <div id="loading-structure" class="code-content">
+                    <pre class="code-block">tu-proyecto-next/
+├── app/
+│   ├── globals.css
+│   ├── layout.jsx
+│   └── posts/
+│       ├── loading.jsx  ← ⚡ TÚ ESCRIBES TODO
+│       │                 El CSS, HTML, animaciones
+│       └── page.jsx     ← Componente principal
+├── public/
+└── package.json
+
+<span class="code-comment">// Flujo:</span>
+<span class="code-comment">// 1. Usuario visita /posts</span>
+<span class="code-comment">// 2. Next.js renderiza page.jsx (tarda 2s)</span>
+<span class="code-comment">// 3. MIENTRAS TANTO: se muestra loading.jsx</span>
+<span class="code-comment">// 4. Una vez terminado: reemplaza con page.jsx</span></pre>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>🎨 Tipos de Loading Estados (TÚ LOS HACES)</h3>
+                
+                <div class="loading-examples">
+                    <div class="loading-example">
+                        <div class="loading-spinner" style="margin: 0 auto;"></div>
+                        <h4>Spinner</h4>
+                        <p>Escribe el CSS tú mismo</p>
+                    </div>
+
+                    <div class="loading-example">
+                        <div style="margin-bottom: 10px;">
+                            <div class="skeleton-line" style="margin-bottom: 8px;"></div>
+                            <div class="skeleton-line" style="width: 80%; margin-bottom: 8px;"></div>
+                            <div class="skeleton-line" style="width: 60%;"></div>
+                        </div>
+                        <h4>Skeleton Loader</h4>
+                        <p>Creas con gradient + animation</p>
+                    </div>
+
+                    <div class="loading-example">
+                        <div style="font-size: 3em; margin-bottom: 10px;">⏳</div>
+                        <h4>Emoji + Texto</h4>
+                        <p>Lo más simple</p>
+                    </div>
+
+                    <div class="loading-example">
+                        <div style="font-size: 3em; margin-bottom: 10px;">✨</div>
+                        <h4>Custom</h4>
+                        <p>Tu creatividad</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>💡 Resumen: Skeleton vs Next.js</h3>
+                <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 20px; border-radius: 6px;">
+                    <p style="color: #1565c0; margin-bottom: 15px;"><strong>❌ Next.js NO proporciona:</strong></p>
+                    <ul style="color: #1565c0; margin-left: 20px; line-height: 1.8;">
+                        <li>Estilos CSS predefinidos para skeleton</li>
+                        <li>Animaciones automáticas</li>
+                        <li>Componentes skeleton pre-hechos</li>
+                    </ul>
+                    <p style="color: #1565c0; margin-top: 15px; margin-bottom: 15px;"><strong>✅ Next.js SÍ proporciona:</strong></p>
+                    <ul style="color: #1565c0; margin-left: 20px; line-height: 1.8;">
+                        <li>El punto de entrada: archivo <code>loading.jsx</code></li>
+                        <li>La integración automática (muestra el componente mientras carga)</li>
+                        <li>El flujo: loading → page transition</li>
+                    </ul>
+                    <p style="color: #1565c0; margin-top: 15px;"><strong>🎨 TÚ HACES:</strong> Todo el diseño, CSS, animaciones y estructura del loading</p>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>✨ Mejores Prácticas</h3>
+                <ul style="color: #555; line-height: 2; margin-left: 20px;">
+                    <li><strong>✅ Crea loading rápido:</strong> Debe aparecer en &lt;100ms (sin lógica pesada)</li>
+                    <li><strong>✅ Sé consistente:</strong> Mismo estilo en todas las páginas</li>
+                    <li><strong>✅ Usa skeleton loaders:</strong> Imita el layout final del contenido</li>
+                    <li><strong>✅ Añade feedback visual:</strong> Movimiento, colores, mensajes</li>
+                    <li><strong>✅ No hagas cálculos:</strong> El loading debe ser puro JSX/CSS</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function mainSwitchTab(event, tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function switchCode(event, section, type) {
+            const parent = event.target.closest('.code-section');
+            
+            const tabId = `${section}-${type}`;
+            const contents = parent.querySelectorAll('.code-content');
+            const tabs = parent.querySelectorAll('.code-tab');
+            
+            contents.forEach(c => c.classList.remove('active'));
+            tabs.forEach(t => t.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function simulateCSR() {
+            const container = document.getElementById('csrSimulation');
+            container.innerHTML = '<p style="color: #999;">📥 Descargando HTML vacío...</p>';
+            
+            setTimeout(() => {
+                container.innerHTML = '<p style="color: #999;">📦 Descargando JavaScript...</p>';
+            }, 800);
+
+            setTimeout(() => {
+                container.innerHTML = '<p style="color: #999;">⚙️ Ejecutando JavaScript...</p>' +
+                    '<div class="loading-spinner" style="margin: 20px auto;"></div>';
+            }, 1800);
+
+            setTimeout(() => {
+                container.innerHTML = `
+                    <h3 style="color: #667eea;">📝 Posts</h3>
+                    <div style="background: #f5f5f5; padding: 15px; margin-bottom: 10px; border-radius: 6px;">
+                        <strong>Post 1:</strong> React Hooks
+                    </div>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 6px;">
+                        <strong>Post 2:</strong> Next.js 14
+                    </div>
+                `;
+            }, 3500);
+        }
+
+        function simulateSSR() {
+            const container = document.getElementById('ssrSimulation');
+            container.innerHTML = '<p style="color: #999;">🖥️ Renderizando en servidor...</p>';
+            
+            setTimeout(() => {
+                container.innerHTML = `
+                    <h3 style="color: #667eea;">📝 Posts</h3>
+                    <div style="background: #f5f5f5; padding: 15px; margin-bottom: 10px; border-radius: 6px;">
+                        <strong>Post 1:</strong> React Hooks
+                    </div>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 6px;">
+                        <strong>Post 2:</strong> Next.js 14
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        function simulateSSG() {
+            const container = document.getElementById('ssgSimulation');
+            container.innerHTML = '<p style="color: #999;">📤 Sirviendo desde CDN...</p>';
+            
+            setTimeout(() => {
+                container.innerHTML = `
+                    <h3 style="color: #667eea;">📝 Posts</h3>
+                    <div style="background: #f5f5f5; padding: 15px; margin-bottom: 10px; border-radius: 6px;">
+                        <strong>Post 1:</strong> React Hooks
+                    </div>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 6px;">
+                        <strong>Post 2:</strong> Next.js 14
+                    </div>
+                `;
+            }, 300);
+        }
+
+        function simulateWithoutLoading() {
+            const container = document.getElementById('withoutLoadingDemo');
+            container.innerHTML = '<p style="color: #999; padding: 40px; text-align: center;">⏳ Pantalla blanca...</p>';
+            
+            setTimeout(() => {
+                container.innerHTML = `
+                    <h3 style="color: #667eea;">Posts</h3>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 6px;">Post 1</div>
+                `;
+            }, 2000);
+        }
+
+        function simulateWithLoading() {
+            const container = document.getElementById('withLoadingDemo');
+            container.innerHTML = `
+                <div style="padding: 40px; text-align: center;">
+                    <div class="loading-spinner" style="margin: 0 auto 15px;"></div>
+                    <p style="color: #667eea;">Cargando posts...</p>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                container.innerHTML = `
+                    <h3 style="color: #667eea;">Posts</h3>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 6px;">Post 1</div>
+                `;
+            }, 2000);
+        }
+
+        function simulateSkeletonLoading() {
+            const container = document.getElementById('withSkeletonDemo');
+            container.innerHTML = `
+                <div style="padding: 20px;">
+                    <div class="skeleton-title"></div>
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line" style="width: 80%;"></div>
+                    <div style="margin-top: 20px;"></div>
+                    <div class="skeleton-title"></div>
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line" style="width: 60%;"></div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                container.innerHTML = `
+                    <h3 style="color: #667eea;">Posts</h3>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 6px;">Post 1</div>
+                `;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

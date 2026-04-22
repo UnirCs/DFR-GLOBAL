@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Web Storage + Next.js</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      margin: 0;
+      padding: 30px;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    .section {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 25px;
+    }
+
+    .grid {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      padding: 8px 12px;
+      margin-right: 5px;
+      border: none;
+      border-radius: 5px;
+      background: #3b82f6;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    .output {
+      margin-top: 10px;
+      padding: 10px;
+      background: #020617;
+      border-radius: 5px;
+      min-height: 40px;
+    }
+
+    pre {
+      background: #020617;
+      padding: 15px;
+      border-radius: 10px;
+      overflow-x: auto;
+    }
+
+    .highlight {
+      color: #38bdf8;
+    }
+
+    .note {
+      font-size: 13px;
+      opacity: 0.7;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🧠 Web Storage + Next.js</h1>
+
+<!-- CONCEPTO -->
+<div class="section">
+  <h2>📘 Concepto</h2>
+  <p>
+    <strong>localStorage</strong> y <strong>sessionStorage</strong> son APIs del navegador para almacenar datos en cliente.
+  </p>
+
+  <p class="highlight">
+    ⚠️ En Next.js esto es importante:
+  </p>
+
+  <p>
+    Next.js ejecuta código en <strong>servidor</strong> y <strong>cliente</strong>, pero estas APIs
+    <strong>solo existen en el navegador</strong>.
+  </p>
+
+  <pre>
+// ❌ Esto falla en Next.js (SSR)
+localStorage.getItem("demo");
+
+// ✅ Correcto (solo cliente)
+useEffect(() => {
+  localStorage.getItem("demo");
+}, []);
+  </pre>
+</div>
+
+<!-- DIFERENCIAS -->
+<div class="section">
+  <h2>⚖️ Diferencias clave</h2>
+  <ul>
+    <li><strong>localStorage</strong>: persiste incluso al cerrar navegador</li>
+    <li><strong>sessionStorage</strong>: se borra al cerrar pestaña</li>
+    <li>Misma API: setItem / getItem / removeItem</li>
+  </ul>
+</div>
+
+<!-- DEMO -->
+<div class="section">
+  <h2>🚀 Demo interactiva</h2>
+
+  <div class="grid">
+
+    <!-- LOCAL -->
+    <div class="card">
+      <h3>📦 localStorage</h3>
+
+      <input id="localInput" placeholder="Escribe algo..." />
+
+      <button onclick="saveLocal()">Guardar</button>
+      <button onclick="clearLocal()">Borrar</button>
+
+      <div class="output" id="localOutput"></div>
+
+      <div class="note">Persiste tras cerrar el navegador</div>
+    </div>
+
+    <!-- SESSION -->
+    <div class="card">
+      <h3>⚡ sessionStorage</h3>
+
+      <input id="sessionInput" placeholder="Escribe algo..." />
+
+      <button onclick="saveSession()">Guardar</button>
+      <button onclick="clearSession()">Borrar</button>
+
+      <div class="output" id="sessionOutput"></div>
+
+      <div class="note">Se borra al cerrar la pestaña</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BUENAS PRÁCTICAS -->
+<div class="section">
+  <h2>✅ Buenas prácticas</h2>
+
+  <pre>
+// Serializar datos
+localStorage.setItem("user", JSON.stringify(user));
+
+// Recuperar datos
+const user = JSON.parse(localStorage.getItem("user"));
+
+// Evitar SSR errors
+if (typeof window !== "undefined") {
+  localStorage.getItem("demo");
+}
+  </pre>
+
+  <ul>
+    <li>No guardar datos sensibles</li>
+    <li>Usar JSON para objetos</li>
+    <li>Acceder solo en cliente (Next.js)</li>
+  </ul>
+</div>
+
+<script>
+  // LOCAL STORAGE
+  function saveLocal() {
+    const value = document.getElementById("localInput").value;
+    localStorage.setItem("demo", JSON.stringify(value));
+    renderLocal();
+  }
+
+  function clearLocal() {
+    localStorage.removeItem("demo");
+    renderLocal();
+  }
+
+  function renderLocal() {
+    const value = localStorage.getItem("demo");
+    document.getElementById("localOutput").innerText =
+      value ? JSON.parse(value) : "Sin datos";
+  }
+
+  // SESSION STORAGE
+  function saveSession() {
+    const value = document.getElementById("sessionInput").value;
+    sessionStorage.setItem("demo", JSON.stringify(value));
+    renderSession();
+  }
+
+  function clearSession() {
+    sessionStorage.removeItem("demo");
+    renderSession();
+  }
+
+  function renderSession() {
+    const value = sessionStorage.getItem("demo");
+    document.getElementById("sessionOutput").innerText =
+      value ? JSON.parse(value) : "Sin datos";
+  }
+
+  // INIT
+  window.onload = () => {
+    renderLocal();
+    renderSession();
+  };
+</script>
+
+</body>
+</html>
+
