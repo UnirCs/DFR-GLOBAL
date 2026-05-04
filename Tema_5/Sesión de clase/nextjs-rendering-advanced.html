@@ -1,0 +1,2484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next.js Rendering Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Light theme con mucho contraste */
+    --bg: #f5f1e8;
+    --bg-soft: #ebe5d4;
+    --bg-card: #ffffff;
+    --line: #2a2a2a;
+    --line-soft: #c4bda8;
+    --ink: #0a0a0a;
+    --ink-mid: #3a3a3a;
+    --ink-dim: #5a5448;
+    --accent: #e63900;
+    --accent-soft: #ffe4d6;
+    --green: #1f6f3a;
+    --green-bg: #d4ebd8;
+    --yellow: #8a5a00;
+    --yellow-bg: #fde9b8;
+    --blue: #14507a;
+    --blue-bg: #cfe4f0;
+    --purple: #5b3a8a;
+    --code-bg: #1a1a1a;
+    --code-ink: #f5f1e8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Fraunces', serif;
+    font-optical-sizing: auto;
+    line-height: 1.55;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 32px;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    margin-bottom: 60px;
+    border-bottom: 2px solid var(--line);
+    padding-bottom: 40px;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 20px;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 19px;
+    color: var(--ink-mid);
+    max-width: 640px;
+    line-height: 1.55;
+  }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 48px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    background: var(--bg-card);
+    border: 2px solid var(--line);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    padding: 14px 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    font-weight: 500;
+    border-radius: 4px;
+  }
+
+  .tab:hover {
+    background: var(--bg-soft);
+  }
+
+  .tab.active {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+
+  .tab-num {
+    color: var(--accent);
+    margin-right: 8px;
+    font-weight: 700;
+  }
+
+  .tab.active .tab-num { color: #ffb380; }
+
+  /* ===== PANEL ===== */
+  .panel {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-header {
+    margin-bottom: 40px;
+  }
+
+  .panel-header h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 52px;
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+    color: var(--ink);
+  }
+
+  .panel-header h2 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .panel-tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-mid);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .one-liner {
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1.5;
+    max-width: 720px;
+    font-weight: 400;
+  }
+
+  .one-liner strong {
+    background: var(--accent-soft);
+    padding: 0 6px;
+    font-weight: 600;
+  }
+
+  /* ===== SIMULATION CARD ===== */
+  .sim-card {
+    background: var(--bg-card);
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    padding: 28px;
+    margin-bottom: 32px;
+  }
+
+  .sim-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .sim-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-mid);
+    font-weight: 600;
+  }
+
+  .play-btn {
+    background: var(--accent);
+    color: white;
+    border: 2px solid var(--accent);
+    padding: 10px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+    font-weight: 700;
+  }
+
+  .play-btn:hover {
+    background: #c12f00;
+    border-color: #c12f00;
+  }
+
+  .play-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Timeline */
+  .timeline {
+    display: grid;
+    grid-template-columns: 130px 1fr 130px;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 700px) {
+    .timeline { grid-template-columns: 1fr; gap: 10px; }
+  }
+
+  .actor {
+    text-align: center;
+    padding: 18px 10px;
+    border: 2px solid var(--line);
+    border-radius: 4px;
+    background: var(--bg-soft);
+  }
+
+  .actor-icon {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 26px;
+    color: var(--accent);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .actor-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .track {
+    height: 80px;
+    position: relative;
+    border: 2px dashed var(--line-soft);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--bg-soft);
+  }
+
+  .track-label {
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .packet {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 7px 12px;
+    background: var(--accent);
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0;
+    font-weight: 700;
+    border: 1px solid rgba(0,0,0,0.2);
+  }
+
+  .packet.html { background: var(--green); }
+  .packet.json { background: var(--blue); }
+  .packet.js { background: var(--ink); }
+  .packet.cached { background: var(--purple); }
+
+  /* Stats */
+  .status-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--line);
+    border: 2px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 20px;
+  }
+
+  @media (max-width: 700px) {
+    .status-bar { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .stat {
+    background: var(--bg-card);
+    padding: 14px 16px;
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .stat-value {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .stat-value.good { color: var(--green); }
+  .stat-value.warn { color: var(--yellow); }
+  .stat-value.bad { color: var(--accent); }
+
+  /* Browser */
+  .browser {
+    border: 2px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 20px;
+    background: white;
+  }
+
+  .browser-bar {
+    background: var(--bg-soft);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 2px solid var(--line);
+  }
+
+  .dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--ink);
+    opacity: 0.4;
+  }
+
+  .url-bar {
+    flex: 1;
+    background: white;
+    padding: 6px 12px;
+    border: 1px solid var(--line-soft);
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink);
+    margin-left: 10px;
+    font-weight: 500;
+  }
+
+  .browser-content {
+    min-height: 160px;
+    padding: 22px;
+    color: var(--ink);
+    font-family: 'Fraunces', serif;
+    position: relative;
+    background: white;
+  }
+
+  .browser-content h3 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .browser-content p {
+    color: var(--ink-mid);
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .skeleton {
+    height: 14px;
+    background: linear-gradient(90deg, #d8d3c1 25%, #ebe5d4 50%, #d8d3c1 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 2px;
+    margin-bottom: 8px;
+  }
+
+  .skeleton.short { width: 60%; }
+  .skeleton.title { height: 22px; width: 70%; margin-bottom: 16px; }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .timestamp {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    background: var(--bg-soft);
+    padding: 3px 8px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+
+  /* ===== ANALOGY BOX ===== */
+  .analogy {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .analogy-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .analogy-text {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    color: var(--ink);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* ===== CODE ===== */
+  .code-section {
+    margin-bottom: 32px;
+  }
+
+  .code-block {
+    background: var(--code-bg);
+    border: 2px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .code-header {
+    background: #0a0a0a;
+    padding: 10px 16px;
+    border-bottom: 2px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .code-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #c4bda8;
+    font-weight: 500;
+  }
+
+  .code-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: var(--accent);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 3px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  pre {
+    padding: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--code-ink);
+    overflow-x: auto;
+  }
+
+  .keyword { color: #ff9bbf; font-weight: 500; }
+  .string { color: #a8e6a3; }
+  .comment { color: #b8a878; font-style: italic; }
+  .fn { color: #8cd0ff; }
+  .punct { color: #c4bda8; }
+  .num { color: #ffd166; }
+
+  /* ===== USE CASES ===== */
+  .when-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  @media (max-width: 800px) {
+    .when-block { grid-template-columns: 1fr; }
+  }
+
+  .when-card {
+    border: 2px solid var(--line);
+    padding: 24px;
+    border-radius: 4px;
+    background: var(--bg-card);
+  }
+
+  .when-card.yes { border-left: 6px solid var(--green); }
+  .when-card.no { border-left: 6px solid var(--accent); }
+
+  .when-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    font-weight: 700;
+  }
+
+  .when-card.yes .when-title { color: var(--green); }
+  .when-card.no .when-title { color: var(--accent); }
+
+  .when-card ul {
+    list-style: none;
+  }
+
+  .when-card li {
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line-soft);
+    color: var(--ink);
+    font-size: 16px;
+  }
+
+  .when-card li:last-child { border-bottom: none; }
+
+  .when-card.yes li::before { content: '✓ '; color: var(--green); font-weight: 700; margin-right: 4px; }
+  .when-card.no li::before { content: '✗ '; color: var(--accent); font-weight: 700; margin-right: 4px; }
+
+  /* ===== COMPARISON ===== */
+  .section {
+    margin-top: 80px;
+    padding-top: 50px;
+    border-top: 2px solid var(--line);
+  }
+
+  .section-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+
+  .section h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 44px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+    color: var(--ink);
+  }
+
+  .section h2 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .table-wrapper {
+    border: 2px solid var(--line);
+    border-radius: 4px;
+    overflow-x: auto;
+    background: var(--bg-card);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Fraunces', serif;
+    min-width: 700px;
+  }
+
+  th, td {
+    padding: 16px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 15px;
+    color: var(--ink);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    font-weight: 700;
+    background: var(--bg-soft);
+    border-bottom: 2px solid var(--line);
+  }
+
+  td:first-child {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 19px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  td .pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    border: 1.5px solid;
+  }
+
+  .pill.fast { background: var(--green-bg); color: var(--green); border-color: var(--green); }
+  .pill.med { background: var(--yellow-bg); color: var(--yellow); border-color: var(--yellow); }
+  .pill.slow { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+
+  /* ===== DECISION TREE ===== */
+  .decision-tree {
+    background: var(--bg-card);
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    padding: 36px;
+  }
+
+  .tree-question {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .tree-q {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    color: var(--ink);
+    margin-bottom: 8px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .tree-q-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-mid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .tree-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .tree-option {
+    padding: 22px;
+    background: var(--bg-soft);
+    border: 2px solid var(--line);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .tree-option:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+
+  .tree-option.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .tree-option-text {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    color: var(--ink);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .tree-option-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+
+  .tree-result {
+    margin-top: 24px;
+    padding: 28px;
+    background: var(--accent-soft);
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    display: none;
+  }
+
+  .tree-result.visible { display: block; animation: fadeIn 0.3s; }
+
+  .tree-result-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .tree-result-name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 32px;
+    color: var(--ink);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .tree-result-desc {
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  /* ===== GLOSSARY BOX ===== */
+  .glossary {
+    background: var(--bg-card);
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (max-width: 700px) {
+    .glossary { grid-template-columns: 1fr; gap: 12px; }
+  }
+
+  .glossary-term {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .glossary-acronym {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-mid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  .glossary-def {
+    font-size: 16px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  .glossary-def strong {
+    background: var(--accent-soft);
+    padding: 0 4px;
+    font-weight: 600;
+  }
+
+  .glossary-visual {
+    margin-top: 16px;
+    padding: 14px;
+    background: var(--bg-soft);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-mid);
+    line-height: 1.7;
+  }
+
+  .glossary-visual .arrow { color: var(--accent); font-weight: 700; }
+  .glossary-visual strong { color: var(--ink); }
+
+  /* Trigger list (for SSR activators) */
+  .triggers {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 20px 0 8px;
+  }
+
+  @media (max-width: 700px) {
+    .triggers { grid-template-columns: 1fr; }
+  }
+
+  .trigger {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 14px 16px;
+    border-radius: 4px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .trigger-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #8cd0ff;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .trigger-desc {
+    font-size: 13px;
+    color: #c4bda8;
+    line-height: 1.4;
+  }
+
+  /* ===== CATEGORY HEADER ===== */
+  .category-header {
+    margin-bottom: 36px;
+    padding-bottom: 28px;
+    border-bottom: 2px solid var(--line);
+  }
+
+  .category-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+    font-weight: 700;
+  }
+
+  .category-header h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 56px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  .category-header h2 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .category-summary {
+    font-size: 19px;
+    color: var(--ink);
+    line-height: 1.55;
+    max-width: 760px;
+  }
+
+  .category-summary strong {
+    background: var(--accent-soft);
+    padding: 0 6px;
+    font-weight: 600;
+  }
+
+  /* Variant pills (when a category has subtypes) */
+  .variants-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .variant-pill {
+    background: var(--bg-card);
+    border: 2px solid var(--line);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    padding: 10px 18px;
+    cursor: pointer;
+    border-radius: 100px;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .variant-pill:hover {
+    background: var(--bg-soft);
+  }
+
+  .variant-pill.active {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+
+  .variant-pill .pill-num {
+    color: var(--accent);
+    margin-right: 6px;
+    font-weight: 700;
+  }
+
+  .variant-pill.active .pill-num { color: #ffb380; }
+
+  /* Subtype panel */
+  .subtype {
+    display: none;
+  }
+
+  .subtype.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .subtype-header {
+    margin-bottom: 32px;
+  }
+
+  .subtype-tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-mid);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+
+  .subtype-header h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 38px;
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+    color: var(--ink);
+  }
+
+  .subtype-header h3 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  /* ===== DEPLOY FLOW ===== */
+  .deploy-flow {
+    background: var(--bg-card);
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    padding: 28px;
+    margin-bottom: 32px;
+  }
+
+  .deploy-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-mid);
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .deploy-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 800px) {
+    .deploy-steps { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .deploy-step {
+    background: var(--bg-soft);
+    border: 2px solid var(--line);
+    border-radius: 4px;
+    padding: 18px 16px;
+    position: relative;
+  }
+
+  .deploy-step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: 0.08em;
+  }
+
+  .deploy-step-title {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    color: var(--ink);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .deploy-step-desc {
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.45;
+  }
+
+  .deploy-step-cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 4px 8px;
+    border-radius: 3px;
+    margin-top: 8px;
+    display: inline-block;
+  }
+
+  .deploy-note {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 0 4px 4px 0;
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  .deploy-note strong {
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  /* ===== SCOPE SECTION ===== */
+  .scope-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  @media (max-width: 900px) {
+    .scope-grid { grid-template-columns: 1fr; }
+  }
+
+  .scope-card {
+    background: var(--bg-card);
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    padding: 26px;
+    position: relative;
+  }
+
+  .scope-card.broad { border-top: 6px solid var(--blue); }
+  .scope-card.medium { border-top: 6px solid var(--yellow); }
+  .scope-card.narrow { border-top: 6px solid var(--green); }
+
+  .scope-level {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .scope-card.broad .scope-level { color: var(--blue); }
+  .scope-card.medium .scope-level { color: var(--yellow); }
+  .scope-card.narrow .scope-level { color: var(--green); }
+
+  .scope-name {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 4px;
+    font-style: italic;
+  }
+
+  .scope-affects {
+    font-size: 13px;
+    color: var(--ink-mid);
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .scope-explain {
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+
+  .scope-code {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 12px 14px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+
+  .key-insight {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 28px 32px;
+    border-radius: 6px;
+    margin-top: 32px;
+  }
+
+  .key-insight-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+
+  .key-insight-text {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    line-height: 1.45;
+    font-weight: 400;
+  }
+
+  .key-insight-text em {
+    font-style: italic;
+    color: #ffb380;
+  }
+
+  /* footer */
+  footer {
+    margin-top: 80px;
+    padding: 30px 0;
+    border-top: 2px solid var(--line);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-mid);
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+
+  footer span { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="eyebrow">Guía visual · 2026</div>
+    <h1>Renderizado en<br><em>Next.js</em>, sin misterio</h1>
+    <p class="subtitle">Tres categorías de renderizado más una capa adicional. Verás cómo funciona cada una, cuándo usarla y cómo configurarla.</p>
+  </header>
+
+  <!-- ACLARACIÓN ESTÁTICO VS DINÁMICO -->
+  <section class="section" style="margin-top: 0; padding-top: 0; border-top: none; margin-bottom: 60px;">
+    <div class="section-eyebrow">Antes de empezar</div>
+    <h2 style="margin-bottom: 24px;">Estático y dinámico: <em>cuándo</em>, no cómo</h2>
+    <p class="one-liner" style="margin-bottom: 32px;">Estos términos confunden mucho. <strong>No tienen nada que ver con si la página se mueve, tiene animaciones o es interactiva.</strong> Se refieren a <em style="color:var(--accent); font-style:italic;">cuándo se genera el HTML</em> que llega al navegador.</p>
+
+    <div class="scope-grid">
+      <div class="scope-card narrow">
+        <div class="scope-level">▸ Estático</div>
+        <div class="scope-name">HTML pre-cocinado</div>
+        <div class="scope-explain" style="margin-bottom: 14px;">El HTML se genera <strong>una vez</strong>, antes de que nadie lo pida. Todos los visitantes reciben el mismo archivo.</div>
+        <div style="background: var(--bg-soft); padding: 12px; border-radius: 4px; font-size: 13px; color: var(--ink-mid); line-height: 1.55;">
+          <strong style="color: var(--green); display:block; margin-bottom: 4px;">Ejemplos:</strong>
+          Apple.com, blogs, docs, landing pages, fichas de producto. Pueden tener vídeos, animaciones, dark mode, formularios — siguen siendo estáticas.
+        </div>
+      </div>
+
+      <div class="scope-card broad">
+        <div class="scope-level">▸ Dinámico</div>
+        <div class="scope-name">HTML al momento</div>
+        <div class="scope-explain" style="margin-bottom: 14px;">El HTML se genera <strong>en cada visita</strong>. Cada usuario puede recibir un HTML distinto, según quién sea o qué pida.</div>
+        <div style="background: var(--bg-soft); padding: 12px; border-radius: 4px; font-size: 13px; color: var(--ink-mid); line-height: 1.55;">
+          <strong style="color: var(--accent); display:block; margin-bottom: 4px;">Ejemplos:</strong>
+          Tu bandeja de Gmail, tu carrito de Amazon, tu perfil de cualquier red social. Páginas que muestran datos personales o que cambian al instante.
+        </div>
+      </div>
+    </div>
+
+    <div class="key-insight" style="margin-top: 28px;">
+      <div class="key-insight-label">◆ La confusión más común</div>
+      <div class="key-insight-text">Una página estática <em>puede tener animaciones, vídeos, formularios, mapas interactivos y dark mode</em>. Lo "estático" es solo el HTML inicial. Una vez en el navegador, JavaScript puede hacer lo que quiera. <em>Renderizado e interactividad son cosas distintas.</em></div>
+    </div>
+
+    <div style="background: var(--bg-card); border: 2px solid var(--line); border-radius: 6px; padding: 28px; margin-top: 28px;">
+      <div class="deploy-title">◆ La pregunta clave</div>
+      <p style="font-family: 'Fraunces', serif; font-size: 22px; font-style: italic; color: var(--ink); margin-bottom: 20px; line-height: 1.4;">"¿El contenido cambia según quién pregunta?"</p>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div style="padding: 14px 16px; background: var(--green-bg); border-left: 4px solid var(--green); border-radius: 0 4px 4px 0;">
+          <strong style="color: var(--green); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 6px;">No → Estático</strong>
+          <div style="font-size: 14px; color: var(--ink); line-height: 1.5;">Inicio de un blog, ficha de producto en una tienda, página "sobre nosotros", landing.</div>
+        </div>
+        <div style="padding: 14px 16px; background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 0 4px 4px 0;">
+          <strong style="color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 6px;">Sí → Dinámico</strong>
+          <div style="font-size: 14px; color: var(--ink); line-height: 1.5;">Tu bandeja de entrada, tu carrito de compra, tu dashboard, tu perfil personal.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABS -->
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="static"><span class="tab-num">01</span>Estático</button>
+    <button class="tab" data-tab="dynamic"><span class="tab-num">02</span>Dinámico</button>
+    <button class="tab" data-tab="client"><span class="tab-num">03</span>Cliente</button>
+    <button class="tab" data-tab="streaming"><span class="tab-num">+</span>Streaming</button>
+  </nav>
+
+  <!-- ============ ESTÁTICO ============ -->
+  <section class="panel active" data-panel="static">
+    <div class="category-header">
+      <div class="category-label">Categoría 01 · Estático</div>
+      <h2>HTML <em>pre-cocinado</em></h2>
+      <p class="category-summary">El HTML se genera en el <strong>servidor antes</strong> de que nadie lo pida, se guarda como un archivo y se sirve desde un CDN. Es la categoría más rápida y barata. Incluye dos variantes: SSG (estático puro) e ISR (estático que se actualiza solo).</p>
+    </div>
+
+    <div class="variants-nav" data-category="static">
+      <button class="variant-pill active" data-variant="ssg"><span class="pill-num">A</span>SSG</button>
+      <button class="variant-pill" data-variant="isr"><span class="pill-num">B</span>ISR</button>
+    </div>
+
+    <!-- ── Variante: SSG ── -->
+    <div class="subtype active" data-subtype="ssg">
+      <div class="subtype-header">
+        <div class="subtype-tagline">Static Site Generation</div>
+        <h3>Cocina <em>una vez</em>, sirve mil veces</h3>
+      </div>
+
+    <div class="analogy">
+      <div class="analogy-label">◆ Analogía</div>
+      <div class="analogy-text">Como un libro impreso. Lo escribes una vez, lo imprimes, y cualquiera puede leerlo al instante. Pero si quieres cambiar algo, hay que reimprimir.</div>
+    </div>
+
+    <div class="glossary">
+      <div>
+        <div class="glossary-term">CDN</div>
+        <div class="glossary-acronym">Content Delivery Network</div>
+      </div>
+      <div>
+        <div class="glossary-def">Una <strong>red de copias de tu web repartidas por el mundo</strong>. Cuando alguien en Tokio pide tu página, la recibe desde un servidor en Tokio, no desde Madrid. Por eso las páginas estáticas son tan rápidas: no es que el servidor sea más potente, es que está más cerca.</div>
+        <div class="glossary-visual">
+          Sin CDN: usuario en Tokio <span class="arrow">→</span> servidor en Madrid <span class="arrow">→</span> <strong>10.000 km · ~300 ms</strong><br>
+          Con CDN: usuario en Tokio <span class="arrow">→</span> copia en Tokio <span class="arrow">→</span> <strong>50 km · ~10 ms</strong>
+        </div>
+        <div class="glossary-def" style="margin-top: 14px; font-size: 14px; color: var(--ink-mid);">Cloudflare, Vercel, Netlify y AWS CloudFront son CDNs. Si despliegas en Vercel o Netlify, tu CDN ya está montado.</div>
+      </div>
+    </div>
+
+    <div class="sim-card">
+      <div class="sim-header">
+        <span class="sim-label">Simulación · 3 visitantes</span>
+        <button class="play-btn" data-sim="ssg">▶ Ejecutar</button>
+      </div>
+
+      <div class="timeline">
+        <div class="actor">
+          <div class="actor-icon">U</div>
+          <div class="actor-name">Usuario</div>
+        </div>
+        <div class="track" id="track-ssg">
+          <span class="track-label">Red</span>
+        </div>
+        <div class="actor">
+          <div class="actor-icon">C</div>
+          <div class="actor-name">CDN</div>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <div class="stat">
+          <div class="stat-label">Velocidad</div>
+          <div class="stat-value good" id="ssg-time">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Servidor</div>
+          <div class="stat-value good">Sin trabajo</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">SEO</div>
+          <div class="stat-value good">Perfecto</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Datos frescos</div>
+          <div class="stat-value bad">No</div>
+        </div>
+      </div>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <div class="url-bar">misitio.com/blog/post-1</div>
+        </div>
+        <div class="browser-content" id="ssg-browser">
+          <span class="timestamp" id="ssg-timestamp">—</span>
+          <h3>Cómo aprendí Next.js</h3>
+          <p>Publicado el 3 de marzo, 2026</p>
+          <p>Hace unos meses decidí migrar mi blog y la experiencia fue reveladora...</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-section">
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">app/blog/[slug]/page.tsx</span>
+          <span class="code-tag">SSG por defecto</span>
+        </div>
+<pre><span class="comment">// No haces nada especial: esto YA es SSG</span>
+<span class="keyword">export default async function</span> <span class="fn">Post</span>(<span class="punct">{</span> params <span class="punct">}</span>) <span class="punct">{</span>
+  <span class="keyword">const</span> post <span class="punct">=</span> <span class="keyword">await</span> <span class="fn">fetch</span>(<span class="string">'/api/posts/' + params.slug</span>)
+                     .<span class="fn">then</span>(r <span class="punct">=&gt;</span> r.<span class="fn">json</span>())
+
+  <span class="keyword">return</span> <span class="punct">&lt;</span>article<span class="punct">&gt;{</span>post.body<span class="punct">}&lt;/</span>article<span class="punct">&gt;</span>
+<span class="punct">}</span></pre>
+      </div>
+    </div>
+
+    <div class="when-block">
+      <div class="when-card yes">
+        <div class="when-title">Úsalo cuando</div>
+        <ul>
+          <li>Todos ven lo mismo</li>
+          <li>El contenido cambia poco</li>
+          <li>Es un blog, docs o landing</li>
+        </ul>
+      </div>
+      <div class="when-card no">
+        <div class="when-title">Evítalo cuando</div>
+        <ul>
+          <li>Cada usuario ve cosas distintas</li>
+          <li>Los datos cambian al minuto</li>
+          <li>Necesitas tiempo real</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Deploy flow -->
+    <div class="deploy-flow">
+      <div class="deploy-title">◆ ¿Y si quiero actualizar el contenido?</div>
+
+      <div class="deploy-steps">
+        <div class="deploy-step">
+          <div class="deploy-step-num">PASO 1</div>
+          <div class="deploy-step-title">Cambias el código o los datos</div>
+          <div class="deploy-step-desc">Editas un post, añades uno nuevo, cambias un texto en la API.</div>
+        </div>
+        <div class="deploy-step">
+          <div class="deploy-step-num">PASO 2</div>
+          <div class="deploy-step-title">Subes a Git</div>
+          <div class="deploy-step-desc">Haces commit y push a GitHub, GitLab, etc.</div>
+          <div class="deploy-step-cmd">git push</div>
+        </div>
+        <div class="deploy-step">
+          <div class="deploy-step-num">PASO 3</div>
+          <div class="deploy-step-title">Build automático</div>
+          <div class="deploy-step-desc">Vercel (o Netlify, AWS...) detecta el push y ejecuta <code style="font-family:monospace; background:var(--bg-soft); padding:1px 4px;">next build</code>.</div>
+        </div>
+        <div class="deploy-step">
+          <div class="deploy-step-num">PASO 4</div>
+          <div class="deploy-step-title">Sube al CDN</div>
+          <div class="deploy-step-desc">Los nuevos HTML se distribuyen y los visitantes ya ven la versión nueva.</div>
+        </div>
+      </div>
+
+      <div class="deploy-note">
+        <strong>En la práctica:</strong> con Vercel o Netlify, todo esto ocurre solo en 1-3 minutos tras un <code>git push</code>. Tú solo escribes y subes; el despliegue es automático. Si no usas un servicio así, tendrás que ejecutar <code>next build</code> y subir la carpeta <code>.next</code> a tu servidor manualmente.
+      </div>
+    </div>
+    </div>
+    <!-- ── /SSG ── -->
+
+    <!-- ── Variante: ISR ── -->
+    <div class="subtype" data-subtype="isr">
+      <div class="subtype-header">
+        <div class="subtype-tagline">Incremental Static Regeneration</div>
+        <h3>Estático, pero <em>se actualiza solo</em></h3>
+        <p class="one-liner" style="margin-top:14px;">Como SSG, pero la página <strong>se vuelve a generar cada X segundos</strong>. Rápido como un archivo, fresco como un servidor.</p>
+      </div>
+
+    <div class="analogy">
+      <div class="analogy-label">◆ Analogía</div>
+      <div class="analogy-text">Como un periódico. Sale una edición, todos leen la misma. Cada cierto tiempo sale una nueva edición con los datos actualizados.</div>
+    </div>
+
+    <div class="sim-card">
+      <div class="sim-header">
+        <span class="sim-label">Simulación · revalidate cada 60s</span>
+        <button class="play-btn" data-sim="isr">▶ Ejecutar</button>
+      </div>
+
+      <div class="timeline">
+        <div class="actor">
+          <div class="actor-icon">U</div>
+          <div class="actor-name">Usuario</div>
+        </div>
+        <div class="track" id="track-isr">
+          <span class="track-label">Red</span>
+        </div>
+        <div class="actor">
+          <div class="actor-icon">C</div>
+          <div class="actor-name">CDN + caché</div>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <div class="stat">
+          <div class="stat-label">Velocidad</div>
+          <div class="stat-value good">Instantánea</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Servidor</div>
+          <div class="stat-value good">Casi cero</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">SEO</div>
+          <div class="stat-value good">Perfecto</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Datos frescos</div>
+          <div class="stat-value warn">Cada N seg</div>
+        </div>
+      </div>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <div class="url-bar">tienda.com/producto/zapatos</div>
+        </div>
+        <div class="browser-content" id="isr-browser">
+          <span class="timestamp" id="isr-timestamp">—</span>
+          <h3>Zapatillas Runner X3</h3>
+          <p style="color:var(--accent); font-weight:600;">Stock: <span id="isr-stock">42</span> unidades</p>
+          <p>Precio: 89,90 €</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-section">
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">app/producto/[id]/page.tsx</span>
+          <span class="code-tag">ISR</span>
+        </div>
+<pre><span class="comment">// Solo añades esta línea: cada 60s se regenera</span>
+<span class="keyword">export const</span> revalidate <span class="punct">=</span> <span class="num">60</span>
+
+<span class="keyword">export default async function</span> <span class="fn">Page</span>() <span class="punct">{</span>
+  <span class="keyword">const</span> producto <span class="punct">=</span> <span class="keyword">await</span> <span class="fn">fetch</span>(<span class="string">'/api/productos/123'</span>)
+                         .<span class="fn">then</span>(r <span class="punct">=&gt;</span> r.<span class="fn">json</span>())
+
+  <span class="keyword">return</span> <span class="punct">&lt;</span>Card data<span class="punct">={</span>producto<span class="punct">}/&gt;</span>
+<span class="punct">}</span></pre>
+      </div>
+    </div>
+
+    <div class="when-block">
+      <div class="when-card yes">
+        <div class="when-title">Úsalo cuando</div>
+        <ul>
+          <li>Tienda online con muchos productos</li>
+          <li>Noticias o blog con varios autores</li>
+          <li>Datos que cambian, pero no al segundo</li>
+        </ul>
+      </div>
+      <div class="when-card no">
+        <div class="when-title">Evítalo cuando</div>
+        <ul>
+          <li>Necesitas datos al instante</li>
+          <li>El contenido es personalizado</li>
+          <li>Hay sesión o cookies</li>
+        </ul>
+      </div>
+    </div>
+    </div>
+    <!-- ── /ISR ── -->
+  </section>
+  <!-- ============ /ESTÁTICO ============ -->
+
+  <!-- ============ DINÁMICO ============ -->
+  <section class="panel" data-panel="dynamic">
+    <div class="category-header">
+      <div class="category-label">Categoría 02 · Dinámico</div>
+      <h2>HTML <em>al momento</em></h2>
+      <p class="category-summary">El servidor genera la página <strong>cada vez que alguien la pide</strong>. Imprescindible cuando los datos dependen del usuario o cambian al instante. Aquí solo hay una variante: SSR.</p>
+    </div>
+
+    <div class="subtype active" data-subtype="ssr">
+      <div class="subtype-header">
+        <div class="subtype-tagline">Server-Side Rendering</div>
+        <h3>Página fresca <em>en cada visita</em></h3>
+      </div>
+
+    <div class="analogy">
+      <div class="analogy-label">◆ Analogía</div>
+      <div class="analogy-text">Como un camarero que te prepara el plato cuando lo pides. Tarda más, pero puede hacerlo justo a tu gusto.</div>
+    </div>
+
+    <div class="sim-card">
+      <div class="sim-header">
+        <span class="sim-label">Simulación · cada usuario ve datos distintos</span>
+        <button class="play-btn" data-sim="ssr">▶ Ejecutar</button>
+      </div>
+
+      <div class="timeline">
+        <div class="actor">
+          <div class="actor-icon">U</div>
+          <div class="actor-name">Usuario</div>
+        </div>
+        <div class="track" id="track-ssr">
+          <span class="track-label">Red</span>
+        </div>
+        <div class="actor">
+          <div class="actor-icon">S</div>
+          <div class="actor-name">Servidor</div>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <div class="stat">
+          <div class="stat-label">Velocidad</div>
+          <div class="stat-value warn" id="ssr-time">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Servidor</div>
+          <div class="stat-value bad">Trabaja mucho</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">SEO</div>
+          <div class="stat-value good">Perfecto</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Datos frescos</div>
+          <div class="stat-value good">Tiempo real</div>
+        </div>
+      </div>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <div class="url-bar">app.com/dashboard</div>
+        </div>
+        <div class="browser-content" id="ssr-browser">
+          <span class="timestamp" id="ssr-timestamp">—</span>
+          <h3>Hola, <span id="ssr-user">—</span></h3>
+          <p>Tienes <strong id="ssr-notif">—</strong> notificaciones nuevas</p>
+          <p>Último login: <span id="ssr-login">—</span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-section">
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">app/dashboard/page.tsx</span>
+          <span class="code-tag">SSR</span>
+        </div>
+<pre><span class="keyword">import</span> <span class="punct">{</span> cookies <span class="punct">}</span> <span class="keyword">from</span> <span class="string">'next/headers'</span>
+
+<span class="keyword">export default async function</span> <span class="fn">Dashboard</span>() <span class="punct">{</span>
+  <span class="keyword">const</span> session <span class="punct">=</span> <span class="fn">cookies</span>().<span class="fn">get</span>(<span class="string">'session'</span>)
+  <span class="comment">// ↑ usar cookies() activa SSR automáticamente</span>
+
+  <span class="keyword">const</span> user <span class="punct">=</span> <span class="keyword">await</span> <span class="fn">getUser</span>(session.value)
+
+  <span class="keyword">return</span> <span class="punct">&lt;</span>h1<span class="punct">&gt;</span>Hola <span class="punct">{</span>user.name<span class="punct">}&lt;/</span>h1<span class="punct">&gt;</span>
+<span class="punct">}</span></pre>
+      </div>
+    </div>
+
+    <div class="deploy-flow">
+      <div class="deploy-title">◆ Las 6 formas de activar SSR</div>
+      <p style="font-size: 15px; color: var(--ink); margin-bottom: 8px; line-height: 1.55;">Cualquiera de estas señales le dice a Next "esto no se puede pre-generar, hay que ejecutarlo en cada visita". La idea común: si tu código necesita algo que <strong style="background:var(--accent-soft); padding:0 4px;">solo existe en el momento de la petición</strong>, Next pasa a SSR automáticamente.</p>
+
+      <div class="triggers">
+        <div class="trigger">
+          <div class="trigger-code">cookies()</div>
+          <div class="trigger-desc">Leer cookies del usuario (sesión, preferencias).</div>
+        </div>
+        <div class="trigger">
+          <div class="trigger-code">headers()</div>
+          <div class="trigger-desc">Leer cabeceras HTTP (idioma, IP, user-agent).</div>
+        </div>
+        <div class="trigger">
+          <div class="trigger-code">searchParams</div>
+          <div class="trigger-desc">Leer parámetros de la URL (?page=2, ?q=zapatos).</div>
+        </div>
+        <div class="trigger">
+          <div class="trigger-code">fetch(url, { cache: 'no-store' })</div>
+          <div class="trigger-desc">Pedir datos sin cachearlos nunca.</div>
+        </div>
+        <div class="trigger">
+          <div class="trigger-code">export const dynamic = 'force-dynamic'</div>
+          <div class="trigger-desc">Forzar SSR explícitamente, sin necesidad de los anteriores.</div>
+        </div>
+        <div class="trigger">
+          <div class="trigger-code">export const revalidate = 0</div>
+          <div class="trigger-desc">Equivalente a "regenera siempre". Casi idéntico al anterior.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="when-block">
+      <div class="when-card yes">
+        <div class="when-title">Úsalo cuando</div>
+        <ul>
+          <li>Hay login y datos personales</li>
+          <li>Los datos cambian en tiempo real</li>
+          <li>Necesitas SEO con datos frescos</li>
+        </ul>
+      </div>
+      <div class="when-card no">
+        <div class="when-title">Evítalo cuando</div>
+        <ul>
+          <li>El contenido es público y estable</li>
+          <li>Tienes mucho tráfico (es caro)</li>
+          <li>SSG o ISR ya valen</li>
+        </ul>
+      </div>
+    </div>
+    </div>
+    <!-- ── /SSR ── -->
+  </section>
+  <!-- ============ /DINÁMICO ============ -->
+
+  <!-- ============ CLIENTE ============ -->
+  <section class="panel" data-panel="client">
+    <div class="category-header">
+      <div class="category-label">Categoría 03 · Cliente</div>
+      <h2>HTML <em>en el navegador</em></h2>
+      <p class="category-summary">El servidor apenas trabaja: manda un HTML casi vacío y el <strong>navegador del usuario</strong> hace todo el trabajo de pintar la página con JavaScript. Aquí solo hay una variante: CSR.</p>
+    </div>
+
+    <div class="subtype active" data-subtype="csr">
+      <div class="subtype-header">
+        <div class="subtype-tagline">Client-Side Rendering</div>
+        <h3>Todo el trabajo <em>en el navegador</em></h3>
+      </div>
+
+    <div class="analogy">
+      <div class="analogy-label">◆ Analogía</div>
+      <div class="analogy-text">Como recibir un mueble de IKEA. Llega plano, tú lo montas en casa. La primera vez tarda — pero después, mover el mueble es instantáneo.</div>
+    </div>
+
+    <div class="sim-card">
+      <div class="sim-header">
+        <span class="sim-label">Simulación · pantalla blanca → JS → contenido</span>
+        <button class="play-btn" data-sim="csr">▶ Ejecutar</button>
+      </div>
+
+      <div class="timeline">
+        <div class="actor">
+          <div class="actor-icon">U</div>
+          <div class="actor-name">Navegador</div>
+        </div>
+        <div class="track" id="track-csr">
+          <span class="track-label">Red</span>
+        </div>
+        <div class="actor">
+          <div class="actor-icon">A</div>
+          <div class="actor-name">API</div>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <div class="stat">
+          <div class="stat-label">Primer pintado</div>
+          <div class="stat-value bad">Lento</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Después</div>
+          <div class="stat-value good">Muy rápido</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">SEO</div>
+          <div class="stat-value bad">Pobre</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Servidor</div>
+          <div class="stat-value good">Mínimo</div>
+        </div>
+      </div>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <div class="url-bar">app.com/feed</div>
+        </div>
+        <div class="browser-content" id="csr-browser">
+          <span class="timestamp" id="csr-timestamp">—</span>
+          <div id="csr-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-section">
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">app/feed/page.tsx</span>
+          <span class="code-tag">CSR</span>
+        </div>
+<pre><span class="string">"use client"</span>  <span class="comment">// ← esta línea lo activa</span>
+
+<span class="keyword">import</span> <span class="punct">{</span> useState<span class="punct">,</span> useEffect <span class="punct">}</span> <span class="keyword">from</span> <span class="string">'react'</span>
+
+<span class="keyword">export default function</span> <span class="fn">Feed</span>() <span class="punct">{</span>
+  <span class="keyword">const</span> [posts<span class="punct">,</span> setPosts] <span class="punct">=</span> <span class="fn">useState</span>([])
+
+  <span class="fn">useEffect</span>(() <span class="punct">=&gt;</span> <span class="punct">{</span>
+    <span class="fn">fetch</span>(<span class="string">'/api/feed'</span>).<span class="fn">then</span>(r <span class="punct">=&gt;</span> r.<span class="fn">json</span>()).<span class="fn">then</span>(setPosts)
+  <span class="punct">},</span> [])
+
+  <span class="keyword">return</span> <span class="punct">&lt;</span>List items<span class="punct">={</span>posts<span class="punct">}/&gt;</span>
+<span class="punct">}</span></pre>
+      </div>
+    </div>
+
+    <div class="deploy-flow">
+      <div class="deploy-title">◆ ¿Y el tiempo real? También funciona en CSR</div>
+      <p style="font-size: 15px; color: var(--ink); margin-bottom: 16px; line-height: 1.6;">Una confusión muy típica: pensar que CSR no sirve para datos en vivo. <strong style="background:var(--accent-soft); padding:0 4px;">Falso.</strong> Lo que es lento en CSR es la <em>carga inicial</em>. Una vez la app está corriendo, el tiempo real funciona perfectamente — y de hecho es uno de sus puntos fuertes.</p>
+
+      <div class="scope-grid">
+        <div class="scope-card narrow">
+          <div class="scope-level">▸ WebSockets</div>
+          <div class="scope-name">Bidireccional</div>
+          <div class="scope-explain">Conexión abierta entre navegador y servidor. El servidor empuja cambios al instante. Para chats, notificaciones, juegos multijugador, edición colaborativa.</div>
+        </div>
+
+        <div class="scope-card medium">
+          <div class="scope-level">▸ Polling</div>
+          <div class="scope-name">Pregunta cada N seg</div>
+          <div class="scope-explain">El navegador pregunta al servidor "¿hay algo nuevo?" cada X segundos. Sencillo de montar. Para precios, stock, contadores, métricas.</div>
+        </div>
+
+        <div class="scope-card broad">
+          <div class="scope-level">▸ SWR / React Query</div>
+          <div class="scope-name">Refresco automático</div>
+          <div class="scope-explain">Librerías que refrescan los datos solas cuando el usuario vuelve a la pestaña, recupera la conexión, o cada cierto tiempo. Lo más usado hoy.</div>
+        </div>
+      </div>
+
+      <div class="deploy-note" style="margin-top: 20px;">
+        <strong>Ejemplos reales:</strong> Discord, Notion, Figma, Linear o Google Docs son apps con mucho CSR y manejan tiempo real perfectamente. La diferencia con SSR no es "tiempo real sí o no", sino: SSR te da datos frescos <em>al cargar la página</em>, CSR te los da <em>mientras usas la app</em>. De hecho, lo más común es <strong>combinar SSR + CSR</strong>: SSR para la primera vista (rápida y con SEO), CSR después para la interactividad continua.
+      </div>
+    </div>
+
+    <div class="when-block">
+      <div class="when-card yes">
+        <div class="when-title">Úsalo cuando</div>
+        <ul>
+          <li>La página está tras login</li>
+          <li>SEO no importa</li>
+          <li>App muy interactiva</li>
+        </ul>
+      </div>
+      <div class="when-card no">
+        <div class="when-title">Evítalo cuando</div>
+        <ul>
+          <li>Necesitas indexarte en Google</li>
+          <li>Es contenido simple y estático</li>
+          <li>Usuarios con conexión lenta</li>
+        </ul>
+      </div>
+    </div>
+    </div>
+    <!-- ── /CSR ── -->
+  </section>
+  <!-- ============ /CLIENTE ============ -->
+
+  <!-- ============ STREAMING ============ -->
+  <section class="panel" data-panel="streaming">
+    <div class="panel-header">
+      <div class="panel-tagline">Streaming + Suspense</div>
+      <h2>Una <em>capa</em>, no un tipo</h2>
+      <p class="one-liner">Streaming no es un renderizado distinto: es una <strong>técnica que se aplica encima</strong> de SSG, ISR o SSR. Hace que la página llegue en trozos en vez de toda de golpe.</p>
+    </div>
+
+    <div class="key-insight" style="margin-bottom: 32px;">
+      <div class="key-insight-label">◆ Importante · corrigiendo una confusión</div>
+      <div class="key-insight-text">SSG, ISR, SSR y CSR son <em>tipos de renderizado</em> (cuándo y dónde se genera el HTML). Suspense con streaming es <em>una capa</em> que combinas con los tres primeros para que la página no se bloquee esperando a la parte más lenta.</div>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-label">◆ Analogía</div>
+      <div class="analogy-text">Como un restaurante que te trae el pan al sentarte, los entrantes a los 5 minutos y el plato fuerte después. No esperas con la mesa vacía. Da igual si el restaurante es de menú fijo (SSG), del día (ISR) o à la carte (SSR) — el servicio por trozos vale para cualquiera.</div>
+    </div>
+
+    <div class="sim-card">
+      <div class="sim-header">
+        <span class="sim-label">Simulación · 3 secciones a su ritmo</span>
+        <button class="play-btn" data-sim="streaming">▶ Ejecutar</button>
+      </div>
+
+      <div class="timeline">
+        <div class="actor">
+          <div class="actor-icon">U</div>
+          <div class="actor-name">Usuario</div>
+        </div>
+        <div class="track" id="track-stream">
+          <span class="track-label">Stream HTML</span>
+        </div>
+        <div class="actor">
+          <div class="actor-icon">S</div>
+          <div class="actor-name">Servidor</div>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <div class="stat">
+          <div class="stat-label">Header</div>
+          <div class="stat-value good" id="stream-h">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Sidebar</div>
+          <div class="stat-value good" id="stream-s">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Feed</div>
+          <div class="stat-value good" id="stream-f">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Pantalla blanca</div>
+          <div class="stat-value good">Nunca</div>
+        </div>
+      </div>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <div class="url-bar">red.com/inicio</div>
+        </div>
+        <div class="browser-content" id="stream-browser" style="min-height: 240px;">
+          <span class="timestamp" id="stream-timestamp">—</span>
+          <div id="stream-header"></div>
+          <div id="stream-sidebar" style="margin-top:14px;"></div>
+          <div id="stream-feed" style="margin-top:14px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Combinaciones -->
+    <div class="deploy-flow">
+      <div class="deploy-title">◆ Cómo se combina con cada tipo</div>
+
+      <div class="scope-grid">
+        <div class="scope-card narrow">
+          <div class="scope-level">▸ SSG + Suspense</div>
+          <div class="scope-name">Estático por trozos</div>
+          <div class="scope-explain">Útil si una parte de tu página estática depende de datos que llegan más tarde durante el build. Poco común, pero válido.</div>
+        </div>
+
+        <div class="scope-card medium">
+          <div class="scope-level">▸ ISR + Suspense</div>
+          <div class="scope-name">Híbrido por trozos</div>
+          <div class="scope-explain">Tu producto carga rápido (caché), pero las recomendaciones personalizadas pueden tardar. Suspense las muestra después sin bloquear.</div>
+        </div>
+
+        <div class="scope-card broad">
+          <div class="scope-level">▸ SSR + Suspense</div>
+          <div class="scope-name">El combo más útil</div>
+          <div class="scope-explain">Dashboard con login (SSR) donde el header del usuario aparece ya y los widgets pesados van llegando. Lo verás constantemente.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-section">
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-filename">app/dashboard/page.tsx</span>
+          <span class="code-tag">SSR + streaming</span>
+        </div>
+<pre><span class="keyword">import</span> <span class="punct">{</span> cookies <span class="punct">}</span> <span class="keyword">from</span> <span class="string">'next/headers'</span>
+<span class="keyword">import</span> <span class="punct">{</span> Suspense <span class="punct">}</span> <span class="keyword">from</span> <span class="string">'react'</span>
+
+<span class="keyword">export default async function</span> <span class="fn">Dashboard</span>() <span class="punct">{</span>
+  <span class="keyword">const</span> session <span class="punct">=</span> <span class="fn">cookies</span>().<span class="fn">get</span>(<span class="string">'session'</span>)
+  <span class="comment">// ↑ esto activa SSR</span>
+  <span class="keyword">const</span> user <span class="punct">=</span> <span class="keyword">await</span> <span class="fn">getUser</span>(session.value)
+
+  <span class="keyword">return</span> (
+    <span class="punct">&lt;&gt;</span>
+      <span class="punct">&lt;</span>h1<span class="punct">&gt;</span>Hola <span class="punct">{</span>user.name<span class="punct">}&lt;/</span>h1<span class="punct">&gt;</span>  <span class="comment">{/* sale ya */}</span>
+
+      <span class="punct">&lt;</span>Suspense fallback<span class="punct">={&lt;</span>Skeleton<span class="punct">/&gt;}&gt;</span>
+        <span class="punct">&lt;</span>NotificacionesLentas <span class="punct">/&gt;</span>  <span class="comment">{/* va llegando */}</span>
+      <span class="punct">&lt;/</span>Suspense<span class="punct">&gt;</span>
+    <span class="punct">&lt;/&gt;</span>
+  )
+<span class="punct">}</span></pre>
+      </div>
+    </div>
+
+    <div class="when-block">
+      <div class="when-card yes">
+        <div class="when-title">Combínalo cuando</div>
+        <ul>
+          <li>Hay partes rápidas y partes lentas</li>
+          <li>Tienes SSR y quieres que algo aparezca ya</li>
+          <li>Una sección hace consultas pesadas</li>
+        </ul>
+      </div>
+      <div class="when-card no">
+        <div class="when-title">No hace falta cuando</div>
+        <ul>
+          <li>Toda la página carga rápido por igual</li>
+          <li>Es CSR puro (ya tienes loading states)</li>
+          <li>Solo hay un bloque de contenido</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPARISON ============ -->
+  <section class="section">
+    <div class="section-eyebrow">Tabla comparativa</div>
+    <h2>Los <em>cinco</em>, lado a lado</h2>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Velocidad</th>
+            <th>Datos frescos</th>
+            <th>SEO</th>
+            <th>Coste</th>
+            <th>Caso típico</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>SSG</td>
+            <td><span class="pill fast">Instantánea</span></td>
+            <td><span class="pill slow">No</span></td>
+            <td><span class="pill fast">Perfecto</span></td>
+            <td><span class="pill fast">Cero</span></td>
+            <td>Blog, docs</td>
+          </tr>
+          <tr>
+            <td>ISR</td>
+            <td><span class="pill fast">Instantánea</span></td>
+            <td><span class="pill med">Cada N seg</span></td>
+            <td><span class="pill fast">Perfecto</span></td>
+            <td><span class="pill fast">Bajo</span></td>
+            <td>Tienda, noticias</td>
+          </tr>
+          <tr>
+            <td>SSR</td>
+            <td><span class="pill med">Media</span></td>
+            <td><span class="pill fast">Tiempo real</span></td>
+            <td><span class="pill fast">Perfecto</span></td>
+            <td><span class="pill slow">Alto</span></td>
+            <td>Dashboard con login</td>
+          </tr>
+          <tr>
+            <td>CSR</td>
+            <td><span class="pill slow">Inicio lento</span></td>
+            <td><span class="pill fast">Tiempo real</span></td>
+            <td><span class="pill slow">Pobre</span></td>
+            <td><span class="pill fast">Mínimo</span></td>
+            <td>App tras login</td>
+          </tr>
+          <tr style="background: var(--bg-soft); border-top: 2px solid var(--line);">
+            <td colspan="6" style="padding: 16px 14px; font-size: 14px; color: var(--ink); font-style: normal;">
+              <strong style="color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;">+ Streaming (capa)</strong> &nbsp;·&nbsp; se combina con SSG, ISR o SSR para enviar la página en trozos. No es un tipo independiente.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ SCOPE ============ -->
+  <section class="section">
+    <div class="section-eyebrow">¿Dónde se configura?</div>
+    <h2>El ámbito: componente, página <em>o proyecto</em></h2>
+    <p class="one-liner" style="margin-bottom: 36px;">En Next.js no hay un panel de control. El tipo de renderizado se decide <strong>por el código que escribes</strong>, y el ámbito depende de dónde lo pongas.</p>
+
+    <div class="scope-grid">
+      <div class="scope-card narrow">
+        <div class="scope-level">▸ Más pequeño</div>
+        <div class="scope-name">Por componente</div>
+        <div class="scope-affects">solo ese trozo</div>
+        <div class="scope-explain">Marcas un único componente con <code style="background:var(--bg-soft); padding:1px 4px; font-family:monospace;">"use client"</code>. El resto de la página sigue siendo del servidor. Útil para botones, formularios o widgets interactivos.</div>
+        <div class="scope-code">// Button.tsx
+<span style="color:#a8e6a3;">"use client"</span>
+<span style="color:#ff9bbf;">export default function</span> Button() {
+  ...
+}</div>
+      </div>
+
+      <div class="scope-card medium">
+        <div class="scope-level">▸ Intermedio</div>
+        <div class="scope-name">Por página o ruta</div>
+        <div class="scope-affects">esa URL completa</div>
+        <div class="scope-explain">Lo más habitual. Pones la configuración en el <code style="background:var(--bg-soft); padding:1px 4px; font-family:monospace;">page.tsx</code> y solo afecta a esa ruta. Cada página de tu app puede tener un tipo distinto.</div>
+        <div class="scope-code">// app/blog/page.tsx
+<span style="color:#ff9bbf;">export const</span> revalidate = <span style="color:#ffd166;">60</span>
+<span style="color:#ff9bbf;">export default function</span> Page() {...}</div>
+      </div>
+
+      <div class="scope-card broad">
+        <div class="scope-level">▸ Más amplio</div>
+        <div class="scope-name">Por layout o segmento</div>
+        <div class="scope-affects">esa rama de URLs</div>
+        <div class="scope-explain">Si lo pones en un <code style="background:var(--bg-soft); padding:1px 4px; font-family:monospace;">layout.tsx</code>, afecta a todas las páginas debajo. Ej: todo <code style="background:var(--bg-soft); padding:1px 4px; font-family:monospace;">/admin/*</code> en SSR.</div>
+        <div class="scope-code">// app/admin/layout.tsx
+<span style="color:#ff9bbf;">export const</span> dynamic = <span style="color:#a8e6a3;">'force-dynamic'</span>
+<span style="color:#ff9bbf;">export default function</span> Layout(){...}</div>
+      </div>
+    </div>
+
+    <div class="key-insight">
+      <div class="key-insight-label">◆ Idea clave</div>
+      <div class="key-insight-text">Una sola app puede mezclar <em>los cinco</em> tipos a la vez. Tu blog en SSG, la tienda en ISR, el dashboard en SSR, el editor en CSR — y todo en el mismo proyecto. Next.js elige el tipo <em>página por página</em>, no para toda la app.</div>
+    </div>
+
+    <div class="when-block" style="margin-top: 32px;">
+      <div class="when-card yes">
+        <div class="when-title">Ejemplo real · una app de blog con tienda</div>
+        <ul>
+          <li><code style="font-family:monospace;">/</code> · landing → SSG</li>
+          <li><code style="font-family:monospace;">/blog/[slug]</code> · posts → SSG</li>
+          <li><code style="font-family:monospace;">/tienda/[id]</code> · productos → ISR</li>
+          <li><code style="font-family:monospace;">/cuenta</code> · perfil → SSR</li>
+          <li><code style="font-family:monospace;">/admin</code> · dashboard → CSR</li>
+        </ul>
+      </div>
+      <div class="when-card no">
+        <div class="when-title">Errores comunes que evitar</div>
+        <ul>
+          <li>Poner "use client" en toda la app</li>
+          <li>Forzar SSR donde sirve SSG</li>
+          <li>Olvidar revalidate en datos cambiantes</li>
+          <li>Mezclar cookies() en página estática</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DECISION TREE ============ -->
+  <section class="section">
+    <div class="section-eyebrow">Asistente de decisión</div>
+    <h2>¿Cuál uso <em>en mi caso</em>?</h2>
+
+    <div class="decision-tree" id="tree">
+      <div class="tree-question">
+        <div class="tree-q" id="tree-question">¿Todos los usuarios ven los mismos datos?</div>
+        <div class="tree-q-sub" id="tree-progress">Pregunta 1 de 2</div>
+      </div>
+
+      <div class="tree-options" id="tree-options"></div>
+
+      <div class="tree-result" id="tree-result">
+        <div class="tree-result-label">Recomendación</div>
+        <div class="tree-result-name" id="tree-result-name"></div>
+        <div class="tree-result-desc" id="tree-result-desc"></div>
+        <button class="play-btn" style="margin-top: 20px;" onclick="resetTree()">↻ Empezar de nuevo</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>◆</span> Next.js Rendering Playground · Para no confundir nunca SSR con SSG <span>◆</span>
+  </footer>
+
+</div>
+
+<script>
+// ============ TABS ============
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.panel');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    tabs.forEach(t => t.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelector(`[data-panel="${target}"]`).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+// ============ VARIANT PILLS (sub-apartados) ============
+document.querySelectorAll('.variants-nav').forEach(nav => {
+  const pills = nav.querySelectorAll('.variant-pill');
+  // Buscar los subtypes que están dentro del panel padre, no en otros paneles
+  const panel = nav.closest('.panel');
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const target = pill.dataset.variant;
+      pills.forEach(p => p.classList.remove('active'));
+      panel.querySelectorAll('.subtype').forEach(s => s.classList.remove('active'));
+      pill.classList.add('active');
+      panel.querySelector(`[data-subtype="${target}"]`).classList.add('active');
+    });
+  });
+});
+
+// ============ SIMULATIONS ============
+function spawnPacket(track, direction, type, label, delay) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'packet ' + type;
+      p.textContent = label;
+      track.appendChild(p);
+
+      const startX = direction === 'right' ? 8 : track.offsetWidth - 110;
+      const endX = direction === 'right' ? track.offsetWidth - 110 : 8;
+
+      p.style.left = startX + 'px';
+      p.style.opacity = '0';
+
+      requestAnimationFrame(() => {
+        p.style.transition = 'left 0.6s ease, opacity 0.2s';
+        p.style.opacity = '1';
+        p.style.left = endX + 'px';
+      });
+
+      setTimeout(() => {
+        p.style.opacity = '0';
+        setTimeout(() => p.remove(), 300);
+        resolve();
+      }, 700);
+    }, delay);
+  });
+}
+
+function clearTrack(track) {
+  track.querySelectorAll('.packet').forEach(p => p.remove());
+}
+
+function nowStamp() {
+  const d = new Date();
+  return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+document.querySelectorAll('.play-btn[data-sim]').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const sim = btn.dataset.sim;
+    btn.disabled = true;
+
+    if (sim === 'ssg') await runSSG();
+    if (sim === 'isr') await runISR();
+    if (sim === 'ssr') await runSSR();
+    if (sim === 'csr') await runCSR();
+    if (sim === 'streaming') await runStreaming();
+
+    btn.disabled = false;
+  });
+});
+
+async function runSSG() {
+  const track = document.getElementById('track-ssg');
+  const time = document.getElementById('ssg-time');
+  const ts = document.getElementById('ssg-timestamp');
+  clearTrack(track);
+
+  for (let i = 1; i <= 3; i++) {
+    time.textContent = '...';
+    await spawnPacket(track, 'right', 'js', `GET #${i}`, 0);
+    await spawnPacket(track, 'left', 'cached', `HTML caché`, 100);
+    time.textContent = (12 + Math.floor(Math.random() * 8)) + ' ms';
+    ts.textContent = nowStamp();
+    await new Promise(r => setTimeout(r, 400));
+  }
+}
+
+async function runISR() {
+  const track = document.getElementById('track-isr');
+  const ts = document.getElementById('isr-timestamp');
+  const stock = document.getElementById('isr-stock');
+  clearTrack(track);
+
+  await spawnPacket(track, 'right', 'js', 'GET t=0s', 0);
+  await spawnPacket(track, 'left', 'cached', 'caché (stock 42)', 100);
+  ts.textContent = nowStamp() + ' · caché';
+  await new Promise(r => setTimeout(r, 500));
+
+  await spawnPacket(track, 'right', 'js', 'GET t=30s', 0);
+  await spawnPacket(track, 'left', 'cached', 'caché (stock 42)', 100);
+  ts.textContent = nowStamp() + ' · caché';
+  await new Promise(r => setTimeout(r, 500));
+
+  await spawnPacket(track, 'right', 'js', 'GET t=70s', 0);
+  await spawnPacket(track, 'left', 'cached', 'caché + regenera', 100);
+  ts.textContent = nowStamp() + ' · expirado';
+  await new Promise(r => setTimeout(r, 700));
+
+  stock.textContent = '38';
+  await spawnPacket(track, 'right', 'js', 'GET t=75s', 0);
+  await spawnPacket(track, 'left', 'html', 'HTML nuevo (stock 38)', 100);
+  ts.textContent = nowStamp() + ' · fresco';
+}
+
+async function runSSR() {
+  const track = document.getElementById('track-ssr');
+  const time = document.getElementById('ssr-time');
+  const ts = document.getElementById('ssr-timestamp');
+  const user = document.getElementById('ssr-user');
+  const notif = document.getElementById('ssr-notif');
+  const login = document.getElementById('ssr-login');
+  clearTrack(track);
+
+  const users = [
+    { name: 'María', notif: 7, login: 'hace 5 min' },
+    { name: 'Carlos', notif: 23, login: 'hace 1 h' },
+    { name: 'Aiko', notif: 2, login: 'ayer' }
+  ];
+
+  for (const u of users) {
+    user.textContent = '...';
+    notif.textContent = '...';
+    login.textContent = '...';
+    time.textContent = '...';
+    ts.textContent = nowStamp() + ' · cargando';
+
+    await spawnPacket(track, 'right', 'js', `GET (${u.name})`, 0);
+    await new Promise(r => setTimeout(r, 250));
+    await spawnPacket(track, 'right', 'json', 'consulta DB', 0);
+    await new Promise(r => setTimeout(r, 300));
+    await spawnPacket(track, 'left', 'html', 'HTML personal', 0);
+
+    user.textContent = u.name;
+    notif.textContent = u.notif;
+    login.textContent = u.login;
+    time.textContent = (180 + Math.floor(Math.random() * 80)) + ' ms';
+    ts.textContent = nowStamp();
+    await new Promise(r => setTimeout(r, 700));
+  }
+}
+
+async function runCSR() {
+  const track = document.getElementById('track-csr');
+  const ts = document.getElementById('csr-timestamp');
+  const content = document.getElementById('csr-content');
+  clearTrack(track);
+
+  content.innerHTML = '<p style="color:#999; font-style:italic;">[ Pantalla en blanco ]</p>';
+  ts.textContent = nowStamp() + ' · 0 ms';
+  await spawnPacket(track, 'right', 'js', 'GET /', 0);
+  await spawnPacket(track, 'left', 'html', 'HTML vacío', 200);
+  await new Promise(r => setTimeout(r, 300));
+
+  content.innerHTML = '<p style="color:#999; font-style:italic;">[ Descargando JS... ]</p>';
+  ts.textContent = nowStamp() + ' · 400 ms';
+  await spawnPacket(track, 'left', 'js', 'bundle.js (380kb)', 0);
+  await new Promise(r => setTimeout(r, 600));
+
+  content.innerHTML = '<div class="skeleton title"></div><div class="skeleton"></div><div class="skeleton short"></div>';
+  ts.textContent = nowStamp() + ' · 1200 ms';
+  await new Promise(r => setTimeout(r, 400));
+
+  await spawnPacket(track, 'right', 'js', 'fetch /api/feed', 0);
+  await spawnPacket(track, 'left', 'json', 'JSON', 300);
+  await new Promise(r => setTimeout(r, 500));
+
+  content.innerHTML = `
+    <h3>Feed personal</h3>
+    <p>3 publicaciones nuevas</p>
+    <p>Última actualización: ahora</p>
+  `;
+  ts.textContent = nowStamp() + ' · 1800 ms ✓';
+}
+
+async function runStreaming() {
+  const track = document.getElementById('track-stream');
+  const ts = document.getElementById('stream-timestamp');
+  const head = document.getElementById('stream-header');
+  const side = document.getElementById('stream-sidebar');
+  const feed = document.getElementById('stream-feed');
+  const sH = document.getElementById('stream-h');
+  const sS = document.getElementById('stream-s');
+  const sF = document.getElementById('stream-f');
+  clearTrack(track);
+
+  head.innerHTML = '';
+  side.innerHTML = '';
+  feed.innerHTML = '';
+  sH.textContent = '...';
+  sS.textContent = '...';
+  sF.textContent = '...';
+  ts.textContent = nowStamp() + ' · 0 ms';
+
+  await spawnPacket(track, 'right', 'js', 'GET /', 0);
+  await spawnPacket(track, 'left', 'html', 'trozo: header', 200);
+  head.innerHTML = '<h3>● red.com</h3>';
+  side.innerHTML = '<div class="skeleton"></div><div class="skeleton short"></div>';
+  feed.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton short"></div>';
+  sH.textContent = '50 ms';
+  ts.textContent = nowStamp() + ' · 50 ms';
+  await new Promise(r => setTimeout(r, 500));
+
+  await spawnPacket(track, 'left', 'html', 'trozo: sidebar', 0);
+  side.innerHTML = '<p style="color:var(--ink-mid); font-size:14px;">▸ Tendencias del día</p><p style="color:var(--ink-mid); font-size:14px;">▸ Tu actividad</p>';
+  sS.textContent = '350 ms';
+  ts.textContent = nowStamp() + ' · 350 ms';
+  await new Promise(r => setTimeout(r, 600));
+
+  await spawnPacket(track, 'left', 'html', 'trozo: feed', 0);
+  feed.innerHTML = '<p style="font-size:15px;">📌 Post de Aiko · hace 2 h</p><p style="font-size:15px;">📌 Post de Marco · hace 4 h</p>';
+  sF.textContent = '950 ms';
+  ts.textContent = nowStamp() + ' · 950 ms ✓';
+}
+
+// ============ DECISION TREE ============
+const treeData = {
+  start: {
+    q: '¿Todos los usuarios ven los mismos datos?',
+    options: [
+      { text: 'Sí, todos ven lo mismo', hint: 'Ej: blog público', next: 'frequency' },
+      { text: 'No, cada uno ve lo suyo', hint: 'Ej: dashboard', next: 'auth' }
+    ]
+  },
+  frequency: {
+    q: '¿Cada cuánto cambian los datos?',
+    options: [
+      { text: 'Casi nunca', hint: 'Solo cuando despliego', result: 'SSG' },
+      { text: 'Cada cierto tiempo', hint: 'Minutos u horas', result: 'ISR' },
+      { text: 'Constantemente', hint: 'Cada segundo', result: 'SSR' }
+    ]
+  },
+  auth: {
+    q: '¿Necesitas que Google indexe la página?',
+    options: [
+      { text: 'Sí, importa el SEO', hint: 'Pública pero personalizada', result: 'SSR' },
+      { text: 'No, está tras login', hint: 'App privada', result: 'CSR' },
+      { text: 'Tiene partes rápidas y lentas', hint: 'Mezcla de velocidades', result: 'Streaming' }
+    ]
+  }
+};
+
+const results = {
+  SSG: {
+    name: 'Static Site Generation',
+    desc: 'Escribe tu page.tsx normal, sin nada especial. Next genera el HTML al desplegar y lo sirve desde un CDN. Es lo más rápido posible.'
+  },
+  ISR: {
+    name: 'Incremental Static Regeneration',
+    desc: 'Añade `export const revalidate = 60` arriba del archivo (en segundos). La página se regenera sola cuando expira, sin redesplegar.'
+  },
+  SSR: {
+    name: 'Server-Side Rendering',
+    desc: 'Usa `cookies()`, `headers()` o `fetch(url, { cache: "no-store" })` dentro del componente. Eso le dice a Next que renderice en cada visita.'
+  },
+  CSR: {
+    name: 'Client-Side Rendering',
+    desc: 'Pon `"use client"` en la primera línea del archivo. Usa useState/useEffect para cargar datos. Para fetching más serio, usa SWR o React Query.'
+  },
+  Streaming: {
+    name: 'SSR + Streaming',
+    desc: 'Usa SSR (con cookies, headers o fetch sin caché) y envuelve los componentes lentos en `<Suspense fallback={<Skeleton/>}>`. Streaming no es un tipo aparte: es una capa que añades encima de SSR (o ISR) para que la página llegue por trozos.'
+  }
+};
+
+let treeProgress = 1;
+
+function renderTreeStep(step) {
+  const data = treeData[step];
+  document.getElementById('tree-question').textContent = data.q;
+  document.getElementById('tree-progress').textContent = `Pregunta ${treeProgress} de 2`;
+  document.getElementById('tree-result').classList.remove('visible');
+
+  const opts = document.getElementById('tree-options');
+  opts.innerHTML = '';
+
+  data.options.forEach(opt => {
+    const div = document.createElement('div');
+    div.className = 'tree-option';
+    div.innerHTML = `
+      <div class="tree-option-text">${opt.text}</div>
+      <div class="tree-option-hint">${opt.hint}</div>
+    `;
+    div.addEventListener('click', () => {
+      document.querySelectorAll('.tree-option').forEach(o => o.classList.remove('selected'));
+      div.classList.add('selected');
+
+      setTimeout(() => {
+        if (opt.result) {
+          showResult(opt.result);
+        } else if (opt.next) {
+          treeProgress++;
+          renderTreeStep(opt.next);
+        }
+      }, 250);
+    });
+    opts.appendChild(div);
+  });
+}
+
+function showResult(key) {
+  const r = results[key];
+  document.getElementById('tree-result-name').textContent = r.name;
+  document.getElementById('tree-result-desc').textContent = r.desc;
+  document.getElementById('tree-result').classList.add('visible');
+  document.getElementById('tree-options').innerHTML = '';
+  document.getElementById('tree-question').textContent = '¡Listo! Aquí va tu recomendación:';
+  document.getElementById('tree-progress').textContent = 'Resultado';
+}
+
+function resetTree() {
+  treeProgress = 1;
+  renderTreeStep('start');
+}
+
+renderTreeStep('start');
+</script>
+</body>
+</html>

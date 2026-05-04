@@ -725,7 +725,7 @@
                         <h4>❌ Desventajas</h4>
                         <ul>
                             <li>SEO pobre</li>
-                            <li>First Contentful Paint alto</li>
+                            <li>Mayor tardanza de carga</li>
                             <li>Mayor carga en navegador</li>
                             <li>JavaScript es obligatorio</li>
                         </ul>
@@ -739,6 +739,55 @@
                     <div class="metric"><div class="metric-value">2-3s</div> TTFB</div>
                     <div class="metric"><div class="metric-value">4-6s</div> FCP</div>
                     <div class="metric"><div class="metric-value">Variable</div> LCP</div>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>🤔 ¿Por qué usar Client Components si los Server Components son más rápidos?</h3>
+                <p style="color: #555; margin-bottom: 20px; line-height: 1.8;">Los Server Components son más eficientes para renderizar contenido, pero <strong>hay casos donde los Client Components son imprescindibles o claramente superiores</strong>. No se trata de elegir uno u otro, sino de saber cuándo usar cada uno.</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px;">
+
+                    <div style="background: #fce4ec; border-left: 4px solid #e91e63; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #880e4f; margin-bottom: 8px;">🖱️ Interactividad de usuario</h4>
+                        <p style="color: #555; font-size: 0.9em; line-height: 1.6;">Cualquier elemento que reaccione a acciones del usuario —clicks, inputs, drag &amp; drop— <strong>requiere obligatoriamente un Client Component</strong>. Los Server Components se renderizan una sola vez en el servidor y no pueden escuchar eventos del DOM.</p>
+                        <p style="color: #888; font-size: 0.82em; margin-top: 8px;">Ejemplos: formularios con validación en tiempo real, menús desplegables, modales, sliders.</p>
+                    </div>
+
+                    <div style="background: #e8eaf6; border-left: 4px solid #3f51b5; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #1a237e; margin-bottom: 8px;">🪝 Hooks de React</h4>
+                        <p style="color: #555; font-size: 0.9em; line-height: 1.6;"><code>useState</code>, <code>useEffect</code>, <code>useRef</code>, <code>useContext</code>, <code>useReducer</code>… <strong>solo funcionan en Client Components</strong>. Toda gestión de estado local o efectos secundarios del ciclo de vida de React exige el cliente.</p>
+                        <p style="color: #888; font-size: 0.82em; margin-top: 8px;">Ejemplos: carrito de compra, filtros dinámicos, tema claro/oscuro.</p>
+                    </div>
+
+                    <div style="background: #e0f2f1; border-left: 4px solid #009688; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #004d40; margin-bottom: 8px;">🌐 APIs del navegador</h4>
+                        <p style="color: #555; font-size: 0.9em; line-height: 1.6;"><code>window</code>, <code>localStorage</code>, <code>sessionStorage</code>, <code>navigator.geolocation</code>, <code>IntersectionObserver</code>… estas APIs <strong>solo existen en el navegador</strong>. El servidor no tiene acceso a ellas.</p>
+                        <p style="color: #888; font-size: 0.82em; margin-top: 8px;">Ejemplos: guardar preferencias, detectar ubicación, scroll infinito.</p>
+                    </div>
+
+                    <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #e65100; margin-bottom: 8px;">⚡ Actualizaciones en tiempo real</h4>
+                        <p style="color: #555; font-size: 0.9em; line-height: 1.6;">WebSockets, Server-Sent Events, polling periódico… todo flujo de datos en vivo <strong>necesita código que se ejecute continuamente en el cliente</strong>. Un Server Component solo puede devolver datos en el momento de la petición.</p>
+                        <p style="color: #888; font-size: 0.82em; margin-top: 8px;">Ejemplos: chat en vivo, notificaciones push, precio de criptomonedas.</p>
+                    </div>
+
+                    <div style="background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #4a148c; margin-bottom: 8px;">📦 Librerías de terceros</h4>
+                        <p style="color: #555; font-size: 0.9em; line-height: 1.6;">Muchas librerías populares (Framer Motion, React DnD, Recharts, Swiper, React Hook Form…) asumen que están en el navegador y <strong>fallarán si se ejecutan en el servidor</strong>. Requieren un Client Component como envoltorio.</p>
+                        <p style="color: #888; font-size: 0.82em; margin-top: 8px;">Ejemplos: gráficas interactivas, animaciones, componentes UI avanzados.</p>
+                    </div>
+
+                    <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #1b5e20; margin-bottom: 8px;">🎯 UI optimista (Optimistic UI)</h4>
+                        <p style="color: #555; font-size: 0.9em; line-height: 1.6;">Actualizar la interfaz <strong>antes de que el servidor confirme</strong> la operación (como en Twitter al dar like) ofrece una experiencia instantánea. Esto requiere gestión de estado local en el cliente.</p>
+                        <p style="color: #888; font-size: 0.82em; margin-top: 8px;">Ejemplos: likes, favoritos, reordenar listas con drag.</p>
+                    </div>
+                </div>
+
+                <div class="alert-box" style="background: #e3f2fd; border-color: #2196f3;">
+                    <strong style="color: #0d47a1;">💡 La regla de oro:</strong>
+                    <p style="color: #1565c0; margin-top: 8px;">Usa <strong>Server Components por defecto</strong> para todo lo que sea datos y estructura. Solo baja a <strong>Client Component cuando necesites interactividad</strong>. Cuanto más abajo en el árbol de componentes viva el <code>'use client'</code>, mejor rendimiento tendrás: el servidor sigue haciendo el trabajo pesado y el cliente solo gestiona la capa interactiva.</p>
                 </div>
             </div>
         </div>
@@ -878,6 +927,55 @@
                     <div class="metric"><div class="metric-value">0.5-1s</div> TTFB</div>
                     <div class="metric"><div class="metric-value">1-2s</div> FCP</div>
                     <div class="metric"><div class="metric-value">2-3s</div> LCP</div>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>🎯 ¿Cuándo usar SSR? Casos de uso reales</h3>
+                <p style="color: #555; margin-bottom: 20px; line-height: 1.8;">SSR es la estrategia adecuada cuando el contenido <strong>cambia frecuentemente y necesita SEO</strong>, o cuando los datos deben ser personalizados por usuario en cada petición.</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px;">
+
+                    <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #0d47a1; margin-bottom: 8px;">🛒 E-commerce y tiendas online</h4>
+                        <p style="color: #555; font-size: 0.9em; line-height: 1.6;">Las páginas de producto necesitan SEO (para que Google las indexe), pero el precio, el stock y las ofertas <strong>cambian constantemente</strong>. SSR garantiza que el usuario siempre ve datos actualizados sin sacrificar SEO.</p>
+                        <p style="color: #888; font-size: 0.82em; margin-top: 8px;">Ejemplos: Amazon, Zara, páginas de detalle de producto.</p>
+                    </div>
+
+                    <div style="background: #fce4ec; border-left: 4px solid #e91e63; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #880e4f; margin-bottom: 8px;">📰 Portales de noticias</h4>
+                        <p style="color: #555; font-size: 0.9em; line-height: 1.6;">Las noticias se publican continuamente y deben aparecer en Google nada más publicarse. Con SSG habría que esperar al próximo build; con SSR el artículo es <strong>indexable desde el primer segundo</strong>.</p>
+                        <p style="color: #888; font-size: 0.82em; margin-top: 8px;">Ejemplos: El País, BBC, portales de noticias en tiempo real.</p>
+                    </div>
+
+                    <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #1b5e20; margin-bottom: 8px;">👤 Páginas personalizadas por usuario</h4>
+                        <p style="color: #555; font-size: 0.9em; line-height: 1.6;">Contenido que varía según quién está autenticado: perfil de usuario, historial de pedidos, recomendaciones personalizadas. El servidor lee la sesión/cookie en cada petición y devuelve el HTML correcto para ese usuario concreto.</p>
+                        <p style="color: #888; font-size: 0.82em; margin-top: 8px;">Ejemplos: perfil de LinkedIn, panel de cuenta en Amazon.</p>
+                    </div>
+
+                    <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #e65100; margin-bottom: 8px;">📊 Dashboards con datos críticos</h4>
+                        <p style="color: #555; font-size: 0.9em; line-height: 1.6;">Paneles donde los datos <strong>no pueden estar desactualizados</strong> ni un ciclo: cotizaciones bursátiles al inicio de la sesión, métricas de negocio en tiempo de petición, informes con cifras del momento exacto.</p>
+                        <p style="color: #888; font-size: 0.82em; margin-top: 8px;">Ejemplos: paneles de analítica, reporting financiero.</p>
+                    </div>
+
+                    <div style="background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #4a148c; margin-bottom: 8px;">🔍 Resultados de búsqueda</h4>
+                        <p style="color: #555; font-size: 0.9em; line-height: 1.6;">Las páginas de resultados de búsqueda dependen de parámetros de query (<code>?q=zapatos</code>) que son únicos por petición. No se pueden pre-generar estáticamente; hay que calcularlos <strong>en el momento de la solicitud</strong>.</p>
+                        <p style="color: #888; font-size: 0.82em; margin-top: 8px;">Ejemplos: buscador de Airbnb, resultados de Google Shopping.</p>
+                    </div>
+
+                    <div style="background: #e0f2f1; border-left: 4px solid #009688; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #004d40; margin-bottom: 8px;">🌐 Contenido localizado (A/B, geo)</h4>
+                        <p style="color: #555; font-size: 0.9em; line-height: 1.6;">Mostrar precios en la moneda local, contenido adaptado al país o variantes de A/B testing. El servidor lee headers de la petición (<code>Accept-Language</code>, IP) y sirve el HTML adecuado sin redirecciones adicionales.</p>
+                        <p style="color: #888; font-size: 0.82em; margin-top: 8px;">Ejemplos: Netflix por región, tiendas con precios en EUR/USD.</p>
+                    </div>
+                </div>
+
+                <div style="background: #fff8e1; border-left: 4px solid #ffc107; padding: 15px; border-radius: 6px;">
+                    <strong style="color: #856404;">⚠️ Cuándo NO usar SSR:</strong>
+                    <p style="color: #856404; margin-top: 8px; line-height: 1.7;">Si el contenido no cambia entre peticiones (blog, documentación, landing page), usa <strong>SSG</strong> — es más rápido y barato. Si el contenido no necesita SEO pero sí mucha interactividad, usa <strong>CSR</strong>. SSR tiene un coste por petición en el servidor que solo vale la pena cuando los datos realmente varían.</p>
                 </div>
             </div>
         </div>
@@ -1120,6 +1218,89 @@
 
                 <div style="margin: 20px 0;">
                     <h4 style="color: #38f9d7; margin-bottom: 10px;">SSG: Blogs, Documentación, Landing pages</h4>
+                </div>
+            </div>
+
+            <div class="simulation">
+                <h3>🏗️ La Estrategia Híbrida: Server + Client juntos</h3>
+                <p style="color: #555; margin-bottom: 20px; line-height: 1.8;">Next.js no te obliga a elegir entre Server o Client para toda la aplicación. La clave está en <strong>combinarlos dentro del mismo árbol de componentes</strong>: el servidor hace el trabajo pesado (datos, SEO, seguridad) y el cliente añade la capa interactiva donde es necesario.</p>
+
+                <div style="background: #1e1e1e; border-radius: 8px; padding: 20px; margin-bottom: 20px; font-family: 'Courier New', monospace; font-size: 0.9em; line-height: 1.8;">
+                    <div style="color: #6a9955;">// app/product/page.jsx — Server Component (por defecto)</div>
+                    <div style="color: #d4d4d4;"><span style="color: #569cd6;">async function</span> <span style="color: #dcdcaa;">ProductPage</span>({ params }) {</div>
+                    <div style="color: #d4d4d4; padding-left: 20px;"><span style="color: #6a9955;">// ✅ Fetch de datos en el servidor (seguro, rápido, sin JS en cliente)</span></div>
+                    <div style="color: #d4d4d4; padding-left: 20px;"><span style="color: #569cd6;">const</span> product = <span style="color: #569cd6;">await</span> <span style="color: #dcdcaa;">getProduct</span>(params.id);</div>
+                    <div style="color: #d4d4d4; padding-left: 0;">  <span style="color: #569cd6;">return</span> (</div>
+                    <div style="color: #d4d4d4; padding-left: 20px;">&lt;<span style="color: #4ec9b0;">div</span>&gt;</div>
+                    <div style="color: #d4d4d4; padding-left: 40px;"><span style="color: #6a9955;">// Contenido estático: renderizado en servidor ⚡</span></div>
+                    <div style="color: #d4d4d4; padding-left: 40px;">&lt;<span style="color: #4ec9b0;">h1</span>&gt;{product.name}&lt;/<span style="color: #4ec9b0;">h1</span>&gt;</div>
+                    <div style="color: #d4d4d4; padding-left: 40px;">&lt;<span style="color: #4ec9b0;">p</span>&gt;{product.description}&lt;/<span style="color: #4ec9b0;">p</span>&gt;</div>
+                    <div style="color: #d4d4d4; padding-left: 40px;"><span style="color: #6a9955;">// Interactividad: delegada al Client Component 🎯</span></div>
+                    <div style="color: #d4d4d4; padding-left: 40px;">&lt;<span style="color: #4ec9b0;">AddToCartButton</span> <span style="color: #9cdcfe;">productId</span>={product.id} /&gt;</div>
+                    <div style="color: #d4d4d4; padding-left: 20px;">&lt;/<span style="color: #4ec9b0;">div</span>&gt;</div>
+                    <div style="color: #d4d4d4;">  );</div>
+                    <div style="color: #d4d4d4;">}</div>
+                    <br>
+                    <div style="color: #6a9955;">// components/AddToCartButton.jsx — Client Component</div>
+                    <div style="color: #ce9178;">'use client'</div>
+                    <div style="color: #d4d4d4;"><span style="color: #569cd6;">function</span> <span style="color: #dcdcaa;">AddToCartButton</span>({ productId }) {</div>
+                    <div style="color: #d4d4d4; padding-left: 20px;"><span style="color: #569cd6;">const</span> [added, setAdded] = <span style="color: #dcdcaa;">useState</span>(<span style="color: #569cd6;">false</span>);</div>
+                    <div style="color: #d4d4d4; padding-left: 20px;"><span style="color: #569cd6;">return</span> &lt;<span style="color: #4ec9b0;">button</span> <span style="color: #9cdcfe;">onClick</span>={() =&gt; <span style="color: #dcdcaa;">setAdded</span>(<span style="color: #569cd6;">true</span>)}&gt;{added ? <span style="color: #ce9178;">'✅ Añadido'</span> : <span style="color: #ce9178;">'🛒 Añadir'</span>}&lt;/<span style="color: #4ec9b0;">button</span>&gt;;</div>
+                    <div style="color: #d4d4d4;">}</div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <thead>
+                            <tr style="background: #667eea; color: white;">
+                                <th style="padding: 12px 15px; text-align: left; border: 1px solid #ddd;">Necesidad</th>
+                                <th style="padding: 12px 15px; text-align: center; border: 1px solid #ddd;">¿Server o Client?</th>
+                                <th style="padding: 12px 15px; text-align: left; border: 1px solid #ddd;">Motivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd;">Fetch de datos de una API o DB</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; text-align: center; color: #0288d1;">🖥️ Server</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; color: #555;">Las credenciales no llegan al cliente y el fetch es más rápido</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 10px 15px; border: 1px solid #ddd;">Botón con onClick / formulario</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; text-align: center; color: #e91e63;">👤 Client</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; color: #555;">Los eventos del DOM solo existen en el navegador</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd;">Contenido de blog / producto</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; text-align: center; color: #0288d1;">🖥️ Server</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; color: #555;">SEO, velocidad, sin JavaScript innecesario</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 10px 15px; border: 1px solid #ddd;">Animaciones / transiciones UI</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; text-align: center; color: #e91e63;">👤 Client</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; color: #555;">Framer Motion y similares requieren acceso al DOM</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd;">localStorage / cookies del browser</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; text-align: center; color: #e91e63;">👤 Client</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; color: #555;">APIs exclusivas del navegador, no disponibles en servidor</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 10px 15px; border: 1px solid #ddd;">Layout, nav, cabeceras estáticas</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; text-align: center; color: #0288d1;">🖥️ Server</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; color: #555;">No necesitan estado, no envían JS al cliente</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd;">Chat / datos en tiempo real</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; text-align: center; color: #e91e63;">👤 Client</td>
+                                <td style="padding: 10px 15px; border: 1px solid #ddd; color: #555;">WebSocket y polling requieren código que corra continuamente</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 15px; border-radius: 6px; margin-top: 20px;">
+                    <strong style="color: #4a148c;">🧠 Conclusión:</strong>
+                    <p style="color: #4a148c; margin-top: 8px; line-height: 1.7;">Los Client Components no compiten con los Server Components: <strong>los complementan</strong>. Next.js es rápido y óptimo precisamente porque permite usar Server Components para la estructura y datos, y Client Components solo donde la interactividad lo requiere. Sin Client Components, tendrías una web estática sin posibilidad de reaccionar al usuario.</p>
                 </div>
             </div>
         </div>

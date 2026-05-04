@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next.js App Router · Playground didáctico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="grain"></div>
+
+<header class="site-header">
+  <div class="brand">
+    <span class="brand-mark">▲</span>
+    <span class="brand-text">App Router <em>·</em> Playground</span>
+  </div>
+  <nav class="progress-nav">
+    <span class="progress-label">Progreso</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-count"><span id="progressNum">0</span>/14</span>
+  </nav>
+</header>
+
+<aside class="stepper" id="stepper">
+  <ol>
+    <li data-step="1" class="active"><span class="num">01</span> ¿Qué es App Router?</li>
+    <li data-step="2"><span class="num">02</span> Instalación (terminal)</li>
+    <li data-step="3"><span class="num">03</span> Estructura de la app</li>
+    <li data-step="4"><span class="num">04</span> Archivos especiales</li>
+    <li data-step="5"><span class="num">05</span> Probador de rutas</li>
+    <li data-step="6"><span class="num">06</span> Rutas dinámicas</li>
+    <li data-step="7"><span class="num">07</span> Layouts anidados</li>
+    <li data-step="8"><span class="num">08</span> Route Groups</li>
+    <li data-step="9"><span class="num">09</span> Loading & Error</li>
+    <li data-step="10"><span class="num">10</span> Server vs Client</li>
+    <li data-step="11"><span class="num">11</span> Data fetching</li>
+    <li data-step="12"><span class="num">12</span> Redirecciones</li>
+    <li data-step="13"><span class="num">13</span> Recapitulación</li>
+    <li data-step="14"><span class="num">14</span> Quiz final</li>
+  </ol>
+</aside>
+
+<main class="content">
+
+  <!-- PASO 1 -->
+  <section class="step" data-step="1">
+    <div class="step-meta"><span>Paso 01</span><span>·</span><span>Intro</span></div>
+    <h1 class="step-title">¿Qué es <em>App Router</em>?</h1>
+    <p class="lede">El <strong>App Router</strong> es el sistema de enrutamiento de Next.js basado en la carpeta <code>app/</code>. En lugar de mapear ficheros a rutas <em>per se</em>, mapea <strong>carpetas a segmentos</strong> y usa <strong>archivos especiales</strong> (<code>page</code>, <code>layout</code>, <code>loading</code>…) para definir UI, datos y estados.</p>
+
+    <div class="pill-row">
+      <span class="pill">React Server Components</span>
+      <span class="pill">Streaming</span>
+      <span class="pill">Layouts anidados</span>
+      <span class="pill">Convención sobre configuración</span>
+    </div>
+
+    <div class="split">
+      <div class="card">
+        <h3>Pages Router <span class="tag tag-legacy">legado</span></h3>
+        <ul class="check-list minus">
+          <li>Carpeta <code>pages/</code></li>
+          <li>Un fichero = una ruta</li>
+          <li><code>_app</code> y <code>_document</code> globales</li>
+          <li>Client-side por defecto</li>
+        </ul>
+      </div>
+      <div class="card card-accent">
+        <h3>App Router <span class="tag tag-new">actual</span></h3>
+        <ul class="check-list">
+          <li>Carpeta <code>app/</code></li>
+          <li>Una carpeta = un segmento</li>
+          <li>Layouts anidados por segmento</li>
+          <li>Server Components por defecto</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" disabled>← Anterior</button>
+      <button class="btn primary" data-next>Empecemos →</button>
+    </div>
+  </section>
+
+  <!-- PASO 2 -->
+  <section class="step" data-step="2" hidden>
+    <div class="step-meta"><span>Paso 02</span><span>·</span><span>Setup</span></div>
+    <h1 class="step-title">Instalación <em>guiada</em></h1>
+    <p class="lede">Prueba los comandos en esta terminal simulada. Escribe o pulsa las sugerencias para avanzar.</p>
+
+    <div class="terminal" id="terminal">
+      <div class="terminal-bar">
+        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+        <span class="terminal-title">~/projects — zsh</span>
+      </div>
+      <div class="terminal-body" id="terminalBody">
+        <div class="term-line"><span class="prompt">❯</span> <span class="comment"># Crea un proyecto con App Router</span></div>
+      </div>
+      <form class="terminal-input" id="terminalForm" autocomplete="off">
+        <span class="prompt">❯</span>
+        <input type="text" id="terminalInput" placeholder="escribe un comando…" spellcheck="false">
+      </form>
+    </div>
+
+    <div class="hint-row">
+      <span class="hint-label">Sugerencias:</span>
+      <button class="chip" data-cmd="npx create-next-app@latest my-app">npx create-next-app@latest my-app</button>
+      <button class="chip" data-cmd="cd my-app">cd my-app</button>
+      <button class="chip" data-cmd="npm run dev">npm run dev</button>
+      <button class="chip" data-cmd="help">help</button>
+      <button class="chip" data-cmd="clear">clear</button>
+    </div>
+
+    <div class="note">
+      <strong>Checklist:</strong>
+      <ul class="term-checklist">
+        <li data-check="create"><span class="box"></span> Crear proyecto</li>
+        <li data-check="cd"><span class="box"></span> Entrar en la carpeta</li>
+        <li data-check="dev"><span class="box"></span> Arrancar el servidor de desarrollo</li>
+      </ul>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" data-next>Continuar →</button>
+    </div>
+  </section>
+
+  <!-- PASO 3 -->
+  <section class="step" data-step="3" hidden>
+    <div class="step-meta"><span>Paso 03</span><span>·</span><span>Estructura</span></div>
+    <h1 class="step-title">Árbol de <em>ficheros</em></h1>
+    <p class="lede">Haz clic en cada nodo para ver qué hace. La carpeta <code>app/</code> es el corazón del enrutado.</p>
+
+    <div class="split tree-split">
+      <div class="tree" id="fileTree">
+        <ul class="tree-root">
+          <li class="node folder open" data-info="root"><span class="twisty">▾</span><span class="icon">📁</span>my-app
+            <ul>
+              <li class="node folder open" data-info="app"><span class="twisty">▾</span><span class="icon">📁</span>app
+                <ul>
+                  <li class="node file" data-info="layout-root"><span class="icon">📄</span>layout.tsx</li>
+                  <li class="node file" data-info="page-root"><span class="icon">📄</span>page.tsx</li>
+                  <li class="node file" data-info="globals"><span class="icon">🎨</span>globals.css</li>
+                  <li class="node folder" data-info="about"><span class="twisty">▸</span><span class="icon">📁</span>about
+                    <ul hidden>
+                      <li class="node file" data-info="page-about"><span class="icon">📄</span>page.tsx</li>
+                    </ul>
+                  </li>
+                  <li class="node folder" data-info="blog"><span class="twisty">▸</span><span class="icon">📁</span>blog
+                    <ul hidden>
+                      <li class="node file" data-info="layout-blog"><span class="icon">📄</span>layout.tsx</li>
+                      <li class="node file" data-info="page-blog"><span class="icon">📄</span>page.tsx</li>
+                      <li class="node folder" data-info="slug"><span class="twisty">▸</span><span class="icon">📁</span>[slug]
+                        <ul hidden>
+                          <li class="node file" data-info="page-slug"><span class="icon">📄</span>page.tsx</li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="node folder" data-info="public"><span class="twisty">▸</span><span class="icon">📁</span>public</li>
+              <li class="node file" data-info="nextconfig"><span class="icon">⚙️</span>next.config.js</li>
+              <li class="node file" data-info="pkg"><span class="icon">📦</span>package.json</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <aside class="tree-info" id="treeInfo">
+        <div class="info-label">Selecciona un fichero</div>
+        <h3 class="info-title">El árbol de tu app</h3>
+        <p class="info-body">Cada <strong>carpeta</strong> dentro de <code>app/</code> crea un <strong>segmento de ruta</strong>. Los archivos especiales (<code>page</code>, <code>layout</code>…) definen qué hace ese segmento.</p>
+      </aside>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" data-next>Continuar →</button>
+    </div>
+  </section>
+
+  <!-- PASO 4 -->
+  <section class="step" data-step="4" hidden>
+    <div class="step-meta"><span>Paso 04</span><span>·</span><span>Convenciones</span></div>
+    <h1 class="step-title">Archivos <em>especiales</em></h1>
+    <p class="lede">Next.js reconoce estos nombres dentro de <code>app/</code>. Pasa el ratón o haz clic en cada tarjeta.</p>
+
+    <div class="special-grid">
+      <article class="special-card" tabindex="0">
+        <h4>page.tsx</h4>
+        <p>Define la UI <strong>única</strong> de una ruta. Sin <code>page</code>, el segmento <em>no es navegable</em>.</p>
+        <pre><code>export default function Page() {
+  return &lt;h1&gt;Hola&lt;/h1&gt;
+}</code></pre>
+      </article>
+      <article class="special-card" tabindex="0">
+        <h4>layout.tsx</h4>
+        <p>UI compartida para un segmento y sus hijos. <strong>Persiste</strong> entre navegaciones.</p>
+        <pre><code>export default function Layout({ children }) {
+  return &lt;section&gt;{children}&lt;/section&gt;
+}</code></pre>
+      </article>
+      <article class="special-card" tabindex="0">
+        <h4>loading.tsx</h4>
+        <p>UI de carga con <em>streaming</em>. Se muestra mientras el segmento está suspendido.</p>
+        <pre><code>export default function Loading() {
+  return &lt;p&gt;Cargando…&lt;/p&gt;
+}</code></pre>
+      </article>
+      <article class="special-card" tabindex="0">
+        <h4>error.tsx</h4>
+        <p>Captura errores del segmento. Debe ser <strong>Client Component</strong>.</p>
+        <pre><code>'use client'
+export default function Error({ reset }) {
+  return &lt;button onClick={reset}&gt;Reintentar&lt;/button&gt;
+}</code></pre>
+      </article>
+      <article class="special-card" tabindex="0">
+        <h4>not-found.tsx</h4>
+        <p>Se renderiza cuando se llama a <code>notFound()</code> dentro del segmento.</p>
+        <pre><code>export default function NotFound() {
+  return &lt;p&gt;404&lt;/p&gt;
+}</code></pre>
+      </article>
+      <article class="special-card" tabindex="0">
+        <h4>route.ts</h4>
+        <p>Crea un <strong>handler HTTP</strong> (API) para el segmento, no una UI.</p>
+        <pre><code>export async function GET() {
+  return Response.json({ ok: true })
+}</code></pre>
+      </article>
+      <article class="special-card" tabindex="0">
+        <h4>template.tsx</h4>
+        <p>Como <code>layout</code> pero <strong>se remonta</strong> en cada navegación.</p>
+        <pre><code>export default function Template({ children }) {
+  return &lt;div&gt;{children}&lt;/div&gt;
+}</code></pre>
+      </article>
+      <article class="special-card" tabindex="0">
+        <h4>default.tsx</h4>
+        <p>Contenido por defecto para <strong>parallel routes</strong> sin match.</p>
+        <pre><code>export default function Default() {
+  return null
+}</code></pre>
+      </article>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" data-next>Continuar →</button>
+    </div>
+  </section>
+
+  <!-- PASO 5 -->
+  <section class="step" data-step="5" hidden>
+    <div class="step-meta"><span>Paso 05</span><span>·</span><span>Routing</span></div>
+    <h1 class="step-title">Probador de <em>rutas</em></h1>
+    <p class="lede">Escribe una URL. El sistema la resolverá contra este árbol:</p>
+
+    <div class="mini-tree">
+      app/<br>
+      ├── page.tsx &nbsp;&nbsp;→ <code>/</code><br>
+      ├── about/page.tsx &nbsp;→ <code>/about</code><br>
+      ├── blog/page.tsx &nbsp;→ <code>/blog</code><br>
+      ├── blog/[slug]/page.tsx &nbsp;→ <code>/blog/:slug</code><br>
+      └── shop/[...items]/page.tsx &nbsp;→ <code>/shop/*</code>
+    </div>
+
+    <form class="route-tester" id="routeForm" autocomplete="off">
+      <span class="url-prefix">localhost:3000</span>
+      <input type="text" id="routeInput" placeholder="/blog/hello-world" spellcheck="false">
+      <button class="btn primary" type="submit">Resolver</button>
+    </form>
+
+    <div class="route-samples">
+      <button class="chip" data-route="/">/</button>
+      <button class="chip" data-route="/about">/about</button>
+      <button class="chip" data-route="/blog">/blog</button>
+      <button class="chip" data-route="/blog/nextjs-app-router">/blog/nextjs-app-router</button>
+      <button class="chip" data-route="/shop/zapatos/rojas/42">/shop/zapatos/rojas/42</button>
+      <button class="chip" data-route="/contacto">/contacto</button>
+    </div>
+
+    <div class="route-result" id="routeResult">
+      <div class="result-placeholder">Esperando una ruta…</div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" data-next>Continuar →</button>
+    </div>
+  </section>
+
+  <!-- PASO 6 -->
+  <section class="step" data-step="6" hidden>
+    <div class="step-meta"><span>Paso 06</span><span>·</span><span>Dinámicas</span></div>
+    <h1 class="step-title">Rutas <em>dinámicas</em></h1>
+    <p class="lede">Las carpetas entre corchetes capturan segmentos variables y te los pasan como <code>params</code>.</p>
+
+    <div class="split">
+      <div class="card">
+        <h3>Sintaxis</h3>
+        <table class="tbl">
+          <tr><th>Carpeta</th><th>Captura</th></tr>
+          <tr><td><code>[id]</code></td><td>Un único segmento</td></tr>
+          <tr><td><code>[...slug]</code></td><td>Varios segmentos <em>(catch-all)</em></td></tr>
+          <tr><td><code>[[...slug]]</code></td><td>Varios segmentos <em>opcionales</em></td></tr>
+        </table>
+      </div>
+      <div class="card card-accent">
+        <h3>Ejemplo: <code>app/blog/[slug]/page.tsx</code></h3>
+<pre class="code"><code>export default async function Page({
+  params,
+}: { params: Promise&lt;{ slug: string }&gt; }) {
+  const { slug } = await params
+  return &lt;article&gt;Post: {slug}&lt;/article&gt;
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="mini-demo">
+      <label>Visita <code>/blog/<input type="text" id="slugInput" value="nextjs-es-genial" spellcheck="false"></code></label>
+      <div class="demo-output">
+        <div class="demo-line"><span class="k">params</span> = <span class="v" id="slugOutput">{ slug: "nextjs-es-genial" }</span></div>
+        <div class="demo-line"><span class="k">render</span> → <span class="v">&lt;article&gt;Post: <strong id="slugRender">nextjs-es-genial</strong>&lt;/article&gt;</span></div>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" data-next>Continuar →</button>
+    </div>
+  </section>
+
+  <!-- PASO 7 -->
+  <section class="step" data-step="7" hidden>
+    <div class="step-meta"><span>Paso 07</span><span>·</span><span>Layouts</span></div>
+    <h1 class="step-title">Layouts <em>anidados</em></h1>
+    <p class="lede">Cada <code>layout.tsx</code> envuelve a sus hijos. Al navegar entre hermanos, los layouts padres <strong>persisten</strong> (no se remontan).</p>
+
+    <div class="layout-demo">
+      <div class="layout-box box-root">
+        <span class="box-label">RootLayout · <code>app/layout.tsx</code></span>
+        <div class="layout-box box-dashboard">
+          <span class="box-label">DashLayout · <code>app/dashboard/layout.tsx</code></span>
+          <div class="layout-box box-page" id="layoutPage">
+            <span class="box-label">Page · <code id="layoutPath">app/dashboard/page.tsx</code></span>
+            <div class="page-content" id="layoutContent">Dashboard home</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="layout-controls">
+        <span>Navegar a:</span>
+        <button class="chip" data-layout="home">/dashboard</button>
+        <button class="chip" data-layout="settings">/dashboard/settings</button>
+        <button class="chip" data-layout="billing">/dashboard/billing</button>
+      </div>
+      <p class="tiny-note">💡 Observa que los recuadros exteriores no parpadean: los layouts <em>persisten</em>.</p>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" data-next>Continuar →</button>
+    </div>
+  </section>
+
+  <!-- PASO 8 -->
+  <section class="step" data-step="8" hidden>
+    <div class="step-meta"><span>Paso 08</span><span>·</span><span>Organización</span></div>
+    <h1 class="step-title">Route <em>Groups</em></h1>
+    <p class="lede">Las carpetas <code>(entre paréntesis)</code> <strong>no aparecen en la URL</strong>. Sirven para agrupar rutas y compartir layouts sin afectar al path.</p>
+
+    <div class="split">
+      <div class="card">
+        <h3>Estructura en disco</h3>
+<pre class="code"><code>app/
+├── (marketing)/
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── pricing/page.tsx
+└── (shop)/
+    ├── layout.tsx
+    └── products/page.tsx</code></pre>
+      </div>
+      <div class="card card-accent">
+        <h3>URLs resultantes</h3>
+        <ul class="url-list">
+          <li><code>(marketing)/page.tsx</code> → <span class="url">/</span></li>
+          <li><code>(marketing)/pricing</code> → <span class="url">/pricing</span></li>
+          <li><code>(shop)/products</code> → <span class="url">/products</span></li>
+        </ul>
+        <p class="tiny-note">Los paréntesis se <strong>eliminan</strong> del path final.</p>
+      </div>
+    </div>
+
+    <div class="group-demo">
+      <h4>Probador: ¿cuál es la URL real?</h4>
+      <div class="group-row">
+        <code class="group-path">app/(auth)/login/page.tsx</code>
+        <input type="text" class="group-input" data-answer="/login" placeholder="URL…">
+        <span class="group-feedback"></span>
+      </div>
+      <div class="group-row">
+        <code class="group-path">app/(marketing)/about/page.tsx</code>
+        <input type="text" class="group-input" data-answer="/about" placeholder="URL…">
+        <span class="group-feedback"></span>
+      </div>
+      <div class="group-row">
+        <code class="group-path">app/(shop)/cart/page.tsx</code>
+        <input type="text" class="group-input" data-answer="/cart" placeholder="URL…">
+        <span class="group-feedback"></span>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" data-next>Continuar →</button>
+    </div>
+  </section>
+
+  <!-- PASO 9 -->
+  <section class="step" data-step="9" hidden>
+    <div class="step-meta"><span>Paso 09</span><span>·</span><span>Estados</span></div>
+    <h1 class="step-title"><em>Loading</em> & <em>Error</em></h1>
+    <p class="lede">Estos archivos especiales envuelven el segmento con límites de <code>&lt;Suspense&gt;</code> y <code>&lt;ErrorBoundary&gt;</code> automáticamente.</p>
+
+    <div class="simulator">
+      <div class="sim-screen" id="simScreen">
+        <div class="sim-content">
+          <h4>Panel de usuario</h4>
+          <p>Bienvenido. Datos listos.</p>
+        </div>
+      </div>
+      <div class="sim-controls">
+        <button class="btn ghost" data-sim="idle">Idle</button>
+        <button class="btn ghost" data-sim="loading">Trigger loading.tsx</button>
+        <button class="btn ghost" data-sim="error">Trigger error.tsx</button>
+        <button class="btn ghost" data-sim="notfound">Trigger not-found.tsx</button>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" data-next>Continuar →</button>
+    </div>
+  </section>
+
+  <!-- PASO 10 -->
+  <section class="step" data-step="10" hidden>
+    <div class="step-meta"><span>Paso 10</span><span>·</span><span>Componentes</span></div>
+    <h1 class="step-title">Server <em>vs</em> Client</h1>
+    <p class="lede">En App Router, los componentes son <strong>Server Components</strong> por defecto. Usa <code>'use client'</code> al principio del fichero para optar por Client.</p>
+
+    <div class="compare">
+      <div class="compare-col">
+        <h3>🌐 Server Component <span class="tag tag-new">default</span></h3>
+        <ul class="check-list">
+          <li>Se ejecuta en el <strong>servidor</strong></li>
+          <li>Puede hacer <code>fetch()</code> de datos directamente</li>
+          <li>Acceso a secretos, BBDD, filesystem</li>
+          <li><strong>0 KB</strong> de JS al cliente</li>
+          <li>No puede usar <code>useState</code>, <code>useEffect</code>, ni eventos del DOM</li>
+        </ul>
+      </div>
+      <div class="compare-col">
+        <h3>🖱️ Client Component <span class="tag tag-legacy">'use client'</span></h3>
+        <ul class="check-list">
+          <li>Se ejecuta en el <strong>navegador</strong> (y se pre-renderiza)</li>
+          <li>Puede usar <strong>hooks</strong> y <strong>eventos</strong></li>
+          <li>No puede acceder a recursos server-only</li>
+          <li>Se envía al bundle del cliente</li>
+          <li>Ideal para interactividad: formularios, menús, animaciones</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="decider">
+      <h4>¿Qué componente usarías?</h4>
+      <div class="decider-q" data-answer="server">
+        <p>Leer una variable de entorno con la URL de la BBDD y pintar una lista de productos.</p>
+        <div class="decider-opts"><button class="btn ghost" data-opt="server">Server</button><button class="btn ghost" data-opt="client">Client</button></div>
+      </div>
+      <div class="decider-q" data-answer="client">
+        <p>Un <code>&lt;button&gt;</code> que abre un menú desplegable con <code>useState</code>.</p>
+        <div class="decider-opts"><button class="btn ghost" data-opt="server">Server</button><button class="btn ghost" data-opt="client">Client</button></div>
+      </div>
+      <div class="decider-q" data-answer="server">
+        <p>Renderizar un artículo de blog con datos traídos desde una API autenticada.</p>
+        <div class="decider-opts"><button class="btn ghost" data-opt="server">Server</button><button class="btn ghost" data-opt="client">Client</button></div>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" data-next>Continuar →</button>
+    </div>
+  </section>
+
+  <!-- PASO 11 -->
+  <section class="step" data-step="11" hidden>
+    <div class="step-meta"><span>Paso 11</span><span>·</span><span>Datos</span></div>
+    <h1 class="step-title">Data <em>fetching</em></h1>
+    <p class="lede">En Server Components puedes usar <code>async/await</code> directamente. El caché y la revalidación se controlan con opciones del <code>fetch</code>.</p>
+
+    <div class="fetch-explorer">
+      <div class="fetch-modes">
+        <button class="mode-btn active" data-mode="static">Estático</button>
+        <button class="mode-btn" data-mode="revalidate">ISR · revalidate</button>
+        <button class="mode-btn" data-mode="dynamic">Dinámico (no-store)</button>
+      </div>
+      <pre class="code big"><code id="fetchCode">const res = await fetch('https://api.example.com/posts')
+const posts = await res.json()</code></pre>
+      <p class="fetch-explain" id="fetchExplain">Por defecto, el resultado se cachea <strong>indefinidamente</strong> en build y se sirve estático. Perfecto para datos que no cambian.</p>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" data-next>Continuar →</button>
+    </div>
+  </section>
+
+  <!-- PASO 12 -->
+  <section class="step" data-step="12" hidden>
+    <div class="step-meta"><span>Paso 12</span><span>·</span><span>Navegación</span></div>
+    <h1 class="step-title"><em>Redirecciones</em></h1>
+    <p class="lede">Tres formas principales de redirigir, cada una con su momento idóneo.</p>
+
+    <div class="redir-grid">
+      <article class="redir-card">
+        <h4>1 · <code>redirect()</code> en Server</h4>
+        <p>Dentro de Server Components, Route Handlers o Server Actions.</p>
+<pre class="code"><code>import { redirect } from 'next/navigation'
+
+export default async function Page() {
+  const user = await getUser()
+  if (!user) redirect('/login')
+  return &lt;Dashboard /&gt;
+}</code></pre>
+      </article>
+
+      <article class="redir-card">
+        <h4>2 · <code>useRouter()</code> en Client</h4>
+        <p>Redirecciones imperativas tras una interacción.</p>
+<pre class="code"><code>'use client'
+import { useRouter } from 'next/navigation'
+
+export default function Form() {
+  const router = useRouter()
+  return &lt;button onClick={() =&gt; router.push('/ok')}&gt;
+    Enviar
+  &lt;/button&gt;
+}</code></pre>
+      </article>
+
+      <article class="redir-card">
+        <h4>3 · <code>next.config.js</code></h4>
+        <p>Redirecciones declarativas a nivel de build (301/308 por defecto).</p>
+<pre class="code"><code>module.exports = {
+  async redirects() {
+    return [{
+      source: '/old-blog/:slug',
+      destination: '/blog/:slug',
+      permanent: true,
+    }]
+  },
+}</code></pre>
+      </article>
+    </div>
+
+    <div class="redir-tester">
+      <h4>Simulador</h4>
+      <div class="redir-row">
+        <span>Usuario <strong id="authState">NO autenticado</strong></span>
+        <button class="btn ghost" id="toggleAuth">Alternar auth</button>
+      </div>
+      <div class="redir-row">
+        <span>Visitar:</span>
+        <button class="chip" data-visit="/dashboard">/dashboard</button>
+        <button class="chip" data-visit="/old-blog/hola">/old-blog/hola</button>
+        <button class="chip" data-visit="/about">/about</button>
+      </div>
+      <div class="redir-log" id="redirLog"></div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" data-next>Continuar →</button>
+    </div>
+  </section>
+
+  <!-- PASO 13 -->
+  <section class="step" data-step="13" hidden>
+    <div class="step-meta"><span>Paso 13</span><span>·</span><span>Cheatsheet</span></div>
+    <h1 class="step-title">Recapi<em>tulación</em></h1>
+    <p class="lede">Las diez ideas esenciales que te llevas de este playground.</p>
+
+    <div class="cheatsheet">
+      <div class="cheat"><span class="cn">01</span><p>Carpeta <code>app/</code>. <strong>Carpetas = segmentos</strong>, archivos especiales = comportamiento.</p></div>
+      <div class="cheat"><span class="cn">02</span><p><code>page.tsx</code> hace la ruta <strong>pública</strong>. Sin <code>page</code>, el segmento no responde.</p></div>
+      <div class="cheat"><span class="cn">03</span><p><code>layout.tsx</code> envuelve al segmento y <strong>persiste</strong> entre navegaciones hermanas.</p></div>
+      <div class="cheat"><span class="cn">04</span><p><code>[param]</code>, <code>[...catch]</code>, <code>[[...opt]]</code> capturan segmentos variables.</p></div>
+      <div class="cheat"><span class="cn">05</span><p><code>(group)</code> organiza sin afectar la URL. Útil para compartir layouts.</p></div>
+      <div class="cheat"><span class="cn">06</span><p><code>loading.tsx</code> y <code>error.tsx</code> crean boundaries automáticos con streaming.</p></div>
+      <div class="cheat"><span class="cn">07</span><p><strong>Server Components</strong> por defecto. <code>'use client'</code> para interactividad.</p></div>
+      <div class="cheat"><span class="cn">08</span><p><code>fetch()</code> con <code>cache</code> y <code>next.revalidate</code> controla estático/ISR/dinámico.</p></div>
+      <div class="cheat"><span class="cn">09</span><p><code>redirect()</code> en server, <code>router.push()</code> en client, <code>redirects()</code> en config.</p></div>
+      <div class="cheat"><span class="cn">10</span><p><code>route.ts</code> = API del segmento. <code>not-found.tsx</code> = pantalla 404 local.</p></div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" data-next>Al quiz final →</button>
+    </div>
+  </section>
+
+  <!-- PASO 14 -->
+  <section class="step" data-step="14" hidden>
+    <div class="step-meta"><span>Paso 14</span><span>·</span><span>Examen</span></div>
+    <h1 class="step-title">Quiz <em>final</em></h1>
+    <p class="lede">Ocho preguntas. Sin límite de tiempo. Tu puntuación aparece al final.</p>
+
+    <form class="quiz" id="quizForm">
+
+      <fieldset class="q" data-answer="b">
+        <legend>1 · ¿Qué archivo hace que un segmento sea una ruta navegable?</legend>
+        <label><input type="radio" name="q1" value="a"> <span>layout.tsx</span></label>
+        <label><input type="radio" name="q1" value="b"> <span>page.tsx</span></label>
+        <label><input type="radio" name="q1" value="c"> <span>route.ts</span></label>
+        <label><input type="radio" name="q1" value="d"> <span>template.tsx</span></label>
+      </fieldset>
+
+      <fieldset class="q" data-answer="c">
+        <legend>2 · ¿A qué URL corresponde <code>app/(shop)/products/page.tsx</code>?</legend>
+        <label><input type="radio" name="q2" value="a"> <span>/shop/products</span></label>
+        <label><input type="radio" name="q2" value="b"> <span>/(shop)/products</span></label>
+        <label><input type="radio" name="q2" value="c"> <span>/products</span></label>
+        <label><input type="radio" name="q2" value="d"> <span>/products/shop</span></label>
+      </fieldset>
+
+      <fieldset class="q" data-answer="b">
+        <legend>3 · ¿Cómo se declara un Client Component?</legend>
+        <label><input type="radio" name="q3" value="a"> <span>Añadiendo <code>export const client = true</code></span></label>
+        <label><input type="radio" name="q3" value="b"> <span>Con <code>'use client'</code> al principio del fichero</span></label>
+        <label><input type="radio" name="q3" value="c"> <span>Envolviéndolo en <code>&lt;Client&gt;</code></span></label>
+        <label><input type="radio" name="q3" value="d"> <span>Cambiando la extensión a <code>.client.tsx</code></span></label>
+      </fieldset>
+
+      <fieldset class="q" data-answer="d">
+        <legend>4 · ¿Qué captura <code>app/shop/[...items]/page.tsx</code>?</legend>
+        <label><input type="radio" name="q4" value="a"> <span>Solo <code>/shop</code></span></label>
+        <label><input type="radio" name="q4" value="b"> <span>Un único segmento tras <code>/shop</code></span></label>
+        <label><input type="radio" name="q4" value="c"> <span>Exactamente dos segmentos</span></label>
+        <label><input type="radio" name="q4" value="d"> <span>Uno o más segmentos tras <code>/shop</code></span></label>
+      </fieldset>
+
+      <fieldset class="q" data-answer="a">
+        <legend>5 · ¿Qué hace un <code>layout.tsx</code> al navegar entre rutas hermanas?</legend>
+        <label><input type="radio" name="q5" value="a"> <span>Persiste, no se remonta</span></label>
+        <label><input type="radio" name="q5" value="b"> <span>Se remonta siempre</span></label>
+        <label><input type="radio" name="q5" value="c"> <span>Se elimina del DOM</span></label>
+        <label><input type="radio" name="q5" value="d"> <span>Solo se usa en build</span></label>
+      </fieldset>
+
+      <fieldset class="q" data-answer="c">
+        <legend>6 · Quieres redirigir desde un Server Component si no hay sesión. ¿Cuál usas?</legend>
+        <label><input type="radio" name="q6" value="a"> <span><code>window.location</code></span></label>
+        <label><input type="radio" name="q6" value="b"> <span><code>useRouter().push()</code></span></label>
+        <label><input type="radio" name="q6" value="c"> <span><code>redirect()</code> de <code>next/navigation</code></span></label>
+        <label><input type="radio" name="q6" value="d"> <span><code>Navigate</code> de react-router</span></label>
+      </fieldset>
+
+      <fieldset class="q" data-answer="b">
+        <legend>7 · ¿Cómo forzarías que un fetch se ejecute en cada request?</legend>
+        <label><input type="radio" name="q7" value="a"> <span><code>fetch(url, { cache: 'force-cache' })</code></span></label>
+        <label><input type="radio" name="q7" value="b"> <span><code>fetch(url, { cache: 'no-store' })</code></span></label>
+        <label><input type="radio" name="q7" value="c"> <span><code>fetch(url, { static: true })</code></span></label>
+        <label><input type="radio" name="q7" value="d"> <span>No se puede</span></label>
+      </fieldset>
+
+      <fieldset class="q" data-answer="a">
+        <legend>8 · ¿Cuál es el propósito de <code>route.ts</code>?</legend>
+        <label><input type="radio" name="q8" value="a"> <span>Definir un handler HTTP (API) para el segmento</span></label>
+        <label><input type="radio" name="q8" value="b"> <span>Redirigir a otra ruta</span></label>
+        <label><input type="radio" name="q8" value="c"> <span>Sustituir a <code>page.tsx</code></span></label>
+        <label><input type="radio" name="q8" value="d"> <span>Configurar metadatos</span></label>
+      </fieldset>
+
+      <div class="quiz-actions">
+        <button type="submit" class="btn primary big">Calcular puntuación</button>
+        <button type="button" class="btn ghost" id="resetQuiz">Reiniciar</button>
+      </div>
+    </form>
+
+    <div class="quiz-result" id="quizResult" hidden>
+      <div class="score-ring">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="44" class="ring-bg"/>
+          <circle cx="50" cy="50" r="44" class="ring-fg" id="scoreRing"/>
+        </svg>
+        <div class="score-num"><span id="scoreNum">0</span><em>/8</em></div>
+      </div>
+      <h3 id="scoreTitle">—</h3>
+      <p id="scoreMsg">—</p>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn ghost" data-prev>← Anterior</button>
+      <button class="btn primary" id="restartAll">Reiniciar playground ↺</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <span>Playground didáctico · Next.js App Router</span>
+  <span>Hecho con HTML · CSS · JS — sin dependencias</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
