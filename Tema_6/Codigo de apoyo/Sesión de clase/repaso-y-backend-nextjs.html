@@ -660,6 +660,1077 @@ button.ghost:hover { background: var(--bg-3); color: var(--ink); }
   margin: 6px 0;
 }
 
+/* ───── PLAYGROUND DOCKER / SQL / IDE ───── */
+
+/* terminal */
+.term {
+  background: #07090c;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: 13px;
+  margin: 14px 0;
+}
+.term-bar {
+  background: #14171c;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.term-dots { display: flex; gap: 5px; }
+.term-dots span {
+  width: 11px; height: 11px; border-radius: 50%;
+  display: inline-block;
+}
+.term-dots span:nth-child(1) { background: #ff5f57; }
+.term-dots span:nth-child(2) { background: #febc2e; }
+.term-dots span:nth-child(3) { background: #28c840; }
+.term-body {
+  padding: 14px 18px;
+  min-height: 180px;
+  line-height: 1.7;
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.term-prompt {
+  color: var(--acc);
+  margin-right: 8px;
+  user-select: none;
+}
+.term-cmd { color: #ffffff; }
+.term-out { color: var(--ink-2); }
+.term-out.warn { color: var(--warn); }
+.term-out.ok { color: var(--good); }
+.term-out.dim { color: var(--ink-3); }
+.term-input {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-family: var(--mono);
+  font-size: 13px;
+  outline: none;
+  width: calc(100% - 24px);
+  padding: 0;
+}
+.term-cursor {
+  display: inline-block;
+  width: 8px; height: 14px;
+  background: var(--acc);
+  vertical-align: middle;
+  animation: blink 1s infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.step-card {
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  border-radius: 10px;
+  padding: 22px 26px;
+  margin: 24px 0;
+  position: relative;
+}
+.step-card::before {
+  content: attr(data-step);
+  position: absolute;
+  top: -14px;
+  left: 22px;
+  background: var(--acc);
+  color: #07090c;
+  padding: 2px 14px;
+  border-radius: 14px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* mockup DataGrip */
+.datagrip-mockup {
+  background: linear-gradient(180deg, #2b2d30 0%, #1e1f22 100%);
+  border-radius: 8px;
+  border: 1px solid #3c3f41;
+  overflow: hidden;
+  margin: 14px 0;
+  font-family: var(--sans);
+  font-size: 13px;
+}
+.datagrip-titlebar {
+  background: #313338;
+  padding: 8px 14px;
+  font-size: 11px;
+  color: #bcbec4;
+  border-bottom: 1px solid #3c3f41;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.datagrip-titlebar::before {
+  content: "▸";
+  color: #6e7681;
+}
+.datagrip-body {
+  padding: 22px 28px;
+  color: #dfe1e5;
+}
+.datagrip-body h5 {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+.datagrip-body .sub {
+  font-size: 12px;
+  color: #8b8d91;
+  margin-bottom: 18px;
+}
+.dg-field {
+  display: grid;
+  grid-template-columns: 110px 1fr 280px;
+  gap: 14px;
+  align-items: center;
+  padding: 7px 0;
+  position: relative;
+}
+.dg-field label {
+  font-size: 13px;
+  color: #bcbec4;
+  text-align: right;
+}
+.dg-field input {
+  background: #1e1f22;
+  border: 1px solid #4a4d52;
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  width: 100%;
+}
+.dg-field input:focus {
+  border-color: #548af7;
+  outline: none;
+}
+.dg-annotation {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--acc);
+  background: rgba(134,239,172,0.08);
+  border: 1px dashed var(--acc);
+  padding: 4px 10px;
+  border-radius: 3px;
+  line-height: 1.4;
+}
+.dg-test {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.dg-btn {
+  background: #548af7;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.dg-btn:hover { background: #6498ff; transform: none; }
+.dg-result {
+  font-size: 12px;
+  color: var(--good);
+  display: none;
+}
+.dg-result.show { display: inline; }
+
+/* IDE-ish (VS Code-ish) */
+.ide {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 16px 0;
+  background: #1e1e1e;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.ide-titlebar {
+  background: #2d2d2d;
+  padding: 7px 14px;
+  font-family: var(--sans);
+  font-size: 11px;
+  color: #cccccc;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ide-titlebar::before {
+  content: "📁";
+  font-size: 12px;
+}
+.ide-tabs {
+  display: flex;
+  background: #252526;
+  border-bottom: 1px solid #1a1a1a;
+  overflow-x: auto;
+}
+.ide-tab {
+  padding: 8px 16px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: #969696;
+  background: #2d2d2d;
+  border-right: 1px solid #1a1a1a;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background .12s;
+  border-top: 1px solid transparent;
+}
+.ide-tab:hover { background: #333; }
+.ide-tab.active {
+  background: #1e1e1e;
+  color: #ffffff;
+  border-top-color: var(--acc);
+}
+.ide-tab .ic {
+  width: 12px; height: 12px;
+  border-radius: 2px;
+  display: inline-block;
+  font-size: 9px;
+  text-align: center;
+  line-height: 12px;
+  font-weight: 700;
+}
+.ide-tab .ic-env { background: #4f5b66; color: #ffffff; }
+.ide-tab .ic-js  { background: #c4a000; color: #1e1e1e; }
+.ide-tab .ic-rt  { background: #007acc; color: #ffffff; }
+.ide-content {
+  padding: 18px 22px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-size: 13px;
+  line-height: 1.7;
+  min-height: 280px;
+  white-space: pre;
+  overflow-x: auto;
+}
+.ide-pane { display: none; }
+.ide-pane.active { display: block; }
+.ide-content .c-com { color: #6a9955; font-style: italic; }
+.ide-content .c-kw  { color: #c586c0; }
+.ide-content .c-str { color: #ce9178; }
+.ide-content .c-fn  { color: #dcdcaa; }
+.ide-content .c-num { color: #b5cea8; }
+.ide-content .c-prop { color: #9cdcfe; }
+.ide-content .c-tp { color: #4ec9b0; }
+
+/* SQL playground */
+.sql-pg {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 16px 0;
+  background: var(--bg-2);
+}
+.sql-pg-head {
+  background: var(--bg-3);
+  padding: 9px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sql-pg-head::before {
+  content: "🐘";
+  font-size: 13px;
+}
+.sql-presets {
+  padding: 10px 14px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.sql-presets button {
+  background: transparent;
+  color: var(--ink-2);
+  border: 1px solid var(--line-2);
+  padding: 5px 11px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  border-radius: 3px;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: pointer;
+}
+.sql-presets button:hover {
+  border-color: var(--acc);
+  color: var(--ink);
+  transform: none;
+}
+.sql-editor {
+  background: #07090c;
+  color: #ffffff;
+  border: none;
+  width: 100%;
+  padding: 14px 18px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 110px;
+  outline: none;
+}
+.sql-editor:focus { background: #0a0d10; }
+.sql-actions {
+  padding: 10px 14px;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.sql-actions .info {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.05em;
+}
+.sql-result {
+  background: var(--bg);
+  padding: 14px 18px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  border-top: 1px solid var(--line);
+  min-height: 60px;
+  max-height: 340px;
+  overflow: auto;
+  color: var(--ink);
+}
+.sql-result.empty {
+  color: var(--ink-3);
+  font-style: italic;
+}
+.sql-result table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.sql-result th {
+  background: var(--bg-3);
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--acc);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.sql-result td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+  color: var(--ink);
+}
+.sql-result tr:last-child td { border-bottom: none; }
+.sql-msg-ok {
+  color: var(--good);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.sql-msg-err {
+  color: var(--bad);
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+/* guía paso a paso "desde cero" */
+.setup-banner {
+  background: linear-gradient(135deg, rgba(253,230,138,0.08), rgba(134,239,172,0.04));
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--acc-3);
+  padding: 20px 24px;
+  border-radius: 8px;
+  margin: 24px 0 8px;
+}
+.setup-banner-tag {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  color: var(--acc-3);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.setup-banner h3 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+.setup-banner p {
+  margin: 6px 0;
+  font-size: 14.5px;
+  color: var(--ink);
+}
+
+.setup-step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 18px;
+  margin: 20px 0;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-2);
+  position: relative;
+}
+.setup-step-num {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 36px;
+  color: var(--acc);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.setup-step-body h4 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--ink);
+  margin: 0 0 6px;
+  text-transform: none;
+  letter-spacing: -0.01em;
+}
+.setup-step-body .why {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--acc);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.setup-step-body p {
+  margin: 8px 0;
+  font-size: 14.5px;
+  color: var(--ink);
+  line-height: 1.65;
+}
+.setup-os {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 12px 0;
+}
+.setup-os .os {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+}
+.setup-os .os-name {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 4px;
+}
+.setup-os .os-act {
+  color: var(--ink);
+  line-height: 1.45;
+}
+.setup-os .os-act code {
+  font-size: 11.5px;
+  display: inline-block;
+  padding: 1px 6px;
+}
+
+.setup-check {
+  background: rgba(134,239,172,0.06);
+  border: 1px dashed var(--acc);
+  border-radius: 5px;
+  padding: 10px 14px;
+  margin: 12px 0 4px;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+.setup-check::before {
+  content: "✓ Cómo saber si está hecho:";
+  display: block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--acc);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 4px;
+}
+
+/* mockup de "captura de pantalla" tipo DataGrip nav -->
+   estilo más simple para indicar UI clickable */
+.ui-hint {
+  background: #2b2d30;
+  border: 1px solid #3c3f41;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  color: #dfe1e5;
+  position: relative;
+}
+.ui-hint::before {
+  content: "📍 EN LA APP";
+  position: absolute;
+  top: -9px;
+  left: 14px;
+  background: var(--bg);
+  padding: 0 8px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: #6e7681;
+  letter-spacing: 0.18em;
+  font-weight: 600;
+}
+.ui-hint .breadcrumb {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: #ffffff;
+}
+.ui-hint .breadcrumb .sep {
+  color: #6e7681;
+  margin: 0 6px;
+}
+.ui-hint .breadcrumb .key {
+  background: #1e1f22;
+  border: 1px solid #4a4d52;
+  padding: 1px 7px;
+  border-radius: 3px;
+  color: #c4b5fd;
+}
+
+/* ───── SIMULADOR GUIADO DataGrip ───── */
+.dg-sim {
+  margin: 24px 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-2);
+}
+.dg-sim-header {
+  background: var(--bg-3);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.dg-sim-progress {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+.dg-sim-progress .dot {
+  flex: 1;
+  height: 4px;
+  background: var(--line-2);
+  border-radius: 2px;
+  transition: background .25s;
+}
+.dg-sim-progress .dot.done { background: var(--acc); }
+.dg-sim-progress .dot.current {
+  background: var(--acc);
+  box-shadow: 0 0 6px var(--acc);
+}
+.dg-sim-counter {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.dg-sim-instr {
+  background: rgba(134,239,172,0.06);
+  border-bottom: 1px solid var(--line);
+  padding: 16px 22px;
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+.dg-sim-instr-num {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--acc);
+  letter-spacing: -0.04em;
+}
+.dg-sim-instr-body h5 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--ink);
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+.dg-sim-instr-body p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.55;
+}
+.dg-sim-instr-body code {
+  font-size: 12.5px;
+}
+
+.dg-sim-stage {
+  background: #1e1f22;
+  position: relative;
+  min-height: 460px;
+  overflow: hidden;
+}
+
+/* Layout interno simulado de DataGrip */
+.dg-window {
+  display: grid;
+  grid-template-rows: 32px 1fr;
+  height: 460px;
+  font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12.5px;
+  color: #dfe1e5;
+}
+.dg-toolbar {
+  background: #2b2d30;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 14px;
+  font-size: 11.5px;
+  color: #bcbec4;
+}
+.dg-toolbar .dg-menu { cursor: default; }
+.dg-toolbar .dg-menu:hover { color: #ffffff; }
+.dg-toolbar .dg-spacer { flex: 1; }
+.dg-toolbar .dg-icon-btn {
+  width: 22px; height: 22px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bcbec4;
+  font-size: 12px;
+}
+.dg-toolbar .dg-icon-btn.run { color: #4caf50; }
+
+.dg-main {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 0;
+}
+.dg-sidebar {
+  background: #2b2d30;
+  border-right: 1px solid #1a1a1a;
+  padding: 6px 0;
+  overflow-y: auto;
+  font-size: 12.5px;
+}
+.dg-sidebar-title {
+  padding: 6px 12px;
+  font-size: 10.5px;
+  color: #8b8d91;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid #1a1a1a;
+  margin-bottom: 4px;
+}
+.dg-tree-item {
+  padding: 4px 12px 4px 8px;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  color: #dfe1e5;
+}
+.dg-tree-item:hover { background: #2e436e; }
+.dg-tree-item.indent-1 { padding-left: 22px; }
+.dg-tree-item.indent-2 { padding-left: 38px; }
+.dg-tree-item.indent-3 { padding-left: 54px; }
+.dg-tree-item .chev {
+  font-size: 9px;
+  color: #8b8d91;
+  width: 8px;
+  display: inline-block;
+}
+.dg-tree-item .ic {
+  font-size: 12px;
+}
+.dg-tree-item.empty {
+  color: #6e7681;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.dg-editor-area {
+  background: #1e1f22;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.dg-tab-bar {
+  background: #2b2d30;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  height: 30px;
+  padding-left: 4px;
+}
+.dg-tab {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px 0 12px;
+  font-size: 12px;
+  color: #bcbec4;
+  background: #1e1f22;
+  border-right: 1px solid #1a1a1a;
+  gap: 6px;
+  border-top: 2px solid var(--acc);
+}
+.dg-empty-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6e7681;
+  font-size: 12.5px;
+  font-style: italic;
+}
+.dg-editor {
+  flex: 1;
+  background: #1e1f22;
+  color: #d4d4d4;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  padding: 14px 18px 14px 50px;
+  position: relative;
+  white-space: pre;
+  overflow: auto;
+}
+.dg-editor::before {
+  content: attr(data-lines);
+  position: absolute;
+  left: 0; top: 14px;
+  width: 38px;
+  color: #6e7681;
+  text-align: right;
+  padding-right: 8px;
+  border-right: 1px solid #2b2d30;
+  font-size: 11.5px;
+  line-height: 1.6;
+  white-space: pre;
+}
+.dg-editor .sql-kw  { color: #c586c0; }
+.dg-editor .sql-tp  { color: #4ec9b0; }
+.dg-editor .sql-str { color: #ce9178; }
+.dg-editor .sql-num { color: #b5cea8; }
+.dg-editor .sql-com { color: #6a9955; font-style: italic; }
+.dg-editor .sql-fn  { color: #dcdcaa; }
+
+.dg-results {
+  border-top: 1px solid #1a1a1a;
+  background: #1e1f22;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+}
+.dg-results-tab {
+  background: #2b2d30;
+  padding: 5px 14px;
+  font-size: 11.5px;
+  color: #bcbec4;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dg-results-tab::before { content: "▾"; color: #6e7681; font-size: 9px; }
+.dg-results-body {
+  flex: 1;
+  overflow: auto;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+}
+.dg-results-body table { width: 100%; border-collapse: collapse; }
+.dg-results-body th {
+  background: #2b2d30;
+  text-align: left;
+  padding: 4px 10px;
+  border-right: 1px solid #1a1a1a;
+  border-bottom: 1px solid #1a1a1a;
+  color: #dfe1e5;
+  font-size: 11px;
+  font-weight: 500;
+}
+.dg-results-body td {
+  padding: 4px 10px;
+  border-right: 1px solid #2b2d30;
+  border-bottom: 1px solid #2b2d30;
+  color: #dfe1e5;
+}
+.dg-results-body tr:hover td { background: #2e436e; }
+
+/* Diálogo modal sobre DataGrip */
+.dg-dialog {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #2b2d30;
+  border: 1px solid #1a1a1a;
+  border-radius: 6px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  min-width: 420px;
+  max-width: 92%;
+  color: #dfe1e5;
+  font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12.5px;
+  z-index: 5;
+}
+.dg-dialog-title {
+  background: #313338;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: #ffffff;
+  border-bottom: 1px solid #1a1a1a;
+  border-radius: 6px 6px 0 0;
+}
+.dg-dialog-body { padding: 20px 22px; }
+.dg-dialog-body .dg-field-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 5px 0;
+}
+.dg-dialog-body .dg-field-row label {
+  text-align: right;
+  font-size: 12px;
+  color: #bcbec4;
+}
+.dg-dialog-body .dg-field-row input {
+  background: #1e1f22;
+  border: 1px solid #4a4d52;
+  color: #ffffff;
+  padding: 5px 9px;
+  border-radius: 3px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  width: 100%;
+}
+.dg-dialog-footer {
+  border-top: 1px solid #1a1a1a;
+  padding: 10px 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+  background: #313338;
+  border-radius: 0 0 6px 6px;
+}
+.dg-dialog-btn {
+  background: #4e5054;
+  color: white;
+  border: 1px solid #5d6066;
+  padding: 5px 14px;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: -apple-system, sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.dg-dialog-btn.primary { background: #548af7; border-color: #548af7; }
+.dg-dialog-btn:hover { transform: none; }
+.dg-dialog-result {
+  margin-right: auto;
+  font-size: 11.5px;
+  color: var(--good);
+}
+
+/* Menú contextual flotante (right-click) */
+.dg-ctxmenu {
+  position: absolute;
+  background: #2b2d30;
+  border: 1px solid #1a1a1a;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  padding: 4px 0;
+  z-index: 10;
+  min-width: 200px;
+  font-family: -apple-system, sans-serif;
+  font-size: 12.5px;
+}
+.dg-ctxmenu .item {
+  padding: 5px 16px;
+  color: #dfe1e5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+}
+.dg-ctxmenu .item:hover { background: #2e436e; }
+.dg-ctxmenu .item .arrow {
+  margin-left: auto;
+  color: #8b8d91;
+  font-size: 10px;
+}
+.dg-ctxmenu .item.highlighted {
+  background: #2e436e;
+  outline: 2px solid var(--acc);
+  outline-offset: -2px;
+}
+
+/* Flechas/anotaciones sobre el stage */
+.dg-arrow {
+  position: absolute;
+  z-index: 8;
+  pointer-events: none;
+}
+.dg-callout {
+  position: absolute;
+  z-index: 9;
+  background: var(--bg);
+  border: 2px solid var(--acc);
+  color: var(--ink);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(134,239,172,0.25);
+  max-width: 260px;
+  line-height: 1.4;
+}
+.dg-callout strong { color: var(--acc); font-weight: 600; }
+
+/* Resaltado de elementos */
+.dg-highlight {
+  outline: 2px solid var(--acc) !important;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 4px rgba(134,239,172,0.25);
+  animation: pulse-hl 1.8s ease-in-out infinite;
+  position: relative;
+  z-index: 4;
+  border-radius: 2px;
+}
+@keyframes pulse-hl {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(134,239,172,0.25); }
+  50% { box-shadow: 0 0 0 8px rgba(134,239,172,0.10); }
+}
+
+.dg-sim-controls {
+  display: flex;
+  gap: 10px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--line);
+  background: var(--bg-2);
+  align-items: center;
+}
+.dg-sim-controls .label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-right: auto;
+}
+
+/* indicador "estado del sistema" arriba del módulo */
+.system-status {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 20px 0 30px;
+}
+.system-status .pill {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ink-3);
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all .25s;
+}
+.system-status .pill .dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  flex-shrink: 0;
+  transition: all .25s;
+}
+.system-status .pill .lbl {
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 10.5px;
+}
+.system-status .pill .st {
+  color: var(--ink-3);
+  margin-left: auto;
+  font-size: 10.5px;
+}
+.system-status .pill.on {
+  border-left-color: var(--acc);
+}
+.system-status .pill.on .dot {
+  background: var(--acc);
+  box-shadow: 0 0 8px var(--acc);
+}
+.system-status .pill.on .st {
+  color: var(--acc);
+}
+
 /* footer */
 footer {
   margin-top: 100px;
@@ -795,6 +1866,7 @@ figure.diagram figcaption {
     <li><a href="#m8">Cardinalidades</a></li>
     <li><a href="#m9">De diagrama a SQL</a></li>
     <li><a href="#m10">Conectar Next.js</a></li>
+    <li><a href="#m10b">🐘 En directo: Docker + SQL</a></li>
   </ol>
 
   <h4>Sesión III — Proxies</h4>
@@ -2847,10 +3919,128 @@ La columna <code style="color:var(--acc-2)">Dueño</code> de COCHES <em>apunta</
 <p>Sin sorpresas: si tienes <code>Persona</code> y <code>Coche</code>, tendrás dos tablas.</p>
 
 <h4>Regla 2 · 1:N → propagación de clave</h4>
-<p>La clave del lado "1" se copia (como FK) en la tabla del lado "N". <strong>No se crea tabla nueva.</strong></p>
+
+<p>Antes de entrar en la regla, dos palabras que necesitas tener claras:</p>
+
+<div class="cards-2">
+  <div class="mini-card">
+    <div class="t">PK · Primary Key (clave primaria)</div>
+    <p style="font-size:14.5px; color:var(--ink); margin:6px 0">
+      La columna que <strong>identifica de forma única</strong> a cada fila de una tabla. En <code>personas</code>, la PK sería el <code>dni</code>: no hay dos personas con el mismo DNI.
+    </p>
+  </div>
+  <div class="mini-card">
+    <div class="t">FK · Foreign Key (clave externa)</div>
+    <p style="font-size:14.5px; color:var(--ink); margin:6px 0">
+      Una columna en una tabla que <strong>apunta a la PK de otra tabla</strong>. Es como un "enlace" entre dos filas de tablas distintas. Si en <code>coches</code> tienes <code>dueno = '1234568X'</code>, esa columna es una FK que apunta a la persona con <code>dni = '1234568X'</code>.
+    </p>
+  </div>
+</div>
+
+<p>Y ahora la frase clave, traducida:</p>
+
+<div class="callout">
+  <div class="callout-title">Traducción al español de andar por casa</div>
+  <p style="margin:6px 0; font-size:14.5px">"<strong>1:N</strong>" significa <em>"un X tiene muchos Y"</em>. Por ejemplo: <strong>una persona tiene muchos coches</strong>. El lado "1" es PERSONAS (uno solo), el lado "N" es COCHES (muchos).</p>
+  <p style="margin:6px 0; font-size:14.5px">Para guardar esa relación, <strong>añades una columna nueva en la tabla del lado "N"</strong> (en COCHES) que guarde el DNI de la persona dueña. Esa columna es una FK que apunta al lado "1". No hace falta crear ninguna tabla extra.</p>
+</div>
+
+<figure class="diagram">
+  <svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; display:block">
+    <defs>
+      <marker id="arr-fk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#93c5fd"/>
+      </marker>
+    </defs>
+
+    <text x="450" y="28" font-family="Fraunces" font-style="italic" font-size="16" fill="#a8b0bd" text-anchor="middle">"Una persona tiene muchos coches" — relación 1:N</text>
+
+    <!-- Tabla PERSONAS lado "1" -->
+    <g transform="translate(60,70)">
+      <rect width="320" height="220" rx="8" fill="#181b21" stroke="#86efac" stroke-width="1.5"/>
+      <rect width="320" height="34" rx="8" fill="#20242c"/>
+      <rect y="26" width="320" height="8" fill="#20242c"/>
+      <text x="160" y="22" font-family="IBM Plex Mono" font-size="11" fill="#86efac" text-anchor="middle" letter-spacing="2">PERSONAS · lado "1"</text>
+
+      <!-- Encabezados -->
+      <line x1="0" y1="60" x2="320" y2="60" stroke="#2f3641"/>
+      <text x="14" y="54" font-family="IBM Plex Mono" font-size="10" fill="#a8b0bd" letter-spacing="1.5">DNI (PK)</text>
+      <text x="140" y="54" font-family="IBM Plex Mono" font-size="10" fill="#a8b0bd" letter-spacing="1.5">NOMBRE</text>
+      <text x="240" y="54" font-family="IBM Plex Mono" font-size="10" fill="#a8b0bd" letter-spacing="1.5">APELLIDOS</text>
+
+      <!-- Filas -->
+      <text x="14" y="82" font-family="IBM Plex Mono" font-size="12.5" fill="#86efac">1234568X</text>
+      <text x="140" y="82" font-family="IBM Plex Mono" font-size="12.5" fill="#ffffff">José</text>
+      <text x="240" y="82" font-family="IBM Plex Mono" font-size="12.5" fill="#e2e6ec">López</text>
+
+      <text x="14" y="110" font-family="IBM Plex Mono" font-size="12.5" fill="#86efac">1234567W</text>
+      <text x="140" y="110" font-family="IBM Plex Mono" font-size="12.5" fill="#ffffff">Jesús</text>
+      <text x="240" y="110" font-family="IBM Plex Mono" font-size="12.5" fill="#e2e6ec">Pérez</text>
+
+      <text x="14" y="138" font-family="IBM Plex Mono" font-size="12.5" fill="#86efac">6589741P</text>
+      <text x="140" y="138" font-family="IBM Plex Mono" font-size="12.5" fill="#ffffff">Álvaro</text>
+      <text x="240" y="138" font-family="IBM Plex Mono" font-size="12.5" fill="#e2e6ec">Ramadán</text>
+
+      <!-- Nota PK -->
+      <line x1="56" y1="92" x2="56" y2="155" stroke="#86efac" stroke-width="1" stroke-dasharray="2,3"/>
+      <text x="14" y="180" font-family="IBM Plex Mono" font-size="10" fill="#86efac">↑ la PK</text>
+      <text x="14" y="195" font-family="IBM Plex Sans" font-size="11.5" fill="#a8b0bd">identifica de forma única</text>
+      <text x="14" y="210" font-family="IBM Plex Sans" font-size="11.5" fill="#a8b0bd">a cada persona</text>
+    </g>
+
+    <!-- Tabla COCHES lado "N" -->
+    <g transform="translate(520,70)">
+      <rect width="340" height="220" rx="8" fill="#181b21" stroke="#93c5fd" stroke-width="1.5"/>
+      <rect width="340" height="34" rx="8" fill="#20242c"/>
+      <rect y="26" width="340" height="8" fill="#20242c"/>
+      <text x="170" y="22" font-family="IBM Plex Mono" font-size="11" fill="#93c5fd" text-anchor="middle" letter-spacing="2">COCHES · lado "N"</text>
+
+      <line x1="0" y1="60" x2="340" y2="60" stroke="#2f3641"/>
+      <text x="14" y="54" font-family="IBM Plex Mono" font-size="10" fill="#a8b0bd" letter-spacing="1.5">ID (PK)</text>
+      <text x="80" y="54" font-family="IBM Plex Mono" font-size="10" fill="#a8b0bd" letter-spacing="1.5">MODELO</text>
+      <text x="200" y="54" font-family="IBM Plex Mono" font-size="10" fill="#93c5fd" letter-spacing="1.5">DUENO (FK)</text>
+
+      <!-- Filas -->
+      <text x="14" y="82" font-family="IBM Plex Mono" font-size="12.5" fill="#fde68a">1</text>
+      <text x="80" y="82" font-family="IBM Plex Mono" font-size="12.5" fill="#e2e6ec">Audi TT</text>
+      <text x="200" y="82" font-family="IBM Plex Mono" font-size="12.5" fill="#93c5fd">1234568X</text>
+
+      <text x="14" y="110" font-family="IBM Plex Mono" font-size="12.5" fill="#fde68a">2</text>
+      <text x="80" y="110" font-family="IBM Plex Mono" font-size="12.5" fill="#e2e6ec">Audi R8</text>
+      <text x="200" y="110" font-family="IBM Plex Mono" font-size="12.5" fill="#93c5fd">1234568X</text>
+
+      <text x="14" y="138" font-family="IBM Plex Mono" font-size="12.5" fill="#fde68a">3</text>
+      <text x="80" y="138" font-family="IBM Plex Mono" font-size="12.5" fill="#e2e6ec">Ford Focus</text>
+      <text x="200" y="138" font-family="IBM Plex Mono" font-size="12.5" fill="#93c5fd">1234567W</text>
+
+      <text x="14" y="166" font-family="IBM Plex Mono" font-size="12.5" fill="#fde68a">4</text>
+      <text x="80" y="166" font-family="IBM Plex Mono" font-size="12.5" fill="#e2e6ec">Megane</text>
+      <text x="200" y="166" font-family="IBM Plex Mono" font-size="12.5" fill="#93c5fd">6589741P</text>
+
+      <!-- Nota FK -->
+      <line x1="240" y1="92" x2="240" y2="170" stroke="#93c5fd" stroke-width="1" stroke-dasharray="2,3"/>
+      <text x="200" y="195" font-family="IBM Plex Mono" font-size="10" fill="#93c5fd">↑ la FK</text>
+      <text x="14" y="212" font-family="IBM Plex Sans" font-size="11.5" fill="#a8b0bd">columna nueva que copia el DNI de PERSONAS</text>
+    </g>
+
+    <!-- Flecha de propagación -->
+    <path d="M 380 95 Q 450 60 520 95" stroke="#93c5fd" stroke-width="2" fill="none" marker-end="url(#arr-fk)"/>
+    <text x="450" y="55" font-family="Fraunces" font-style="italic" font-size="13" fill="#93c5fd" text-anchor="middle">se copia aquí</text>
+
+    <!-- Observación abajo -->
+    <text x="450" y="320" font-family="IBM Plex Mono" font-size="11" fill="#a8b0bd" text-anchor="middle" letter-spacing="1">El DNI 1234568X (José) aparece DOS veces en COCHES → tiene 2 coches.</text>
+    <text x="450" y="340" font-family="IBM Plex Mono" font-size="11" fill="#a8b0bd" text-anchor="middle" letter-spacing="1">Cada coche aparece UNA sola vez en COCHES → solo tiene un dueño.</text>
+  </svg>
+</figure>
+
+<p>
+Fíjate en lo que pasa en el diagrama: <strong>el DNI <code>1234568X</code> aparece una vez en PERSONAS</strong> (porque es la PK, no se puede repetir), pero <strong>aparece dos veces en COCHES</strong> (José tiene dos coches: el Audi TT y el Audi R8). Esa es la mecánica de "uno a muchos": una fila en PERSONAS puede ser referenciada por muchas filas en COCHES.
+</p>
+
+<p>Y en SQL queda así:</p>
 
 <pre><code><span class="tk-kw">CREATE TABLE</span> personas (
-  dni       <span class="tk-fn">VARCHAR</span>(<span class="tk-num">9</span>) <span class="tk-kw">PRIMARY KEY</span>,
+  dni       <span class="tk-fn">VARCHAR</span>(<span class="tk-num">9</span>) <span class="tk-kw">PRIMARY KEY</span>,   <span class="tk-com">-- 👈 PK: identifica únicamente cada persona</span>
   nombre    <span class="tk-fn">VARCHAR</span>(<span class="tk-num">50</span>) <span class="tk-kw">NOT NULL</span>,
   apellidos <span class="tk-fn">VARCHAR</span>(<span class="tk-num">100</span>) <span class="tk-kw">NOT NULL</span>
 );
@@ -2858,8 +4048,19 @@ La columna <code style="color:var(--acc-2)">Dueño</code> de COCHES <em>apunta</
 <span class="tk-kw">CREATE TABLE</span> coches (
   id     <span class="tk-fn">SERIAL</span> <span class="tk-kw">PRIMARY KEY</span>,
   modelo <span class="tk-fn">VARCHAR</span>(<span class="tk-num">50</span>) <span class="tk-kw">NOT NULL</span>,
-  dueno  <span class="tk-fn">VARCHAR</span>(<span class="tk-num">9</span>) <span class="tk-kw">REFERENCES</span> personas(dni)  <span class="tk-com">-- 👈 FK propagada</span>
+  dueno  <span class="tk-fn">VARCHAR</span>(<span class="tk-num">9</span>) <span class="tk-kw">REFERENCES</span> personas(dni)
+  <span class="tk-com">--   ^^^^^^^^^^^^^^^^^^^   ^^^^^^^^^^^^^^^^^^^^^^^^</span>
+  <span class="tk-com">--   columna nueva, FK   "apunta a la columna dni de personas"</span>
 );</code></pre>
+
+<p>
+La palabra clave <code>REFERENCES</code> es la que convierte la columna <code>dueno</code> en una clave externa. A partir de ahí, el motor de base de datos <em>vigila</em> que cualquier valor que metas en <code>coches.dueno</code> exista en <code>personas.dni</code>. Si intentas insertar un coche con un DNI que no existe, te lo rechaza. Eso se llama <strong>integridad referencial</strong>.
+</p>
+
+<div class="callout warn">
+  <div class="callout-title">⚠ Error de principiante: crear una tabla "PERSONAS_COCHES"</div>
+  <p style="margin:6px 0; font-size:14.5px">Cuando el alumno ve "relación entre dos tablas", instintivamente piensa que necesita una <em>tercera</em> tabla que las junte. <strong>En 1:N no</strong>. Con añadir la columna FK en la tabla del lado "N" sobra. Las tablas intermedias solo se usan en N:M (regla 3, justo debajo).</p>
+</div>
 
 <h4>Regla 3 · N:M → tabla intermedia</h4>
 <p>Necesitas una tercera tabla cuya PK es <em>compuesta</em> por las dos FK.</p>
@@ -2889,18 +4090,9 @@ La columna <code style="color:var(--acc-2)">Dueño</code> de COCHES <em>apunta</
 </ul>
 
 <div class="pro-tip">
-  <p>El tipo <code>SERIAL</code> en PostgreSQL es azúcar para "INT con secuencia auto-incremental". En proyectos modernos verás también <code>GENERATED ALWAYS AS IDENTITY</code> (estándar SQL) y, cada vez más, UUIDs como PK para evitar exponer IDs secuenciales en URLs.</p>
+  <p>El tipo <code>SERIAL</code> es azúcar para "INT con secuencia auto-incremental". En proyectos modernos verás también <code>GENERATED ALWAYS AS IDENTITY</code> (estándar SQL) y, cada vez más, UUIDs como PK para evitar exponer IDs secuenciales en URLs.</p>
   <p>Las FK no son "obligatorias" para que la BD funcione, pero sin ellas pierdes integridad referencial: nada impide tener un coche con dueño <code>9999999</code> que no existe. ¡Ponlas siempre!</p>
 </div>
-
-<h3>Lo que tu equipo realmente usa: Docker + PostgreSQL + DataGrip</h3>
-
-<ul>
-  <li><strong>Docker</strong> levanta un PostgreSQL en tu máquina sin instalarlo "a mano":<br/>
-  <code>docker run -e POSTGRES_PASSWORD=secret -p 5432:5432 postgres</code></li>
-  <li><strong>DataGrip</strong> (o DBeaver, pgAdmin…) es el cliente gráfico para mirar tablas, ejecutar consultas y crear esquemas.</li>
-  <li><strong>Neon</strong> es PostgreSQL como servicio en la nube — te da una URL y a correr.</li>
-</ul>
 
 </section>
 
@@ -2911,6 +4103,24 @@ La columna <code style="color:var(--acc-2)">Dueño</code> de COCHES <em>apunta</
 <section class="module" id="m10">
 <div class="label">Módulo 10</div>
 <h2>Conectar Next.js a <em>PostgreSQL</em>.</h2>
+
+<p>
+Hemos visto cómo se modela una BD relacional y cómo traducir un diagrama a SQL. Ahora toca <strong>conectar todo eso a tu aplicación Next.js</strong>. Antes del paso a paso, te presento las herramientas que tu equipo usará en la práctica:
+</p>
+
+<h3>Lo que tu equipo realmente usa: Docker + PostgreSQL + DataGrip</h3>
+
+<ul>
+  <li><strong>PostgreSQL</strong> (también llamado "Postgres") — el motor de base de datos relacional más usado en proyectos modernos. Es gratuito, open source y muy potente. <em>SQLite, MySQL y MariaDB</em> son alternativas igual de válidas, pero en este curso usamos Postgres porque es el estándar de facto en empresas que trabajan con Next.js.</li>
+  <li><strong>Docker</strong> levanta un PostgreSQL en tu máquina sin instalarlo "a mano":<br/>
+  <code>docker run -e POSTGRES_PASSWORD=secret -p 5432:5432 postgres</code></li>
+  <li><strong>DataGrip</strong> (o DBeaver, pgAdmin…) es el cliente gráfico para mirar tablas, ejecutar consultas y crear esquemas.</li>
+  <li><strong>Neon</strong> es PostgreSQL como servicio en la nube — te da una URL y a correr.</li>
+</ul>
+
+<p style="font-size:14px; color:var(--ink-2)">
+  <em>(No te preocupes si ahora mismo no te suenan estas palabras: en el siguiente módulo <strong>10b · En directo</strong> verás cómo se instala y configura cada una desde cero.)</em>
+</p>
 
 <h4>Paso 1 · Instalar el driver</h4>
 <pre><code>npm install pg</code></pre>
@@ -2997,6 +4207,459 @@ DATABASE_URL=postgres://user:pass@localhost:5432/midb</code></pre>
   <p>En desarrollo local, Next.js recarga módulos al guardar archivos. Si no proteges el <code>Pool</code>, en cada hot-reload se crea uno nuevo y agotas las conexiones de la BD. Patrón típico: cachear el pool en <code>globalThis</code>:</p>
   <pre style="margin:8px 0;font-size:12px"><code><span class="tk-kw">const</span> pool = globalThis.__pgPool ?? <span class="tk-kw">new</span> <span class="tk-fn">Pool</span>(...);
 <span class="tk-kw">if</span> (process.env.NODE_ENV !== <span class="tk-str">'production'</span>) globalThis.__pgPool = pool;</code></pre>
+</div>
+
+</section>
+
+
+<!-- ============================================================ -->
+<!-- MÓDULO 10b: TODO EN DIRECTO -->
+<!-- ============================================================ -->
+<section class="module" id="m10b">
+<div class="label">Módulo 10b — En directo</div>
+<h2>Todo en marcha: Docker + Postgres + DataGrip + Next.js.</h2>
+
+<p>
+Hasta aquí has visto el código por separado. Toca <strong>encadenarlo todo</strong> en un único flujo que puedas ejecutar en directo. Cuatro pasos, cuatro mini-playgrounds reales:
+</p>
+
+<ol>
+  <li>Levantar PostgreSQL con Docker (terminal simulada).</li>
+  <li>Conectar DataGrip a la base de datos (mockup interactivo).</li>
+  <li>Crear tablas y consultar datos (SQL ejecutándose <strong>de verdad</strong> en el navegador).</li>
+  <li>Llamar a esos datos desde un Route Handler de Next.js (editor multi-archivo).</li>
+</ol>
+
+<div class="setup-banner">
+  <div class="setup-banner-tag">Antes de empezar · Setup desde cero</div>
+  <h3>"Tengo el código de Next.js pero nunca he tocado una base de datos. ¿Por dónde empiezo?"</h3>
+  <p>
+    Estos cinco pasos te llevan desde "no tengo nada instalado" hasta "puedo escribir <code>CREATE TABLE</code> en un editor y ver el resultado". Si ya tienes Docker y DataGrip funcionando, sáltatelos y ve directo al Paso 1 más abajo.
+  </p>
+</div>
+
+<div class="setup-step">
+  <div class="setup-step-num">0a</div>
+  <div class="setup-step-body">
+    <h4>Instala Docker Desktop</h4>
+    <div class="why">Lo que estás haciendo · Instalar el programa que ejecuta contenedores</div>
+    <p>
+      Docker no es PostgreSQL: es <strong>el programa que te permite ejecutar PostgreSQL (y muchas otras cosas) sin instalarlo a mano</strong>. Piensa en ello como una "máquina virtual ligera" donde corren las aplicaciones aisladas de tu sistema.
+    </p>
+    <p>
+      Ve a <a href="https://www.docker.com/products/docker-desktop/" target="_blank">docker.com/products/docker-desktop</a> y descarga el instalador para tu sistema. Tras instalar, <strong>abre la app "Docker Desktop"</strong> y déjala corriendo en segundo plano (verás un icono de ballena en la barra de tareas).
+    </p>
+    <div class="setup-check">
+      Abre una terminal y escribe <code>docker --version</code>. Si te responde algo como <code>Docker version 24.0.x</code>, está instalado y funciona.
+    </div>
+  </div>
+</div>
+
+<div class="setup-step">
+  <div class="setup-step-num">0b</div>
+  <div class="setup-step-body">
+    <h4>Levanta el contenedor de PostgreSQL</h4>
+    <div class="why">Lo que estás haciendo · Arrancar la base de datos</div>
+    <p>
+      Con Docker Desktop abierto, copia y pega este comando en tu terminal:
+    </p>
+    <pre style="margin:10px 0"><code>docker run --name pg-coches -e POSTGRES_PASSWORD=secret -p 5432:5432 -d postgres:16</code></pre>
+    <p style="font-size:14px; color:var(--ink-2)">
+      <strong>¿Desde qué carpeta?</strong> Da igual. Los comandos de Docker (<code>docker run</code>, <code>docker ps</code>, <code>docker stop</code>...) son globales — funcionan desde cualquier directorio. Distinto a lo que pasará con <code>npm install</code> o <code>npm run dev</code> en el Paso 4, que sí tienen que ejecutarse <strong>dentro de la carpeta de tu proyecto Next.js</strong> porque leen su <code>package.json</code>.
+    </p>
+
+    <div class="callout">
+      <div class="callout-title">"Espera, ¿no tengo que instalar PostgreSQL antes? ¿Y de dónde sale esa contraseña?"</div>
+      <p style="margin:6px 0; font-size:14.5px">
+        <strong>No, no hace falta instalar nada de PostgreSQL.</strong> Esa es justo la gracia de Docker. La última parte del comando, <code>postgres:16</code>, es el nombre de una <strong>imagen</strong> (un paquete prefabricado y autocontenido que incluye el sistema operativo mínimo, el binario de PostgreSQL ya compilado y su configuración inicial — todo listo para arrancar). Docker la descarga automáticamente de <em>Docker Hub</em>, un repositorio público de imágenes, la primera vez que la usas. No hay registro, ni cuenta, ni clave de licencia: PostgreSQL es software libre.
+      </p>
+      <p style="margin:6px 0; font-size:14.5px">
+        <strong>La contraseña tampoco existe "en ningún sitio" antes</strong>. El <code>-e POSTGRES_PASSWORD=secret</code> le dice a Docker: <em>"al arrancar este contenedor, ponle de contraseña al usuario <code>postgres</code> la palabra <code>secret</code>"</em>. La imagen está programada para leer esa variable al arrancar por primera vez y crear el usuario con esa clave. <strong>Tú la inventas en ese momento.</strong> Podrías poner <code>banana</code>, <code>1234</code> o <code>g8j3LkP9</code>: lo que pongas ahí será la contraseña de tu BD local. Es solo para tu máquina, nadie más la usa.
+      </p>
+    </div>
+
+    <p>
+      La primera vez tarda un poco porque tiene que <em>descargar</em> la imagen (unos 150 MB). Las siguientes veces es instantáneo. Cuando termine, te imprime un identificador largo del contenedor — eso significa que Postgres está corriendo en <code>localhost:5432</code> en segundo plano.
+    </p>
+    <div class="setup-check">
+      Escribe <code>docker ps</code> y pulsa Enter. Si ves una línea con <code>pg-coches</code> y estado <code>Up</code>, ¡estás dentro! Si no, vuelve al paso 0a.
+    </div>
+    <p style="font-size:13.5px; color:var(--ink-3); margin-top:14px">
+      <em>(Más abajo, en el Paso 1, puedes simular este comando para verlo en acción sin instalar nada. Pero para trabajar de verdad necesitas hacerlo en tu terminal real.)</em>
+    </p>
+  </div>
+</div>
+
+<div class="setup-step">
+  <div class="setup-step-num">0c</div>
+  <div class="setup-step-body">
+    <h4>Instala DataGrip (o una alternativa gratuita)</h4>
+    <div class="why">Lo que estás haciendo · Conseguir una interfaz gráfica para tu BD</div>
+    <p>
+      Postgres ya está corriendo, pero no tienes forma de "verlo" — es solo un proceso que escucha peticiones en un puerto. Para mirar sus tablas, ejecutar SQL y editar datos a mano, necesitas un <strong>cliente gráfico</strong>:
+    </p>
+    <ul>
+      <li><strong><a href="https://www.jetbrains.com/datagrip/" target="_blank">DataGrip</a></strong> (de JetBrains, de pago, con trial gratis de 30 días). Es la mejor experiencia, especialmente si ya usas WebStorm/IntelliJ. <em>Es la que usamos en este curso.</em></li>
+      <li><strong><a href="https://dbeaver.io/" target="_blank">DBeaver Community</a></strong> — gratuito, código abierto, casi tan potente. Si no quieres pagar, esta es tu opción.</li>
+      <li><strong><a href="https://www.pgadmin.org/" target="_blank">pgAdmin</a></strong> — específico para PostgreSQL, también gratuito.</li>
+    </ul>
+    <p>Los tres funcionan igual conceptualmente: introduces los datos de conexión, te conectas, y obtienes un editor SQL.</p>
+    <div class="setup-check">
+      Después de instalar, ábrelo. Verás una ventana grande con un panel lateral vacío. Eso es normal — todavía no hay ninguna base de datos conectada. Es el siguiente paso.
+    </div>
+  </div>
+</div>
+
+<div class="setup-step">
+  <div class="setup-step-num">0d</div>
+  <div class="setup-step-body">
+    <h4>Configura DataGrip paso a paso, en directo</h4>
+    <div class="why">Lo que estás haciendo · Conectar, crear base de datos, schema y tablas</div>
+    <p>
+      Aquí va un simulador que reproduce la UI real de DataGrip. Pulsa <strong>"Siguiente paso"</strong> abajo del simulador para avanzar: verás dónde hacer click, qué rellenar, qué se abre y qué resultado obtienes. <strong>Sigue el mismo flujo en tu DataGrip real</strong> — los pasos son idénticos.
+    </p>
+
+    <div class="dg-sim" id="dg-sim">
+      <!-- Header con progress -->
+      <div class="dg-sim-header">
+        <div class="dg-sim-progress" id="dg-sim-prog"></div>
+        <div class="dg-sim-counter" id="dg-sim-counter">Paso 1 de 8</div>
+      </div>
+
+      <!-- Instrucción del paso actual -->
+      <div class="dg-sim-instr">
+        <div class="dg-sim-instr-num" id="dg-sim-num">1</div>
+        <div class="dg-sim-instr-body" id="dg-sim-body">
+          <h5>cargando...</h5>
+          <p></p>
+        </div>
+      </div>
+
+      <!-- Stage: la "pantalla" de DataGrip -->
+      <div class="dg-sim-stage" id="dg-sim-stage">
+        <!-- contenido inyectado por JS -->
+      </div>
+
+      <!-- Controles -->
+      <div class="dg-sim-controls">
+        <span class="label" id="dg-sim-lbl">Listo para empezar</span>
+        <button class="ghost" onclick="dgSimPrev()" id="dg-sim-prev">◂ Anterior</button>
+        <button onclick="dgSimNext()" id="dg-sim-next">Siguiente paso ▸</button>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">¿Qué es eso de "schema"?</div>
+      <p style="margin:6px 0; font-size:14.5px">Un <strong>schema</strong> es como una "carpeta" dentro de una base de datos. Sirve para agrupar tablas relacionadas. Cada BD de Postgres viene con un schema por defecto llamado <code>public</code>: si no creas otros, ahí van todas tus tablas. Para proyectos pequeños, <code>public</code> es más que suficiente.</p>
+    </div>
+  </div>
+</div>
+
+<div class="callout good">
+  <div class="callout-title">¡Eso es todo el setup!</div>
+  <p style="margin:6px 0; font-size:14.5px">A partir de aquí, lo que ejecutes en el editor SQL de DataGrip queda guardado en tu Postgres del contenedor Docker. Y tu Next.js (con la configuración del Paso 4) podrá leer esos mismos datos.</p>
+  <p style="margin:6px 0; font-size:14.5px"><strong>Ahora, los cuatro pasos de abajo son simuladores</strong> para enseñar/practicar el flujo completo en el navegador sin tocar tu sistema. El SQL del paso 3 funciona igual que el SQL real que acabas de escribir en DataGrip.</p>
+</div>
+
+<h3 style="margin-top:40px">Los cuatro pasos interactivos</h3>
+
+<div class="system-status" id="sys-status">
+  <div class="pill" data-svc="docker">
+    <span class="dot"></span>
+    <span class="lbl">Docker</span>
+    <span class="st">offline</span>
+  </div>
+  <div class="pill" data-svc="datagrip">
+    <span class="dot"></span>
+    <span class="lbl">DataGrip</span>
+    <span class="st">offline</span>
+  </div>
+  <div class="pill" data-svc="schema">
+    <span class="dot"></span>
+    <span class="lbl">Schema</span>
+    <span class="st">sin tablas</span>
+  </div>
+</div>
+
+
+<!-- ───── PASO 1: DOCKER ───── -->
+<div class="step-card" data-step="Paso 1 · Docker">
+  <h3 style="margin-top:0">Levanta PostgreSQL en 30 segundos</h3>
+
+  <p>
+    Docker te permite arrancar PostgreSQL sin instalarlo: descarga una "imagen" preparada y la ejecuta como un contenedor aislado. Un solo comando y tienes una BD funcionando en <code>localhost:5432</code>.
+  </p>
+
+  <p style="font-size:14.5px"><strong>Copia y pega esto en una terminal real</strong> (o pulsa el botón para simularlo abajo):</p>
+
+  <div class="term">
+    <div class="term-bar">
+      <div class="term-dots"><span></span><span></span><span></span></div>
+      <span>terminal · ~/proyecto-coches</span>
+    </div>
+    <div class="term-body" id="docker-term"><span class="term-prompt">$</span><span id="docker-cmd-area"><input type="text" class="term-input" id="docker-cmd" value="docker run --name pg-coches -e POSTGRES_PASSWORD=secret -p 5432:5432 -d postgres:16" spellcheck="false"></span>
+<span id="docker-output"></span></div>
+  </div>
+
+  <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:14px">
+    <button onclick="runDocker()">▶ Ejecutar comando</button>
+    <button class="ghost" onclick="dockerStop()">⏹ Detener contenedor</button>
+    <button class="ghost" onclick="dockerLogs()">📋 Ver logs</button>
+  </div>
+
+  <h4 style="margin-top:24px">¿Qué hace cada parte del comando?</h4>
+  <table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:13.5px">
+    <tbody>
+      <tr style="border-bottom:1px solid var(--line)"><td style="padding:8px; color:var(--acc); font-family:var(--mono); width:40%"><code>docker run</code></td><td style="padding:8px; color:var(--ink)">Crea y arranca un contenedor nuevo.</td></tr>
+      <tr style="border-bottom:1px solid var(--line)"><td style="padding:8px; color:var(--acc); font-family:var(--mono)"><code>--name pg-coches</code></td><td style="padding:8px; color:var(--ink)">Le pone un nombre fácil de recordar (para luego pararlo, reiniciarlo...).</td></tr>
+      <tr style="border-bottom:1px solid var(--line)"><td style="padding:8px; color:var(--acc); font-family:var(--mono)"><code>-e POSTGRES_PASSWORD=secret</code></td><td style="padding:8px; color:var(--ink)">Variable de entorno: la contraseña del usuario <code>postgres</code>. <strong>Tú la inventas en este momento</strong> — la imagen la usará para crear el usuario al arrancar. En prod, pon algo serio.</td></tr>
+      <tr style="border-bottom:1px solid var(--line)"><td style="padding:8px; color:var(--acc); font-family:var(--mono)"><code>-p 5432:5432</code></td><td style="padding:8px; color:var(--ink)">Mapea el puerto del contenedor al de tu máquina. <code>localhost:5432</code> → Postgres.</td></tr>
+      <tr style="border-bottom:1px solid var(--line)"><td style="padding:8px; color:var(--acc); font-family:var(--mono)"><code>-d</code></td><td style="padding:8px; color:var(--ink)"><em>Detached</em>: corre en segundo plano y te devuelve el control.</td></tr>
+      <tr><td style="padding:8px; color:var(--acc); font-family:var(--mono)"><code>postgres:16</code></td><td style="padding:8px; color:var(--ink)">La <strong>imagen</strong> (paquete autocontenido con PostgreSQL ya compilado y listo para usar) oficial de PostgreSQL, versión 16. Se descarga sola de Docker Hub la primera vez.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <div class="callout-title">Atajos útiles cuando ya está corriendo</div>
+    <pre style="margin:8px 0; font-size:12.5px"><code>docker ps                    <span class="tk-com"># ver contenedores corriendo</span>
+docker stop pg-coches        <span class="tk-com"># pararlo</span>
+docker start pg-coches       <span class="tk-com"># reanudarlo (sin volver a 'run')</span>
+docker logs pg-coches        <span class="tk-com"># ver lo que ha imprimido</span>
+docker rm -f pg-coches       <span class="tk-com"># eliminarlo del todo</span></code></pre>
+  </div>
+</div>
+
+
+<!-- ───── PASO 2: DATAGRIP ───── -->
+<div class="step-card" data-step="Paso 2 · DataGrip">
+  <h3 style="margin-top:0">Conecta DataGrip a tu Postgres</h3>
+
+  <p>
+    <strong>DataGrip</strong> (de JetBrains) es el cliente gráfico más usado para bases de datos. Te permite ver las tablas, ejecutar SQL, editar datos a mano... Sus alternativas gratuitas son <strong>DBeaver</strong> y <strong>pgAdmin</strong>, y la lógica es la misma en todos.
+  </p>
+
+  <p style="font-size:14.5px"><strong>En la app real:</strong> <code>File → New → Data Source → PostgreSQL</code>. Verás un formulario como este — rellena los campos que están <span style="color:var(--acc)">anotados en verde</span>:</p>
+
+  <div class="datagrip-mockup">
+    <div class="datagrip-titlebar">Data Source and Drivers — pg-coches@localhost</div>
+    <div class="datagrip-body">
+      <h5>PostgreSQL</h5>
+      <p class="sub">Driver: PostgreSQL · v42.7.x</p>
+
+      <div class="dg-field">
+        <label>Host</label>
+        <input type="text" value="localhost" />
+        <span class="dg-annotation">tu propia máquina</span>
+      </div>
+      <div class="dg-field">
+        <label>Port</label>
+        <input type="text" value="5432" />
+        <span class="dg-annotation">el mismo del <code>-p 5432:5432</code></span>
+      </div>
+      <div class="dg-field">
+        <label>Authentication</label>
+        <input type="text" value="User &amp; Password" disabled style="opacity:.6" />
+        <span></span>
+      </div>
+      <div class="dg-field">
+        <label>User</label>
+        <input type="text" value="postgres" />
+        <span class="dg-annotation">usuario por defecto de la imagen</span>
+      </div>
+      <div class="dg-field">
+        <label>Password</label>
+        <input type="password" value="secret" />
+        <span class="dg-annotation">el del <code>POSTGRES_PASSWORD</code></span>
+      </div>
+      <div class="dg-field">
+        <label>Database</label>
+        <input type="text" value="postgres" />
+        <span class="dg-annotation">la BD inicial — luego creas la tuya</span>
+      </div>
+      <div class="dg-field">
+        <label>URL</label>
+        <input type="text" value="jdbc:postgresql://localhost:5432/postgres" disabled style="opacity:.6; font-size:11.5px" />
+        <span class="dg-annotation">se genera sola con lo de arriba</span>
+      </div>
+
+      <div class="dg-test">
+        <button class="dg-btn" onclick="dgTestConnection()">Test Connection</button>
+        <span class="dg-result" id="dg-result">✓ Successful (PostgreSQL 16.x on x86_64)</span>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:14px; color:var(--ink-2); margin-top:12px">
+    Una vez "Test Connection" pasa, pulsas <em>OK</em> y ya tienes la BD conectada. DataGrip te abre un panel lateral con todas las tablas, y un editor SQL grande. <strong>Eso es exactamente lo que simulamos en el siguiente paso.</strong>
+  </p>
+</div>
+
+
+<!-- ───── PASO 3: SQL ───── -->
+<div class="step-card" data-step="Paso 3 · SQL real">
+  <h3 style="margin-top:0">Crea tablas y consulta datos</h3>
+
+  <p>
+    El editor de abajo es <strong>equivalente al "Query Console" de DataGrip</strong> que abriste en el paso 0f: escribes SQL arriba, pulsas ▶, ves el resultado abajo. La diferencia es que esto corre en tu navegador (con <a href="https://sql.js.org" target="_blank">sql.js</a>, SQLite compilado a WebAssembly) en lugar de en tu Postgres real, pero la sintaxis SQL para CREATE / INSERT / SELECT / UPDATE / DELETE es prácticamente idéntica.
+  </p>
+
+  <div class="callout">
+    <div class="callout-title">Cómo usarlo</div>
+    <p style="margin:6px 0; font-size:14.5px">Pulsa un preset para cargar SQL <strong>en el orden que aparecen</strong>: primero <em>① CREATE TABLE</em> (sin tablas no puedes hacer nada), luego <em>② INSERT</em> para meter datos, después puedes consultarlos con los otros presets. Cada preset reemplaza lo que haya escrito; pulsa "▶ Ejecutar SQL" para correrlo.</p>
+  </div>
+
+  <div class="sql-pg">
+    <div class="sql-pg-head">postgres@localhost · public</div>
+
+    <div class="sql-presets">
+      <button onclick="sqlPreset('create')">① CREATE TABLE cars</button>
+      <button onclick="sqlPreset('insert')">② INSERT (4 coches)</button>
+      <button onclick="sqlPreset('select')">③ SELECT * FROM cars</button>
+      <button onclick="sqlPreset('filter')">④ Filtrar por marca</button>
+      <button onclick="sqlPreset('join')">⑤ JOIN con personas</button>
+      <button onclick="sqlPreset('reset')" style="border-color: var(--bad); color: var(--bad)">⟲ Reset</button>
+    </div>
+
+    <textarea class="sql-editor" id="sql-input" spellcheck="false">-- Pulsa un preset arriba o escribe tu propio SQL
+SELECT 'Hola desde SQLite' AS saludo;</textarea>
+
+    <div class="sql-actions">
+      <button onclick="sqlRun()">▶ Ejecutar SQL</button>
+      <button class="ghost" onclick="sqlClear()">Limpiar resultado</button>
+      <span class="info" id="sql-info">listo</span>
+    </div>
+
+    <div class="sql-result empty" id="sql-result">— ejecuta una sentencia para ver el resultado —</div>
+  </div>
+
+  <p style="font-size:14px; color:var(--ink-2); margin-top:12px">
+    Cuando trabajas con DataGrip + Postgres real, el flujo es <em>idéntico</em>: pegas SQL en el editor, pulsas el triángulo verde, ves el resultado en una tabla. La diferencia es que tus datos persisten en el contenedor Docker en lugar de en memoria del navegador.
+  </p>
+</div>
+
+
+<!-- ───── PASO 4: NEXT.JS ───── -->
+<div class="step-card" data-step="Paso 4 · Next.js">
+  <h3 style="margin-top:0">Llama a la BD desde un Route Handler</h3>
+
+  <p>
+    Estos son los <strong>tres archivos</strong> que necesitas tener en tu proyecto Next.js para que un endpoint <code>/api/v1/cars</code> consulte tu Postgres. Cambia de pestaña para verlos todos:
+  </p>
+
+  <div class="ide">
+    <div class="ide-titlebar">proyecto-coches · app/</div>
+    <div class="ide-tabs">
+      <div class="ide-tab active" data-pane="env" onclick="ideTab(this)"><span class="ic ic-env">⚙</span>.env.local</div>
+      <div class="ide-tab" data-pane="db" onclick="ideTab(this)"><span class="ic ic-js">js</span>lib/db.js</div>
+      <div class="ide-tab" data-pane="route" onclick="ideTab(this)"><span class="ic ic-rt">→</span>app/api/v1/cars/route.js</div>
+    </div>
+
+    <div class="ide-content">
+<div class="ide-pane active" data-pane="env"><span class="c-com"># .env.local — ⚠️ NO subir a git (poner en .gitignore)</span>
+<span class="c-com"># Estos valores vienen del comando docker run del paso 1:</span>
+<span class="c-com">#   docker run -e POSTGRES_PASSWORD=secret -p 5432:5432 ...</span>
+
+DATABASE_URL=<span class="c-str">postgres://postgres:secret@localhost:5432/postgres</span>
+
+<span class="c-com">#                  └────┬────┘ └──┬──┘ └────┬────┘ └─┬─┘ └───┬───┘</span>
+<span class="c-com">#                     user      pass     host    port    db name</span></div>
+
+<div class="ide-pane" data-pane="db"><span class="c-com">// lib/db.js — pool de conexiones reutilizable</span>
+<span class="c-kw">import</span> { Pool } <span class="c-kw">from</span> <span class="c-str">'pg'</span>;
+
+<span class="c-com">// Un pool por aplicación; lo cacheamos en globalThis para sobrevivir al</span>
+<span class="c-com">// hot-reload de Next.js en desarrollo.</span>
+<span class="c-kw">const</span> pool = globalThis.__pgPool ?? <span class="c-kw">new</span> <span class="c-fn">Pool</span>({
+  connectionString: process.env.<span class="c-prop">DATABASE_URL</span>,
+});
+<span class="c-kw">if</span> (process.env.<span class="c-prop">NODE_ENV</span> !== <span class="c-str">'production'</span>) globalThis.__pgPool = pool;
+
+<span class="c-kw">export async function</span> <span class="c-fn">query</span>(<span class="c-prop">text</span>, <span class="c-prop">params</span>) {
+  <span class="c-kw">return</span> pool.<span class="c-fn">query</span>(text, params);
+}</div>
+
+<div class="ide-pane" data-pane="route"><span class="c-com">// app/api/v1/cars/route.js</span>
+<span class="c-kw">import</span> { NextResponse } <span class="c-kw">from</span> <span class="c-str">'next/server'</span>;
+<span class="c-kw">import</span> { query } <span class="c-kw">from</span> <span class="c-str">'@/lib/db'</span>;
+
+<span class="c-com">// GET /api/v1/cars  → listar (con filtro opcional ?brand=...)</span>
+<span class="c-kw">export async function</span> <span class="c-fn">GET</span>(<span class="c-prop">request</span>) {
+  <span class="c-kw">const</span> { searchParams } = <span class="c-kw">new</span> <span class="c-fn">URL</span>(request.<span class="c-prop">url</span>);
+  <span class="c-kw">const</span> brand = searchParams.<span class="c-fn">get</span>(<span class="c-str">'brand'</span>);
+
+  <span class="c-kw">const</span> { rows } = brand
+    ? <span class="c-kw">await</span> <span class="c-fn">query</span>(<span class="c-str">'SELECT * FROM cars WHERE brand = $1'</span>, [brand])
+    : <span class="c-kw">await</span> <span class="c-fn">query</span>(<span class="c-str">'SELECT * FROM cars'</span>);
+
+  <span class="c-kw">return</span> NextResponse.<span class="c-fn">json</span>(rows);
+}
+
+<span class="c-com">// POST /api/v1/cars  → crear</span>
+<span class="c-kw">export async function</span> <span class="c-fn">POST</span>(<span class="c-prop">request</span>) {
+  <span class="c-kw">const</span> { brand, model } = <span class="c-kw">await</span> request.<span class="c-fn">json</span>();
+  <span class="c-kw">if</span> (!brand || !model) {
+    <span class="c-kw">return</span> NextResponse.<span class="c-fn">json</span>({ error: <span class="c-str">'brand y model son obligatorios'</span> }, { status: <span class="c-num">400</span> });
+  }
+  <span class="c-kw">const</span> { rows } = <span class="c-kw">await</span> <span class="c-fn">query</span>(
+    <span class="c-str">'INSERT INTO cars (brand, model) VALUES ($1, $2) RETURNING *'</span>,
+    [brand, model]
+  );
+  <span class="c-kw">return</span> NextResponse.<span class="c-fn">json</span>(rows[<span class="c-num">0</span>], { status: <span class="c-num">201</span> });
+}</div>
+    </div>
+  </div>
+
+  <h4 style="margin-top:24px">🧪 Probar el endpoint contra los datos del paso 3</h4>
+
+  <p style="font-size:14.5px">
+    Este botón hace un <code>fetch('/api/v1/cars')</code> simulado <em>usando los datos reales</em> que tienes en la BD del paso 3. Es decir: si en el paso 3 ejecutaste <code>INSERT</code>s, aquí verás esos coches. Si no hay tabla, verás el error 500 que daría el server real.
+  </p>
+
+  <div class="lab" style="margin-top:8px">
+    <div class="lab-head">simulación de fetch al endpoint</div>
+    <div class="lab-body">
+
+      <div class="method-pills">
+        <label><input type="radio" name="ep-method" value="GET" checked><span>GET</span></label>
+        <label><input type="radio" name="ep-method" value="POST"><span>POST</span></label>
+      </div>
+
+      <label class="field">URL</label>
+      <input type="text" id="ep-url" value="/api/v1/cars" />
+
+      <label class="field">Body (solo POST, JSON)</label>
+      <textarea id="ep-body" placeholder='{"brand":"Lotus","model":"Elise"}'></textarea>
+
+      <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap">
+        <button onclick="runEndpoint()">▶ Hacer fetch</button>
+        <button class="ghost" onclick="endpointPreset('GET','/api/v1/cars','')">listar todos</button>
+        <button class="ghost" onclick="endpointPreset('GET','/api/v1/cars?brand=Audi','')">?brand=Audi</button>
+        <button class="ghost" onclick='endpointPreset("POST","/api/v1/cars",JSON.stringify({brand:"Lotus",model:"Elise"},null,2))'>POST Lotus</button>
+      </div>
+
+      <div class="response-box">
+        <div class="response-status" id="ep-status">
+          <span class="status-dot"></span>
+          <span style="color:var(--ink-3)">sin respuesta</span>
+        </div>
+        <div class="response-body" id="ep-out" style="color:var(--ink-3); font-style:italic">— pulsa "Hacer fetch" —</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="dev-checklist">
+    <h4>Para que esto funcione en tu proyecto real, sí o sí necesitas:</h4>
+    <ul>
+      <li><strong>Tener Docker Desktop instalado</strong> en tu máquina (Mac, Windows o Linux). En <a href="https://www.docker.com/products/docker-desktop/" target="_blank">docker.com</a>.</li>
+      <li><strong>El contenedor de Postgres corriendo</strong> (<code>docker ps</code> debe mostrarlo). Si paras tu PC, al volver tienes que <code>docker start pg-coches</code>.</li>
+      <li><strong>Instalar <code>pg</code> en tu proyecto</strong>: <code>npm install pg</code>.</li>
+      <li><strong>Crear el archivo <code>.env.local</code></strong> con tu <code>DATABASE_URL</code>. Y añadirlo al <code>.gitignore</code>.</li>
+      <li><strong>Crear las tablas</strong> al menos una vez (con DataGrip, o con un script de "migraciones"). Hasta que no exista la tabla <code>cars</code>, tu endpoint dará error 500.</li>
+      <li><strong>Reiniciar el dev server</strong> de Next.js (<code>npm run dev</code>) tras crear o modificar <code>.env.local</code>: las variables de entorno se leen solo al arrancar.</li>
+    </ul>
+  </div>
+
 </div>
 
 </section>
@@ -3870,6 +5533,804 @@ function pxRun(action) {
   html += `<p style="margin-top:14px; font-size:14.5px; color:var(--ink)">${explains[action]}</p>`;
 
   out.innerHTML = html;
+}
+
+
+/* ============================================================
+   MÓDULO 10b — Docker + DataGrip + SQL + Next.js
+   ============================================================ */
+
+/* ───── helper: actualizar pills de estado del sistema ───── */
+const sysState = { docker: false, datagrip: false, schema: false };
+function updateSysStatus(svc, on, label) {
+  sysState[svc] = on;
+  const pill = document.querySelector(`#sys-status .pill[data-svc="${svc}"]`);
+  if (!pill) return;
+  pill.classList.toggle('on', on);
+  const st = pill.querySelector('.st');
+  st.textContent = label;
+}
+
+/* ───── PASO 1: Docker terminal ───── */
+let dockerRunning = false;
+let dockerContainerId = null;
+
+function appendDockerLine(text, cls='') {
+  const out = document.getElementById('docker-output');
+  const span = document.createElement('span');
+  if (cls) span.className = `term-out ${cls}`;
+  else span.className = 'term-out';
+  span.textContent = '\n' + text;
+  out.appendChild(span);
+}
+function dockerClear() {
+  document.getElementById('docker-output').innerHTML = '';
+}
+
+async function typewriter(text, ms=18) {
+  return new Promise(res => {
+    const out = document.getElementById('docker-output');
+    const span = document.createElement('span');
+    span.className = 'term-out dim';
+    out.appendChild(span);
+    let i = 0;
+    const tick = () => {
+      if (i < text.length) {
+        span.textContent += text[i++];
+        setTimeout(tick, ms);
+      } else { res(); }
+    };
+    tick();
+  });
+}
+
+async function runDocker() {
+  const cmd = document.getElementById('docker-cmd').value.trim();
+  dockerClear();
+
+  // simular ejecutar lo que esté escrito
+  if (!cmd.startsWith('docker')) {
+    appendDockerLine(`bash: ${cmd.split(' ')[0]}: command not found`, 'warn');
+    return;
+  }
+
+  // primer 'docker run postgres' → flujo completo
+  if (cmd.includes('docker run') && cmd.includes('postgres')) {
+    if (dockerRunning) {
+      appendDockerLine(`docker: Error response from daemon: Conflict. The container name "/pg-coches" is already in use.`, 'warn');
+      appendDockerLine(`Hint: usa 'docker stop pg-coches && docker rm pg-coches' antes de volver a 'run'.`, 'dim');
+      return;
+    }
+    await typewriter('Unable to find image \'postgres:16\' locally', 12);
+    await new Promise(r => setTimeout(r, 250));
+    await typewriter('\n16: Pulling from library/postgres', 10);
+    for (let i = 0; i < 4; i++) {
+      await new Promise(r => setTimeout(r, 180));
+      await typewriter(`\n${(Math.random().toString(16).slice(2,14))}: Pull complete`, 4);
+    }
+    await new Promise(r => setTimeout(r, 200));
+    await typewriter('\nDigest: sha256:8e3d7…', 8);
+    await typewriter('\nStatus: Downloaded newer image for postgres:16', 6);
+    dockerContainerId = 'a8f3e2d9b1c4';
+    await new Promise(r => setTimeout(r, 300));
+    appendDockerLine(dockerContainerId, 'ok');
+    dockerRunning = true;
+    updateSysStatus('docker', true, 'corriendo · 5432');
+    appendDockerLine('', 'dim');
+    appendDockerLine('✓ Contenedor "pg-coches" corriendo en segundo plano.', 'ok');
+    appendDockerLine('  Postgres acepta conexiones en localhost:5432  ·  user=postgres  pass=secret', 'dim');
+    return;
+  }
+
+  // docker ps
+  if (cmd === 'docker ps') {
+    if (!dockerRunning) { appendDockerLine('CONTAINER ID   IMAGE   COMMAND   CREATED   STATUS   PORTS   NAMES', 'dim'); return; }
+    appendDockerLine('CONTAINER ID   IMAGE         COMMAND                  STATUS         PORTS                    NAMES', 'dim');
+    appendDockerLine(`${dockerContainerId}   postgres:16   "docker-entrypoint.s…"   Up 12 seconds  0.0.0.0:5432->5432/tcp   pg-coches`);
+    return;
+  }
+
+  appendDockerLine(`docker: comando no reconocido por la simulación: "${cmd}"`, 'dim');
+  appendDockerLine(`(prueba: docker run --name pg-coches -e POSTGRES_PASSWORD=secret -p 5432:5432 -d postgres:16)`, 'dim');
+}
+
+function dockerStop() {
+  dockerClear();
+  if (!dockerRunning) {
+    appendDockerLine('No hay contenedores corriendo.', 'dim');
+    return;
+  }
+  appendDockerLine('$ docker stop pg-coches', 'dim');
+  appendDockerLine('pg-coches', 'ok');
+  dockerRunning = false;
+  updateSysStatus('docker', false, 'offline');
+  // si docker cae, datagrip y schema también pierden estado
+  updateSysStatus('datagrip', false, 'offline');
+}
+
+function dockerLogs() {
+  dockerClear();
+  if (!dockerRunning) { appendDockerLine('No hay contenedores corriendo.', 'dim'); return; }
+  appendDockerLine('$ docker logs pg-coches', 'dim');
+  appendDockerLine([
+    'PostgreSQL Database directory appears to contain a database; Skipping initialization',
+    '',
+    '2026-05-18 09:14:01.182 UTC [1] LOG:  starting PostgreSQL 16.2 on x86_64-pc-linux-gnu',
+    '2026-05-18 09:14:01.182 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432',
+    '2026-05-18 09:14:01.187 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"',
+    '2026-05-18 09:14:01.205 UTC [27] LOG:  database system was shut down at 2026-05-18 09:13:55 UTC',
+    '2026-05-18 09:14:01.213 UTC [1] LOG:  database system is ready to accept connections'
+  ].join('\n'));
+}
+
+
+/* ───── PASO 2: DataGrip "Test Connection" ───── */
+function dgTestConnection() {
+  const result = document.getElementById('dg-result');
+  result.classList.remove('show');
+  if (!dockerRunning) {
+    result.textContent = '✗ Connection refused: localhost:5432 (¿está Postgres corriendo?)';
+    result.style.color = 'var(--bad)';
+    setTimeout(() => result.classList.add('show'), 400);
+    return;
+  }
+  result.textContent = '✓ Successful (PostgreSQL 16.2 on x86_64)';
+  result.style.color = 'var(--good)';
+  setTimeout(() => {
+    result.classList.add('show');
+    updateSysStatus('datagrip', true, 'conectado');
+  }, 500);
+}
+
+
+/* ───── PASO 3: SQL real con sql.js ───── */
+let SQL = null;
+let sqlDB = null;
+let sqlLoaded = false;
+let sqlLoadPromise = null;
+
+function loadSqlJs() {
+  if (sqlLoadPromise) return sqlLoadPromise;
+  sqlLoadPromise = new Promise((resolve, reject) => {
+    const info = document.getElementById('sql-info');
+    info.textContent = 'cargando motor SQL...';
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js';
+    script.onload = async () => {
+      try {
+        SQL = await window.initSqlJs({
+          locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${file}`
+        });
+        sqlDB = new SQL.Database();
+        sqlLoaded = true;
+        info.textContent = 'motor listo';
+        resolve();
+      } catch (e) { reject(e); }
+    };
+    script.onerror = () => reject(new Error('No se pudo cargar sql.js'));
+    document.head.appendChild(script);
+  });
+  return sqlLoadPromise;
+}
+
+const SQL_PRESETS = {
+  create: `-- Crear las tablas básicas (corre esto primero)
+CREATE TABLE IF NOT EXISTS personas (
+  dni       VARCHAR(9) PRIMARY KEY,
+  nombre    VARCHAR(50) NOT NULL,
+  apellidos VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS cars (
+  id     INTEGER PRIMARY KEY AUTOINCREMENT,
+  brand  VARCHAR(50) NOT NULL,
+  model  VARCHAR(50) NOT NULL,
+  dueno  VARCHAR(9) REFERENCES personas(dni)
+);`,
+  insert: `-- Insertar datos de ejemplo
+INSERT INTO personas (dni, nombre, apellidos) VALUES
+  ('1234568X', 'José',  'López'),
+  ('1234567W', 'Jesús', 'Pérez'),
+  ('6589741P', 'Álvaro','Ramadán'),
+  ('3658921R', 'Sergio','Hernández');
+
+INSERT INTO cars (brand, model, dueno) VALUES
+  ('Audi',    'TT',      '1234568X'),
+  ('Audi',    'R8',      '1234568X'),
+  ('Ford',    'Focus',   '1234567W'),
+  ('Renault', 'Megane',  '6589741P'),
+  ('Renault', 'Twingo',  '3658921R');`,
+  select: `-- Ver todos los coches
+SELECT * FROM cars;`,
+  filter: `-- Solo los Audis
+SELECT * FROM cars WHERE brand = 'Audi';`,
+  join: `-- Cada coche con el nombre de su dueño
+SELECT c.id, c.brand, c.model, p.nombre || ' ' || p.apellidos AS dueno
+FROM cars c
+JOIN personas p ON p.dni = c.dueno
+ORDER BY p.nombre;`,
+  reset: `-- Cuidado: borra todo lo creado
+DROP TABLE IF EXISTS cars;
+DROP TABLE IF EXISTS personas;`
+};
+
+function sqlPreset(key) {
+  document.getElementById('sql-input').value = SQL_PRESETS[key];
+}
+
+async function sqlRun() {
+  const out = document.getElementById('sql-result');
+  const info = document.getElementById('sql-info');
+  const sql = document.getElementById('sql-input').value.trim();
+  if (!sql) { out.innerHTML = '<span class="sql-msg-err">SQL vacío</span>'; out.classList.remove('empty'); return; }
+
+  try {
+    if (!sqlLoaded) await loadSqlJs();
+    info.textContent = 'ejecutando...';
+
+    out.classList.remove('empty');
+    out.innerHTML = '';
+
+    // sql.js permite ejecutar varios statements de golpe con db.exec()
+    const t0 = performance.now();
+    const results = sqlDB.exec(sql);
+    const t1 = performance.now();
+
+    if (results.length === 0) {
+      // sentencia ejecutada que no devuelve filas (CREATE, INSERT, UPDATE, DELETE, DROP)
+      // sacamos cuántas filas afectó (si aplica)
+      const changes = sqlDB.getRowsModified();
+      let msg = '';
+      const upper = sql.toUpperCase();
+      if (upper.includes('CREATE TABLE')) msg = '✓ Tabla(s) creada(s)';
+      else if (upper.includes('DROP TABLE')) msg = '✓ Tabla(s) eliminada(s)';
+      else if (upper.includes('INSERT')) msg = `✓ ${changes} fila(s) insertada(s)`;
+      else if (upper.includes('UPDATE')) msg = `✓ ${changes} fila(s) actualizada(s)`;
+      else if (upper.includes('DELETE')) msg = `✓ ${changes} fila(s) eliminada(s)`;
+      else msg = '✓ Sentencia ejecutada (sin resultados)';
+      out.innerHTML = `<div class="sql-msg-ok">${msg}</div>`;
+    } else {
+      // pintar cada result set
+      let html = '';
+      results.forEach((rs, idx) => {
+        html += `<table>`;
+        html += `<thead><tr>${rs.columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>`;
+        html += `<tbody>`;
+        rs.values.forEach(row => {
+          html += `<tr>${row.map(v => `<td>${v === null ? '<span style="color:var(--ink-3)">NULL</span>' : v}</td>`).join('')}</tr>`;
+        });
+        html += `</tbody></table>`;
+        if (idx < results.length - 1) html += `<div style="height:8px"></div>`;
+      });
+      const totalRows = results.reduce((s, r) => s + r.values.length, 0);
+      html += `<div style="color:var(--ink-3); font-size:11px; margin-top:8px">${totalRows} fila(s) · ${(t1-t0).toFixed(1)} ms</div>`;
+      out.innerHTML = html;
+    }
+
+    info.textContent = `OK · ${(t1-t0).toFixed(1)} ms`;
+
+    // detectar si hay tabla 'cars' para actualizar el indicador
+    try {
+      const check = sqlDB.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='cars'");
+      const hasTable = check.length > 0 && check[0].values.length > 0;
+      if (hasTable) {
+        const c = sqlDB.exec("SELECT COUNT(*) FROM cars")[0].values[0][0];
+        updateSysStatus('schema', true, `${c} coche(s)`);
+      } else {
+        updateSysStatus('schema', false, 'sin tablas');
+      }
+    } catch {}
+
+  } catch (e) {
+    out.innerHTML = `<span class="sql-msg-err">✗ ${e.message}</span>`;
+    info.textContent = 'error';
+  }
+}
+
+function sqlClear() {
+  const out = document.getElementById('sql-result');
+  out.classList.add('empty');
+  out.innerHTML = '— ejecuta una sentencia para ver el resultado —';
+  document.getElementById('sql-info').textContent = 'listo';
+}
+
+
+/* ───── PASO 4: IDE tabs + endpoint simulado ───── */
+function ideTab(el) {
+  const root = el.closest('.ide');
+  const pane = el.dataset.pane;
+  root.querySelectorAll('.ide-tab').forEach(t => t.classList.toggle('active', t === el));
+  root.querySelectorAll('.ide-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === pane));
+}
+
+function endpointPreset(method, url, body) {
+  document.querySelector(`input[name="ep-method"][value="${method}"]`).checked = true;
+  document.getElementById('ep-url').value = url;
+  document.getElementById('ep-body').value = body;
+}
+
+async function runEndpoint() {
+  const method = document.querySelector('input[name="ep-method"]:checked').value;
+  const url    = document.getElementById('ep-url').value.trim();
+  const bodyTx = document.getElementById('ep-body').value.trim();
+  const statusEl = document.getElementById('ep-status');
+  const outEl    = document.getElementById('ep-out');
+
+  const setResp = (status, statusText, body) => {
+    const cls = status >= 500 ? 's-5xx' : status >= 400 ? 's-4xx' : status >= 300 ? 's-3xx' : 's-2xx';
+    statusEl.innerHTML =
+      `<span class="status-dot ${cls}"></span>` +
+      `<span style="color:var(--ink); font-weight:600">${status}</span>` +
+      `<span style="color:var(--ink-2)">${statusText}</span>`;
+    if (body === null) outEl.innerHTML = '<span style="color:var(--ink-3); font-style:italic">— sin cuerpo —</span>';
+    else { outEl.style.color = 'var(--ink)'; outEl.style.fontStyle = 'normal'; outEl.textContent = JSON.stringify(body, null, 2); }
+  };
+
+  // Sin Docker → fallaría el pool de conexiones
+  if (!dockerRunning) {
+    return setResp(500, 'Internal Server Error', { error: 'ECONNREFUSED 127.0.0.1:5432 — ¿está corriendo el contenedor de Postgres? (Paso 1)' });
+  }
+
+  // Necesitamos el motor SQL cargado
+  if (!sqlLoaded) {
+    try { await loadSqlJs(); } catch (e) {
+      return setResp(500, 'Internal Server Error', { error: 'no se pudo cargar el motor SQL: ' + e.message });
+    }
+  }
+
+  // Comprobar que la tabla cars existe
+  try {
+    const check = sqlDB.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='cars'");
+    if (check.length === 0 || check[0].values.length === 0) {
+      return setResp(500, 'Internal Server Error', { error: 'relation "cars" does not exist — crea la tabla en el Paso 3' });
+    }
+  } catch (e) {
+    return setResp(500, 'Internal Server Error', { error: e.message });
+  }
+
+  // Parsear URL
+  const m = url.match(/^\/api\/v1\/cars(?:\/(\d+))?(?:\?(.+))?$/);
+  if (!m) return setResp(404, 'Not Found', { error: 'ruta no encontrada' });
+  const id = m[1] ? parseInt(m[1], 10) : null;
+  const params = new URLSearchParams(m[2] || '');
+
+  try {
+    if (method === 'GET') {
+      if (id !== null) {
+        const r = sqlDB.exec("SELECT * FROM cars WHERE id = ?", [id]);
+        if (r.length === 0 || r[0].values.length === 0) return setResp(404, 'Not Found', { error: `coche ${id} no existe` });
+        return setResp(200, 'OK', rowsToObjects(r[0]));
+      }
+      let sql = "SELECT * FROM cars";
+      const args = [];
+      if (params.has('brand')) { sql += " WHERE brand = ?"; args.push(params.get('brand')); }
+      const r = sqlDB.exec(sql, args);
+      const list = r.length === 0 ? [] : rowsToObjects(r[0]);
+      return setResp(200, 'OK', list);
+    }
+    if (method === 'POST') {
+      let body;
+      try { body = bodyTx ? JSON.parse(bodyTx) : null; }
+      catch { return setResp(400, 'Bad Request', { error: 'JSON inválido' }); }
+      if (!body || !body.brand || !body.model) return setResp(400, 'Bad Request', { error: 'brand y model son obligatorios' });
+      sqlDB.exec("INSERT INTO cars (brand, model, dueno) VALUES (?, ?, ?)", [body.brand, body.model, body.dueno || null]);
+      const r = sqlDB.exec("SELECT * FROM cars ORDER BY id DESC LIMIT 1");
+      const created = rowsToObjects(r[0])[0];
+      // actualizar indicador
+      const c = sqlDB.exec("SELECT COUNT(*) FROM cars")[0].values[0][0];
+      updateSysStatus('schema', true, `${c} coche(s)`);
+      return setResp(201, 'Created', created);
+    }
+  } catch (e) {
+    return setResp(500, 'Internal Server Error', { error: e.message });
+  }
+}
+
+function rowsToObjects(rs) {
+  return rs.values.map(row => {
+    const obj = {};
+    rs.columns.forEach((c, i) => obj[c] = row[i]);
+    return obj;
+  });
+}
+
+
+/* ============================================================
+   SIMULADOR GUIADO DataGrip
+   8 escenas que reproducen el flujo real
+   ============================================================ */
+
+const DG_STEPS = [
+  /* ─── 1: pantalla vacía, abre File → New → Data Source ─── */
+  {
+    num: 1,
+    title: 'DataGrip recién abierto',
+    body: 'Acabas de abrir DataGrip y todavía no hay nada conectado. Tienes que crear una <strong>"Data Source"</strong> que le diga a DataGrip cómo encontrar tu Postgres. Ve al menú <code>File → New → Data Source → PostgreSQL</code>.',
+    lbl: 'Acción: hacer click en File',
+    stage: () => `
+      <div class="dg-window">
+        <div class="dg-toolbar">
+          <span class="dg-menu dg-highlight" style="padding:2px 6px; border-radius:3px">File</span>
+          <span class="dg-menu">Edit</span>
+          <span class="dg-menu">View</span>
+          <span class="dg-menu">Navigate</span>
+          <span class="dg-menu">Code</span>
+          <span class="dg-menu">Refactor</span>
+          <span class="dg-menu">Run</span>
+          <span class="dg-menu">Window</span>
+          <span class="dg-menu">Help</span>
+          <span class="dg-spacer"></span>
+        </div>
+        <div class="dg-main">
+          <div class="dg-sidebar">
+            <div class="dg-sidebar-title">Database Explorer</div>
+            <div class="dg-tree-item empty">+ Add a Data Source</div>
+          </div>
+          <div class="dg-editor-area">
+            <div class="dg-empty-area">No editor abierto.<br/>Conecta una BD para empezar.</div>
+          </div>
+        </div>
+      </div>
+      <div class="dg-callout" style="top:40px; left:24px">
+        <strong>1.</strong> Click en <code>File</code> arriba<br/>
+        → <code>New</code> → <code>Data Source</code> → <code>PostgreSQL</code>
+      </div>
+      <svg class="dg-arrow" style="top:0; left:60px; width:60px; height:50px" viewBox="0 0 60 50">
+        <path d="M30 45 Q 25 25 5 8" stroke="#86efac" stroke-width="2" fill="none"/>
+        <polygon points="0,5 12,5 6,15" fill="#86efac"/>
+      </svg>
+    `
+  },
+
+  /* ─── 2: Diálogo Data Source rellenado, Test Connection ─── */
+  {
+    num: 2,
+    title: 'Rellena los datos de conexión',
+    body: 'Se abre el diálogo de configuración. Rellena con los datos del comando <code>docker run</code>: <strong>Host</strong> <code>localhost</code>, <strong>Port</strong> <code>5432</code>, <strong>User</strong> <code>postgres</code>, <strong>Password</strong> <code>secret</code>. Luego pulsa <strong>Test Connection</strong>.',
+    lbl: 'Acción: pulsar Test Connection',
+    stage: () => `
+      <div class="dg-window" style="filter:brightness(0.6)">
+        <div class="dg-toolbar"></div>
+        <div class="dg-main"><div class="dg-sidebar"></div><div class="dg-editor-area"></div></div>
+      </div>
+      <div class="dg-dialog" style="top:50%; left:50%; transform:translate(-50%, -50%); min-width:480px">
+        <div class="dg-dialog-title">Data Sources and Drivers</div>
+        <div class="dg-dialog-body">
+          <div style="font-size:13px; color:#ffffff; font-weight:500; margin-bottom:14px">PostgreSQL — pg-coches@localhost</div>
+          <div class="dg-field-row"><label>Host</label><input value="localhost"/></div>
+          <div class="dg-field-row"><label>Port</label><input value="5432"/></div>
+          <div class="dg-field-row"><label>User</label><input value="postgres"/></div>
+          <div class="dg-field-row"><label>Password</label><input type="password" value="secret"/></div>
+          <div class="dg-field-row"><label>Database</label><input value="postgres"/></div>
+          <div class="dg-field-row"><label>URL</label><input value="jdbc:postgresql://localhost:5432/postgres" disabled style="opacity:.6; font-size:10.5px"/></div>
+        </div>
+        <div class="dg-dialog-footer">
+          <span class="dg-dialog-result">✓ Successful (PostgreSQL 16.2)</span>
+          <button class="dg-dialog-btn dg-highlight">Test Connection</button>
+          <button class="dg-dialog-btn">Cancel</button>
+          <button class="dg-dialog-btn primary">OK</button>
+        </div>
+      </div>
+      <div class="dg-callout" style="top:18px; right:24px">
+        <strong>2.</strong> Pulsa <code>Test Connection</code>. Si ves "✓ Successful", luego pulsa <code>OK</code>.
+      </div>
+    `
+  },
+
+  /* ─── 3: conectado, postgres@localhost aparece en el árbol ─── */
+  {
+    num: 3,
+    title: 'Conectado, pero la BD por defecto está vacía',
+    body: 'Ya estás conectado. En el panel izquierdo aparece <code>postgres@localhost</code>. Si lo despliegas, ves que dentro hay <strong>una base de datos llamada <code>postgres</code></strong> (la que viene de fábrica), y dentro un schema <strong><code>public</code></strong> sin tablas. Vamos a crear <em>nuestra propia</em> base de datos para no mezclar.',
+    lbl: 'Próximo paso: crear tu propia BD',
+    stage: () => `
+      <div class="dg-window">
+        <div class="dg-toolbar">
+          <span class="dg-menu">File</span><span class="dg-menu">Edit</span><span class="dg-menu">View</span>
+          <span class="dg-spacer"></span>
+        </div>
+        <div class="dg-main">
+          <div class="dg-sidebar">
+            <div class="dg-sidebar-title">Database Explorer</div>
+            <div class="dg-tree-item"><span class="chev">▾</span><span class="ic">🐘</span>postgres@localhost</div>
+            <div class="dg-tree-item indent-1"><span class="chev">▾</span><span class="ic">🗄️</span>postgres <span style="color:#6e7681; font-size:10.5px; margin-left:6px">[BD por defecto]</span></div>
+            <div class="dg-tree-item indent-2"><span class="chev">▾</span><span class="ic">📁</span>schemas</div>
+            <div class="dg-tree-item indent-3"><span class="chev">▾</span><span class="ic">📂</span>public</div>
+            <div class="dg-tree-item indent-3" style="padding-left:70px"><span class="ic">📋</span>tables <span style="color:#6e7681; font-size:10.5px; margin-left:6px">(vacío)</span></div>
+          </div>
+          <div class="dg-editor-area">
+            <div class="dg-empty-area">Conexión OK.<br/>Abre un Query Console para empezar a trabajar.</div>
+          </div>
+        </div>
+      </div>
+      <div class="dg-callout" style="top:54px; left:240px">
+        <strong>postgres@localhost</strong> → tu servidor<br/>
+        <strong>postgres</strong> → la BD que viene incluida<br/>
+        <strong>public</strong> → el schema por defecto (vacío)
+      </div>
+      <svg class="dg-arrow" style="top:64px; left:200px; width:42px; height:40px" viewBox="0 0 42 40">
+        <path d="M40 20 Q 22 20 5 20" stroke="#86efac" stroke-width="2" fill="none"/>
+        <polygon points="0,20 12,14 12,26" fill="#86efac"/>
+      </svg>
+    `
+  },
+
+  /* ─── 4: click derecho sobre postgres@localhost para crear BD ─── */
+  {
+    num: 4,
+    title: 'Crea tu propia base de datos',
+    body: 'Es buena práctica tener una BD por proyecto. Haz <strong>click derecho</strong> sobre <code>postgres@localhost</code> en el árbol. Aparece un menú: <code>New → Database</code>.',
+    lbl: 'Acción: click derecho → New → Database',
+    stage: () => `
+      <div class="dg-window">
+        <div class="dg-toolbar">
+          <span class="dg-menu">File</span><span class="dg-menu">Edit</span><span class="dg-menu">View</span>
+          <span class="dg-spacer"></span>
+        </div>
+        <div class="dg-main">
+          <div class="dg-sidebar">
+            <div class="dg-sidebar-title">Database Explorer</div>
+            <div class="dg-tree-item dg-highlight"><span class="chev">▾</span><span class="ic">🐘</span>postgres@localhost</div>
+            <div class="dg-tree-item indent-1"><span class="chev">▸</span><span class="ic">🗄️</span>postgres</div>
+          </div>
+          <div class="dg-editor-area">
+            <div class="dg-empty-area"></div>
+          </div>
+        </div>
+      </div>
+      <div class="dg-ctxmenu" style="top:60px; left:140px">
+        <div class="item dg-highlight">
+          New <span class="arrow">▸</span>
+        </div>
+        <div class="item">Refresh</div>
+        <div class="item">Diagrams <span class="arrow">▸</span>
+        </div>
+        <div class="item">Properties...</div>
+        <div class="item">Disconnect</div>
+      </div>
+      <div class="dg-ctxmenu" style="top:60px; left:340px">
+        <div class="item dg-highlight">🗄️ Database</div>
+        <div class="item">📂 Schema</div>
+        <div class="item">📋 Table</div>
+        <div class="item">📜 Query Console</div>
+      </div>
+      <div class="dg-callout" style="top:200px; left:300px; max-width:280px">
+        <strong>3.</strong> Click derecho sobre el servidor → <strong>New → Database</strong>
+      </div>
+    `
+  },
+
+  /* ─── 5: Diálogo "New Database" con nombre ─── */
+  {
+    num: 5,
+    title: 'Pon nombre a la nueva base de datos',
+    body: 'Se abre un mini-diálogo. En <strong>Name</strong> escribe <code>coches_db</code> (o el nombre que prefieras). Deja el resto por defecto. Pulsa <strong>OK</strong>. DataGrip ejecuta un <code>CREATE DATABASE</code> por debajo.',
+    lbl: 'Acción: nombrar y pulsar OK',
+    stage: () => `
+      <div class="dg-window" style="filter:brightness(0.6)">
+        <div class="dg-toolbar"></div>
+        <div class="dg-main"><div class="dg-sidebar"></div><div class="dg-editor-area"></div></div>
+      </div>
+      <div class="dg-dialog">
+        <div class="dg-dialog-title">Create Database</div>
+        <div class="dg-dialog-body">
+          <div class="dg-field-row"><label>Name:</label><input value="coches_db" class="dg-highlight"/></div>
+          <div class="dg-field-row"><label>Owner:</label><input value="postgres" disabled style="opacity:.6"/></div>
+          <div class="dg-field-row"><label>Encoding:</label><input value="UTF8" disabled style="opacity:.6"/></div>
+          <div style="margin-top:12px; padding:10px 12px; background:#1e1f22; border-radius:3px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:#86efac">
+            <span style="color:#6a9955">-- SQL que se ejecutará:</span><br/>
+            <span style="color:#c586c0">CREATE DATABASE</span> coches_db;
+          </div>
+        </div>
+        <div class="dg-dialog-footer">
+          <span style="margin-right:auto"></span>
+          <button class="dg-dialog-btn">Cancel</button>
+          <button class="dg-dialog-btn primary dg-highlight">OK</button>
+        </div>
+      </div>
+      <div class="dg-callout" style="top:14px; left:24px">
+        <strong>4.</strong> Nombre: <code>coches_db</code> → <strong>OK</strong>.<br/>
+        DataGrip ejecuta el <code>CREATE DATABASE</code> por ti.
+      </div>
+    `
+  },
+
+  /* ─── 6: BD coches_db aparece, abrimos Query Console ─── */
+  {
+    num: 6,
+    title: 'Tu BD ya existe. Abre un Query Console.',
+    body: 'En el árbol aparece la nueva BD <code>coches_db</code>. Aquí es donde van a vivir tus tablas. Para escribir SQL, haz <strong>click derecho sobre <code>coches_db</code> → <code>New → Query Console</code></strong>. Esa es la respuesta a "¿dónde se escribe el CREATE TABLE?".',
+    lbl: 'Acción: abrir el Query Console',
+    stage: () => `
+      <div class="dg-window">
+        <div class="dg-toolbar">
+          <span class="dg-menu">File</span><span class="dg-menu">Edit</span><span class="dg-menu">View</span>
+          <span class="dg-spacer"></span>
+        </div>
+        <div class="dg-main">
+          <div class="dg-sidebar">
+            <div class="dg-sidebar-title">Database Explorer</div>
+            <div class="dg-tree-item"><span class="chev">▾</span><span class="ic">🐘</span>postgres@localhost</div>
+            <div class="dg-tree-item indent-1"><span class="chev">▸</span><span class="ic">🗄️</span>postgres</div>
+            <div class="dg-tree-item indent-1 dg-highlight"><span class="chev">▾</span><span class="ic">🗄️</span>coches_db</div>
+            <div class="dg-tree-item indent-2"><span class="chev">▾</span><span class="ic">📁</span>schemas</div>
+            <div class="dg-tree-item indent-3"><span class="chev">▾</span><span class="ic">📂</span>public</div>
+            <div class="dg-tree-item indent-3" style="padding-left:70px"><span class="ic">📋</span>tables <span style="color:#6e7681; font-size:10.5px; margin-left:6px">(sin tablas todavía)</span></div>
+          </div>
+          <div class="dg-editor-area">
+            <div class="dg-empty-area"></div>
+          </div>
+        </div>
+      </div>
+      <div class="dg-ctxmenu" style="top:78px; left:170px">
+        <div class="item">New <span class="arrow">▸</span></div>
+        <div class="item">Refresh</div>
+        <div class="item">Properties...</div>
+      </div>
+      <div class="dg-ctxmenu" style="top:78px; left:370px">
+        <div class="item">📂 Schema</div>
+        <div class="item">📋 Table</div>
+        <div class="item dg-highlight">📜 Query Console</div>
+      </div>
+      <div class="dg-callout" style="top:200px; left:320px; max-width:300px">
+        <strong>5.</strong> Click derecho sobre <code>coches_db</code> → <strong>New → Query Console</strong>.<br/>
+        Se te abre un editor donde escribes SQL.
+      </div>
+    `
+  },
+
+  /* ─── 7: Query Console abierto con SQL listo ─── */
+  {
+    num: 7,
+    title: 'Escribe el SQL y ejecútalo',
+    body: 'Se abre una pestaña con un editor SQL. <strong>Pega aquí tu <code>CREATE TABLE</code>, <code>INSERT</code> y <code>SELECT</code></strong>. Para ejecutarlo, selecciona todo (Ctrl/Cmd+A) y pulsa el triángulo verde ▶ arriba a la izquierda (o <strong>Ctrl/Cmd+Enter</strong>).',
+    lbl: 'Acción: pulsar ▶ Run',
+    stage: () => `
+      <div class="dg-window">
+        <div class="dg-toolbar">
+          <span class="dg-menu">File</span><span class="dg-menu">Edit</span><span class="dg-menu">View</span>
+          <span class="dg-spacer"></span>
+          <span class="dg-icon-btn run dg-highlight" style="font-size:14px; padding:0 6px">▶</span>
+          <span class="dg-icon-btn" style="font-size:14px">⏹</span>
+        </div>
+        <div class="dg-main">
+          <div class="dg-sidebar">
+            <div class="dg-sidebar-title">Database Explorer</div>
+            <div class="dg-tree-item"><span class="chev">▾</span><span class="ic">🐘</span>postgres@localhost</div>
+            <div class="dg-tree-item indent-1"><span class="chev">▾</span><span class="ic">🗄️</span>coches_db</div>
+            <div class="dg-tree-item indent-2"><span class="chev">▾</span><span class="ic">📁</span>schemas</div>
+            <div class="dg-tree-item indent-3"><span class="chev">▸</span><span class="ic">📂</span>public</div>
+          </div>
+          <div class="dg-editor-area">
+            <div class="dg-tab-bar"><div class="dg-tab">📜 coches_db.sql</div></div>
+            <div class="dg-editor" data-lines="1&#10;2&#10;3&#10;4&#10;5&#10;6&#10;7&#10;8&#10;9&#10;10&#10;11&#10;12&#10;13"><span class="sql-com">-- Crear tabla cars dentro del schema "public" de coches_db</span>
+<span class="sql-kw">CREATE TABLE</span> cars (
+  id    <span class="sql-tp">SERIAL</span> <span class="sql-kw">PRIMARY KEY</span>,
+  brand <span class="sql-tp">VARCHAR</span>(<span class="sql-num">50</span>) <span class="sql-kw">NOT NULL</span>,
+  model <span class="sql-tp">VARCHAR</span>(<span class="sql-num">50</span>) <span class="sql-kw">NOT NULL</span>
+);
+
+<span class="sql-com">-- Meter dos coches de ejemplo</span>
+<span class="sql-kw">INSERT INTO</span> cars (brand, model) <span class="sql-kw">VALUES</span>
+  (<span class="sql-str">'Audi'</span>, <span class="sql-str">'R8'</span>),
+  (<span class="sql-str">'Ferrari'</span>, <span class="sql-str">'F40'</span>);
+
+<span class="sql-com">-- Y leerlos para comprobar</span>
+<span class="sql-kw">SELECT</span> * <span class="sql-kw">FROM</span> cars;</div>
+          </div>
+        </div>
+      </div>
+      <div class="dg-callout" style="top:0px; right:14px">
+        <strong>6.</strong> Pulsa el triángulo verde <strong style="color:#4caf50">▶</strong> arriba<br/>(o <code>Ctrl/Cmd + Enter</code>)
+      </div>
+      <svg class="dg-arrow" style="top:24px; right:130px; width:80px; height:18px" viewBox="0 0 80 18">
+        <path d="M75 9 L 10 9" stroke="#86efac" stroke-width="2" fill="none"/>
+        <polygon points="0,9 14,3 14,15" fill="#86efac"/>
+      </svg>
+    `
+  },
+
+  /* ─── 8: Resultado: tabla creada y datos visibles ─── */
+  {
+    num: 8,
+    title: '¡Hecho! Tabla creada con datos.',
+    body: 'Abajo aparece la pestaña <strong>Result</strong> con las dos filas insertadas. En el árbol de la izquierda, dentro de <code>public → tables</code>, ahora aparece <code>cars</code>. Tu BD está lista. <strong>Este mismo estado es el que va a leer tu Next.js</strong> con el endpoint que vimos en el Paso 4.',
+    lbl: 'Listo. La BD está preparada para Next.js.',
+    stage: () => `
+      <div class="dg-window">
+        <div class="dg-toolbar">
+          <span class="dg-menu">File</span><span class="dg-menu">Edit</span><span class="dg-menu">View</span>
+          <span class="dg-spacer"></span>
+          <span class="dg-icon-btn run" style="font-size:14px; padding:0 6px">▶</span>
+          <span class="dg-icon-btn" style="font-size:14px">⏹</span>
+        </div>
+        <div class="dg-main">
+          <div class="dg-sidebar">
+            <div class="dg-sidebar-title">Database Explorer</div>
+            <div class="dg-tree-item"><span class="chev">▾</span><span class="ic">🐘</span>postgres@localhost</div>
+            <div class="dg-tree-item indent-1"><span class="chev">▾</span><span class="ic">🗄️</span>coches_db</div>
+            <div class="dg-tree-item indent-2"><span class="chev">▾</span><span class="ic">📁</span>schemas</div>
+            <div class="dg-tree-item indent-3"><span class="chev">▾</span><span class="ic">📂</span>public</div>
+            <div class="dg-tree-item indent-3" style="padding-left:70px"><span class="chev">▾</span><span class="ic">📋</span>tables</div>
+            <div class="dg-tree-item dg-highlight" style="padding-left:86px"><span class="ic">📋</span>cars</div>
+            <div class="dg-tree-item" style="padding-left:102px; font-size:11.5px; color:#a8b0bd"><span class="ic">🔑</span>id (PK)</div>
+            <div class="dg-tree-item" style="padding-left:102px; font-size:11.5px; color:#a8b0bd"><span class="ic">📄</span>brand</div>
+            <div class="dg-tree-item" style="padding-left:102px; font-size:11.5px; color:#a8b0bd"><span class="ic">📄</span>model</div>
+          </div>
+          <div class="dg-editor-area">
+            <div class="dg-tab-bar"><div class="dg-tab">📜 coches_db.sql</div></div>
+            <div class="dg-editor" style="flex:0 0 130px; height:130px" data-lines="1&#10;2&#10;3&#10;4&#10;5&#10;6&#10;7&#10;8"><span class="sql-com">-- (ejecutado en 23 ms)</span>
+<span class="sql-kw">CREATE TABLE</span> cars ( ... );
+<span class="sql-kw">INSERT INTO</span> cars (brand, model) <span class="sql-kw">VALUES</span>
+  (<span class="sql-str">'Audi'</span>, <span class="sql-str">'R8'</span>),
+  (<span class="sql-str">'Ferrari'</span>, <span class="sql-str">'F40'</span>);
+
+<span class="sql-kw">SELECT</span> * <span class="sql-kw">FROM</span> cars;</div>
+            <div class="dg-results dg-highlight">
+              <div class="dg-results-tab">▾ Result · cars [2 rows]</div>
+              <div class="dg-results-body">
+                <table>
+                  <thead><tr><th style="width:60px">id</th><th>brand</th><th>model</th></tr></thead>
+                  <tbody>
+                    <tr><td>1</td><td>Audi</td><td>R8</td></tr>
+                    <tr><td>2</td><td>Ferrari</td><td>F40</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dg-callout" style="top:154px; left:30px; max-width:200px">
+        <strong>cars</strong> aparece ya en el árbol con sus columnas. Es una tabla "viva".
+      </div>
+      <div class="dg-callout" style="bottom:14px; right:14px; max-width:240px">
+        El panel <strong>Result</strong> abajo te confirma las filas insertadas. ¡Has terminado!
+      </div>
+    `
+  },
+];
+
+let dgStepIdx = 0;
+function renderDgStep() {
+  const step = DG_STEPS[dgStepIdx];
+
+  // Progress bar
+  const prog = document.getElementById('dg-sim-prog');
+  prog.innerHTML = DG_STEPS.map((_, i) => {
+    let cls = 'dot';
+    if (i < dgStepIdx) cls += ' done';
+    if (i === dgStepIdx) cls += ' current';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  document.getElementById('dg-sim-counter').textContent = `Paso ${dgStepIdx + 1} de ${DG_STEPS.length}`;
+  document.getElementById('dg-sim-num').textContent = step.num;
+  document.getElementById('dg-sim-body').innerHTML = `<h5>${step.title}</h5><p>${step.body}</p>`;
+  document.getElementById('dg-sim-stage').innerHTML = step.stage();
+  document.getElementById('dg-sim-lbl').textContent = step.lbl;
+  document.getElementById('dg-sim-prev').disabled = dgStepIdx === 0;
+  document.getElementById('dg-sim-prev').style.opacity = dgStepIdx === 0 ? '0.4' : '1';
+  document.getElementById('dg-sim-next').textContent =
+    dgStepIdx === DG_STEPS.length - 1 ? '↻ Volver al inicio' : 'Siguiente paso ▸';
+}
+function dgSimNext() {
+  if (dgStepIdx === DG_STEPS.length - 1) {
+    dgStepIdx = 0;
+  } else {
+    dgStepIdx++;
+  }
+  renderDgStep();
+}
+function dgSimPrev() {
+  if (dgStepIdx > 0) {
+    dgStepIdx--;
+    renderDgStep();
+  }
+}
+// Inicializar cuando el DOM esté listo
+if (document.getElementById('dg-sim-stage')) {
+  renderDgStep();
 }
 
 </script>
