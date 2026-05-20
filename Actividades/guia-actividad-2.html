@@ -1,0 +1,1455 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Guía didáctica · Actividad 2 · API REST con Next.js + PostgreSQL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0a0a;
+    --paper:#f5f1e8;
+    --paper-2:#ebe5d4;
+    --accent:#d24317;       /* terracota */
+    --accent-2:#1b4d3e;     /* verde profundo */
+    --accent-3:#e6a817;     /* mostaza */
+    --muted:#6b6256;
+    --rule:#2a2a2a;
+    --code-bg:#181613;
+    --code-fg:#f0ead6;
+    --code-comment:#8a8472;
+    --code-kw:#e6a817;
+    --code-str:#9fc77a;
+    --code-fn:#7cc7e8;
+    --code-tag:#e08a6b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Inter Tight',system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.55;
+    font-size:16px;
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(210,67,23,.05), transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(27,77,62,.06), transparent 45%);
+  }
+  /* Header */
+  header.hero{
+    border-bottom:2px solid var(--ink);
+    padding:32px 48px 28px;
+    background:var(--paper-2);
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      repeating-linear-gradient(45deg, transparent 0 18px, rgba(10,10,10,.025) 18px 19px);
+    pointer-events:none;
+  }
+  .kicker{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--muted);
+    display:flex; gap:18px; align-items:center;
+    margin-bottom:14px;
+  }
+  .kicker .dot{width:6px;height:6px;background:var(--accent);border-radius:50%}
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:900;
+    font-size:clamp(36px,5vw,72px);
+    line-height:.95;
+    letter-spacing:-.02em;
+    margin:0 0 12px;
+  }
+  h1 em{font-style:italic;color:var(--accent);font-weight:500}
+  .lead{
+    max-width:760px;
+    font-size:18px;
+    color:#2a2a2a;
+    margin:0;
+  }
+  .meta-strip{
+    display:flex; flex-wrap:wrap; gap:24px;
+    margin-top:24px;
+    padding-top:18px;
+    border-top:1px dashed var(--rule);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .meta-strip b{color:var(--ink);font-weight:700}
+
+  /* TOC */
+  nav.toc{
+    padding:24px 48px;
+    background:var(--ink);
+    color:var(--paper);
+    border-bottom:2px solid var(--ink);
+  }
+  nav.toc ol{
+    list-style:none; padding:0; margin:0;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:6px 28px;
+    counter-reset:t;
+  }
+  nav.toc li{counter-increment:t; font-family:'JetBrains Mono',monospace; font-size:12px}
+  nav.toc li::before{
+    content:counter(t,decimal-leading-zero) " ";
+    color:var(--accent-3);
+    margin-right:8px;
+  }
+  nav.toc a{color:var(--paper);text-decoration:none;border-bottom:1px solid transparent}
+  nav.toc a:hover{border-bottom-color:var(--accent-3)}
+
+  /* Main */
+  main{padding:0}
+  section.step{
+    padding:56px 48px;
+    border-bottom:1px solid var(--rule);
+    display:grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap:48px;
+    align-items:start;
+  }
+  section.step.single{grid-template-columns:1fr; max-width:1100px; margin:0 auto}
+  section.step .prose{min-width:0}
+  section.step .code{min-width:0; position:sticky; top:16px}
+  @media (max-width:1100px){
+    section.step{grid-template-columns:1fr; padding:40px 24px}
+    section.step .code{position:static}
+    header.hero, nav.toc{padding-left:24px;padding-right:24px}
+  }
+
+  .step-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:.2em;
+    color:var(--accent);
+    text-transform:uppercase;
+    display:inline-flex; align-items:center; gap:10px;
+    margin-bottom:10px;
+  }
+  .step-num .bar{display:inline-block;width:32px;height:2px;background:var(--accent)}
+  h2{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(28px,3.4vw,44px);
+    line-height:1.05;
+    letter-spacing:-.015em;
+    margin:0 0 16px;
+  }
+  h2 em{color:var(--accent-2); font-style:italic; font-weight:500}
+  h3{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:22px;
+    margin:28px 0 8px;
+    letter-spacing:-.01em;
+  }
+  p{margin:0 0 14px}
+  ul,ol{margin:0 0 16px; padding-left:22px}
+  ul li,ol li{margin-bottom:6px}
+
+  /* Callout */
+  .callout{
+    border-left:3px solid var(--accent-3);
+    background:#fff7e0;
+    padding:14px 18px;
+    margin:18px 0;
+    font-size:14.5px;
+  }
+  .callout.tip{border-left-color:var(--accent-2); background:#e6f0ec}
+  .callout.warn{border-left-color:var(--accent); background:#fbe6dd}
+  .callout b{font-family:'Fraunces',serif; font-weight:700}
+
+  /* Code blocks */
+  .code-block{
+    background:var(--code-bg);
+    color:var(--code-fg);
+    border-radius:6px;
+    overflow:hidden;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    line-height:1.55;
+    box-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 18px 30px -20px rgba(0,0,0,.4);
+    margin-bottom:18px;
+  }
+  .code-block .filename{
+    display:flex; align-items:center; justify-content:space-between;
+    background:#0f0d0b;
+    color:#c9c0a8;
+    padding:8px 14px;
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    border-bottom:1px solid #2a2620;
+  }
+  .code-block .filename .dots{display:inline-flex; gap:6px; margin-right:10px}
+  .code-block .filename .dots i{width:9px;height:9px;border-radius:50%;background:#3a342a; display:inline-block}
+  .code-block pre{
+    margin:0; padding:14px 16px;
+    overflow-x:auto;
+    white-space:pre;
+  }
+  /* Crude but pretty syntax tokens (manually applied via spans) */
+  .tk-c{color:var(--code-comment); font-style:italic}
+  .tk-k{color:var(--code-kw)}
+  .tk-s{color:var(--code-str)}
+  .tk-f{color:var(--code-fn)}
+  .tk-t{color:var(--code-tag)}
+  .tk-n{color:#d59ee0}
+
+  /* Inline code */
+  code.inline{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.88em;
+    background:#1f1c19;
+    color:#f0ead6;
+    padding:1px 6px;
+    border-radius:3px;
+  }
+
+  /* Diagram (ER) */
+  .er-diagram{
+    background:#fff;
+    border:1.5px solid var(--ink);
+    border-radius:4px;
+    padding:18px;
+    margin:18px 0;
+    overflow-x:auto;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .er-diagram svg{display:block; max-width:100%; height:auto; min-width:680px}
+
+  /* Endpoint table */
+  table.endpoints{
+    width:100%;
+    border-collapse:collapse;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    margin:14px 0;
+    background:#fff;
+    border:1.5px solid var(--ink);
+  }
+  table.endpoints th,table.endpoints td{
+    padding:9px 12px;
+    border-bottom:1px solid #ddd;
+    text-align:left;
+    vertical-align:top;
+  }
+  table.endpoints th{
+    background:var(--ink); color:var(--paper);
+    font-size:11px; letter-spacing:.15em; text-transform:uppercase;
+  }
+  table.endpoints tr:last-child td{border-bottom:none}
+  .verb{
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:3px;
+    font-size:11px;
+    font-weight:700;
+    color:#fff;
+    letter-spacing:.05em;
+  }
+  .verb.get{background:#1b4d3e}
+  .verb.post{background:#d24317}
+  .verb.put{background:#7a5d00}
+  .verb.del{background:#5a1e1e}
+
+  /* Folder tree */
+  .tree{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    background:#fff;
+    border:1.5px solid var(--ink);
+    padding:14px 18px;
+    margin:14px 0;
+    line-height:1.7;
+    white-space:pre;
+    overflow-x:auto;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .tree .dir{color:var(--accent-2); font-weight:700}
+  .tree .file{color:var(--ink)}
+  .tree .hi{background:#fff3a0; padding:0 3px}
+
+  /* Footer */
+  footer{
+    padding:40px 48px;
+    background:var(--ink); color:var(--paper);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:.05em;
+  }
+  footer h4{
+    font-family:'Fraunces',serif;
+    font-size:28px;
+    margin:0 0 10px;
+    letter-spacing:-.01em;
+    color:var(--paper);
+  }
+  footer a{color:var(--accent-3)}
+
+  /* small */
+  .badge{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    padding:2px 7px;
+    background:var(--ink); color:var(--paper);
+    border-radius:3px;
+    letter-spacing:.05em;
+    margin-right:4px;
+  }
+  .badge.alt{background:var(--accent-2)}
+  .badge.warn{background:var(--accent)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="kicker">
+    <span class="dot"></span>
+    <span>Desarrollo Web con Frameworks Front-End</span>
+    <span>·</span>
+    <span>Actividad 2 — Laboratorio</span>
+    <span>·</span>
+    <span>UNIR · Máster</span>
+  </div>
+  <h1>Implementación de <em>API REST</em><br>y acceso a datos · Nexus</h1>
+  <p class="lead">
+    Guía didáctica, paso a paso, para resolver la actividad: diseñar el modelo relacional de Nexus
+    (librería + co-working), crear la base de datos PostgreSQL, popularla con datos de prueba y
+    exponer una API REST completa usando <b>Route Handlers de Next.js</b>.
+  </p>
+  <div class="meta-strip">
+    <span><b>Stack:</b> Next.js 14 (App Router) · PostgreSQL · node-postgres · TypeScript</span>
+    <span><b>Salida:</b> proyecto Next.js + script SQL + vídeo memoria</span>
+    <span><b>Probado con:</b> Postman / Thunder Client</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <ol>
+    <li><a href="#s1">Análisis de requisitos</a></li>
+    <li><a href="#s2">Modelo entidad-relación</a></li>
+    <li><a href="#s3">Script DDL en PostgreSQL</a></li>
+    <li><a href="#s4">Datos de prueba (INSERT)</a></li>
+    <li><a href="#s5">Estructura del proyecto Next.js</a></li>
+    <li><a href="#s6">Conexión a PostgreSQL</a></li>
+    <li><a href="#s7">Diseño de la API REST</a></li>
+    <li><a href="#s8">Route Handlers: librería</a></li>
+    <li><a href="#s9">Route Handlers: co-working</a></li>
+    <li><a href="#s10">Pruebas con Postman</a></li>
+    <li><a href="#s11">Uso de IA generativa</a></li>
+    <li><a href="#s12">Entrega y vídeo memoria</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- 01 ANÁLISIS -->
+<section class="step" id="s1">
+  <div class="prose">
+    <div class="step-num"><span class="bar"></span>Paso 01 · Análisis</div>
+    <h2>Entender qué <em>tiene que hacer</em> Nexus</h2>
+    <p>
+      Antes de tocar SQL o código, conviene aterrizar las funcionalidades del enunciado en
+      <b>entidades</b>, <b>relaciones</b> y <b>endpoints</b>. La actividad cubre dos módulos: la
+      <b>librería universitaria</b> y el <b>co-working</b>. Hay además un módulo transversal de
+      <b>usuarios</b> (aunque el login se trata en otra actividad, los datos del usuario sí se
+      almacenan).
+    </p>
+    <h3>Funcionalidades a sostener desde la API</h3>
+    <ul>
+      <li><b>Librería</b>: top 10 más vendidos, categorías de libros/revistas, filtros (año…), ficha individual, libros adquiridos por usuario, compra.</li>
+      <li><b>Co-working</b>: listado de espacios con disponibilidad, ficha de espacio, reservas.</li>
+      <li><b>Compartido</b>: usuarios (los crea Auth0 pero se persisten en la BD).</li>
+    </ul>
+    <div class="callout">
+      <b>Regla de oro:</b> el <i>login</i> se simulará aparte (Auth0). Todo lo demás <b>sí</b> se
+      implementa con Route Handlers, accediendo a la base de datos PostgreSQL.
+    </div>
+  </div>
+  <div class="code">
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>requisitos.md</span><span>checklist</span></div>
+      <pre><span class="tk-c"># Entidades candidatas</span>
+<span class="tk-k">- User</span>          <span class="tk-c"># sincronizado desde Auth0</span>
+<span class="tk-k">- Category</span>      <span class="tk-c"># jerarquía libros / revistas</span>
+<span class="tk-k">- Publication</span>   <span class="tk-c"># libro o revista (tipo)</span>
+<span class="tk-k">- Author</span>        <span class="tk-c"># N:M con Publication</span>
+<span class="tk-k">- Order</span>         <span class="tk-c"># compra de uno o varios items</span>
+<span class="tk-k">- OrderItem</span>     <span class="tk-c"># líneas de pedido</span>
+<span class="tk-k">- CoworkingSpace</span><span class="tk-c"># mesa / sala</span>
+<span class="tk-k">- Reservation</span>   <span class="tk-c"># reserva de un espacio</span>
+
+<span class="tk-c"># Funciones que la API debe cubrir</span>
+<span class="tk-s">GET</span>  /api/publications          <span class="tk-c"># lista + filtros</span>
+<span class="tk-s">GET</span>  /api/publications/top      <span class="tk-c"># bestsellers</span>
+<span class="tk-s">GET</span>  /api/publications/:id      <span class="tk-c"># ficha</span>
+<span class="tk-s">GET</span>  /api/categories
+<span class="tk-s">GET</span>  /api/users/:id/purchases
+<span class="tk-s">POST</span> /api/orders                <span class="tk-c"># comprar</span>
+<span class="tk-s">GET</span>  /api/coworking/spaces
+<span class="tk-s">GET</span>  /api/coworking/spaces/:id
+<span class="tk-s">POST</span> /api/coworking/reservations
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 02 MODELO -->
+<section class="step" id="s2">
+  <div class="prose">
+    <div class="step-num"><span class="bar"></span>Paso 02 · Modelo de datos</div>
+    <h2>Del enunciado al <em>diagrama E/R</em></h2>
+    <p>
+      Construimos un modelo relacional <b>normalizado</b> (hasta 3FN) que cubre las dos secciones.
+      Decisiones de diseño relevantes:
+    </p>
+    <ul>
+      <li><b>Una sola tabla <code class="inline">publications</code></b> con una columna
+        <code class="inline">type</code> (<code class="inline">'book' | 'magazine'</code>) para libros
+        y revistas. Comparten 90% de los atributos y simplifica los endpoints.</li>
+      <li><b>Categorías jerárquicas</b> con <code class="inline">parent_id</code> autoreferencial,
+        para que existan secciones como <i>Literatura → Narrativa → Novela negra</i>.</li>
+      <li><b>Autores</b> en N:M con publicaciones via <code class="inline">publication_authors</code>.</li>
+      <li><b>Pedidos</b> con cabecera (<code class="inline">orders</code>) y líneas (<code class="inline">order_items</code>), guardando el precio al momento de compra.</li>
+      <li><b>Co-working</b>: un espacio tiene capacidad fija y N reservas; la disponibilidad se
+        calcula con la hora actual <code class="inline">NOW()</code>.</li>
+    </ul>
+
+    <div class="callout tip">
+      <b>Por qué evitar dos tablas <code class="inline">books</code> y <code class="inline">magazines</code>:</b>
+      duplicaría columnas, complicaría el listado conjunto del top-10 y haría incómodos los joins con
+      categorías. La columna discriminadora <code class="inline">type</code> es suficiente.
+    </div>
+  </div>
+  <div class="code">
+    <div class="er-diagram">
+      <!-- SVG E/R simplificado -->
+      <svg viewBox="0 0 720 620" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace" font-size="11">
+        <defs>
+          <marker id="one" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+            <path d="M0,0 L9,5 L0,10" fill="none" stroke="#0a0a0a" stroke-width="1.4"/>
+          </marker>
+        </defs>
+        <style>
+          .ent{fill:#fff7e0; stroke:#0a0a0a; stroke-width:1.6}
+          .ent-h{font-weight:700; fill:#d24317}
+          .lnk{stroke:#0a0a0a; stroke-width:1.4; fill:none}
+          .lbl{fill:#1b4d3e; font-weight:700}
+        </style>
+
+        <!-- users -->
+        <rect class="ent" x="20" y="20" width="190" height="120"/>
+        <text class="ent-h" x="32" y="40">users</text>
+        <text x="32" y="58">id (PK) UUID</text>
+        <text x="32" y="74">email UNIQUE</text>
+        <text x="32" y="90">name</text>
+        <text x="32" y="106">auth0_sub UNIQUE</text>
+        <text x="32" y="122">created_at</text>
+
+        <!-- categories -->
+        <rect class="ent" x="265" y="20" width="190" height="100"/>
+        <text class="ent-h" x="277" y="40">categories</text>
+        <text x="277" y="58">id (PK)</text>
+        <text x="277" y="74">name</text>
+        <text x="277" y="90">parent_id (FK self)</text>
+        <text x="277" y="106">type (book|mag)</text>
+
+        <!-- publications -->
+        <rect class="ent" x="265" y="170" width="190" height="160"/>
+        <text class="ent-h" x="277" y="190">publications</text>
+        <text x="277" y="208">id (PK)</text>
+        <text x="277" y="224">title</text>
+        <text x="277" y="240">type (book|mag)</text>
+        <text x="277" y="256">category_id (FK)</text>
+        <text x="277" y="272">price NUMERIC</text>
+        <text x="277" y="288">stock INT</text>
+        <text x="277" y="304">publication_year</text>
+        <text x="277" y="320">cover_url</text>
+
+        <!-- authors -->
+        <rect class="ent" x="510" y="20" width="190" height="90"/>
+        <text class="ent-h" x="522" y="40">authors</text>
+        <text x="522" y="58">id (PK)</text>
+        <text x="522" y="74">name</text>
+        <text x="522" y="90">country</text>
+
+        <!-- pub_authors -->
+        <rect class="ent" x="510" y="170" width="190" height="80"/>
+        <text class="ent-h" x="522" y="190">publication_authors</text>
+        <text x="522" y="208">publication_id (FK)</text>
+        <text x="522" y="224">author_id (FK)</text>
+        <text x="522" y="240">PK compuesta</text>
+
+        <!-- orders -->
+        <rect class="ent" x="20" y="200" width="190" height="100"/>
+        <text class="ent-h" x="32" y="220">orders</text>
+        <text x="32" y="238">id (PK)</text>
+        <text x="32" y="254">user_id (FK)</text>
+        <text x="32" y="270">total NUMERIC</text>
+        <text x="32" y="286">created_at</text>
+
+        <!-- order_items -->
+        <rect class="ent" x="20" y="340" width="190" height="110"/>
+        <text class="ent-h" x="32" y="360">order_items</text>
+        <text x="32" y="378">id (PK)</text>
+        <text x="32" y="394">order_id (FK)</text>
+        <text x="32" y="410">publication_id (FK)</text>
+        <text x="32" y="426">quantity INT</text>
+        <text x="32" y="442">unit_price NUMERIC</text>
+
+        <!-- spaces -->
+        <rect class="ent" x="265" y="380" width="190" height="100"/>
+        <text class="ent-h" x="277" y="400">coworking_spaces</text>
+        <text x="277" y="418">id (PK)</text>
+        <text x="277" y="434">name</text>
+        <text x="277" y="450">capacity INT</text>
+        <text x="277" y="466">description</text>
+
+        <!-- reservations -->
+        <rect class="ent" x="510" y="380" width="190" height="120"/>
+        <text class="ent-h" x="522" y="400">reservations</text>
+        <text x="522" y="418">id (PK)</text>
+        <text x="522" y="434">space_id (FK)</text>
+        <text x="522" y="450">user_id (FK)</text>
+        <text x="522" y="466">start_at TIMESTAMP</text>
+        <text x="522" y="482">end_at TIMESTAMP</text>
+        <text x="522" y="498">seats INT</text>
+
+        <!-- relations -->
+        <path class="lnk" d="M210,250 L265,250" marker-end="url(#one)"/>
+        <text class="lbl" x="218" y="244">1:N</text>
+
+        <path class="lnk" d="M115,300 L115,340" marker-end="url(#one)"/>
+        <text class="lbl" x="120" y="324">1:N</text>
+
+        <path class="lnk" d="M210,395 L265,395" marker-end="url(#one)"/>
+        <text class="lbl" x="218" y="389">N:1</text>
+
+        <path class="lnk" d="M360,170 L360,120" marker-end="url(#one)"/>
+        <text class="lbl" x="365" y="148">N:1</text>
+
+        <path class="lnk" d="M455,210 L510,210" marker-end="url(#one)"/>
+        <text class="lbl" x="462" y="204">N:M</text>
+
+        <path class="lnk" d="M605,170 L605,110" marker-end="url(#one)"/>
+        <text class="lbl" x="610" y="146">N:1</text>
+
+        <path class="lnk" d="M605,380 L605,250" marker-end="url(#one)"/>
+        <text class="lbl" x="610" y="320">N:1</text>
+
+        <path class="lnk" d="M210,90 L265,90"/>
+        <text class="lbl" x="216" y="84">·</text>
+
+        <path class="lnk" d="M115,140 L115,200" marker-end="url(#one)"/>
+        <text class="lbl" x="120" y="174">1:N</text>
+
+        <path class="lnk" d="M455,440 L510,440" marker-end="url(#one)"/>
+        <text class="lbl" x="462" y="434">1:N</text>
+
+        <path class="lnk" d="M115,140 L580,380" stroke-dasharray="4 4"/>
+        <text class="lbl" x="430" y="290" opacity=".6">users → reservations (1:N)</text>
+
+        <text x="20" y="600" font-size="10" fill="#6b6256">Diagrama E/R simplificado · Nexus</text>
+      </svg>
+    </div>
+    <div class="callout warn">
+      <b>Sugerencia:</b> en la vídeo memoria abre este mismo diagrama desde DBeaver / DataGrip con la
+      vista <i>ER Diagram</i> sobre la base ya creada — es lo que el rúbrico espera.
+    </div>
+  </div>
+</section>
+
+<!-- 03 DDL -->
+<section class="step" id="s3">
+  <div class="prose">
+    <div class="step-num"><span class="bar"></span>Paso 03 · DDL</div>
+    <h2>Crear la base con <em>PostgreSQL</em></h2>
+    <p>
+      Este script crea todo el esquema, con claves foráneas, índices útiles y una restricción que
+      garantiza la coherencia <i>publicación ↔ categoría</i> del mismo tipo. Guárdalo como
+      <code class="inline">db/schema.sql</code> en el proyecto y entrégalo también suelto en el ZIP.
+    </p>
+    <h3>Cómo ejecutarlo</h3>
+    <ol>
+      <li>Instala PostgreSQL en local (o usa Docker — ver bloque inferior).</li>
+      <li>Crea la base de datos: <code class="inline">createdb nexus</code>.</li>
+      <li>Ejecuta el script: <code class="inline">psql -d nexus -f db/schema.sql</code>.</li>
+    </ol>
+    <div class="callout tip">
+      <b>Docker en una línea:</b><br>
+      <code class="inline">docker run --name nexus-pg -e POSTGRES_PASSWORD=nexus -e POSTGRES_DB=nexus -p 5432:5432 -d postgres:16</code>
+    </div>
+  </div>
+  <div class="code">
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>db/schema.sql</span><span>PostgreSQL 16</span></div>
+<pre><span class="tk-c">-- 1. Limpieza idempotente (útil para reejecutar)</span>
+<span class="tk-k">DROP TABLE IF EXISTS</span> reservations, order_items, orders,
+  publication_authors, publications, authors,
+  categories, coworking_spaces, users <span class="tk-k">CASCADE</span>;
+
+<span class="tk-c">-- 2. Extensión para UUID</span>
+<span class="tk-k">CREATE EXTENSION IF NOT EXISTS</span> <span class="tk-s">"uuid-ossp"</span>;
+
+<span class="tk-c">-- 3. Usuarios (sincronizados con Auth0)</span>
+<span class="tk-k">CREATE TABLE</span> users (
+  id          <span class="tk-t">UUID</span> <span class="tk-k">PRIMARY KEY DEFAULT</span> uuid_generate_v4(),
+  email       <span class="tk-t">VARCHAR</span>(255) <span class="tk-k">NOT NULL UNIQUE</span>,
+  name        <span class="tk-t">VARCHAR</span>(150) <span class="tk-k">NOT NULL</span>,
+  auth0_sub   <span class="tk-t">VARCHAR</span>(255) <span class="tk-k">UNIQUE</span>,
+  created_at  <span class="tk-t">TIMESTAMPTZ</span> <span class="tk-k">DEFAULT NOW</span>()
+);
+
+<span class="tk-c">-- 4. Categorías jerárquicas</span>
+<span class="tk-k">CREATE TABLE</span> categories (
+  id         <span class="tk-t">SERIAL</span> <span class="tk-k">PRIMARY KEY</span>,
+  name       <span class="tk-t">VARCHAR</span>(120) <span class="tk-k">NOT NULL</span>,
+  parent_id  <span class="tk-t">INT</span> <span class="tk-k">REFERENCES</span> categories(id) <span class="tk-k">ON DELETE SET NULL</span>,
+  type       <span class="tk-t">VARCHAR</span>(10) <span class="tk-k">NOT NULL CHECK</span> (type <span class="tk-k">IN</span> (<span class="tk-s">'book'</span>,<span class="tk-s">'magazine'</span>))
+);
+
+<span class="tk-c">-- 5. Publicaciones (libros y revistas)</span>
+<span class="tk-k">CREATE TABLE</span> publications (
+  id               <span class="tk-t">SERIAL</span> <span class="tk-k">PRIMARY KEY</span>,
+  title            <span class="tk-t">VARCHAR</span>(255) <span class="tk-k">NOT NULL</span>,
+  type             <span class="tk-t">VARCHAR</span>(10) <span class="tk-k">NOT NULL CHECK</span> (type <span class="tk-k">IN</span> (<span class="tk-s">'book'</span>,<span class="tk-s">'magazine'</span>)),
+  category_id      <span class="tk-t">INT</span> <span class="tk-k">NOT NULL REFERENCES</span> categories(id),
+  isbn             <span class="tk-t">VARCHAR</span>(20) <span class="tk-k">UNIQUE</span>,
+  price            <span class="tk-t">NUMERIC</span>(8,2) <span class="tk-k">NOT NULL CHECK</span> (price <span class="tk-k">&gt;=</span> 0),
+  stock            <span class="tk-t">INT</span> <span class="tk-k">NOT NULL DEFAULT</span> 0 <span class="tk-k">CHECK</span> (stock <span class="tk-k">&gt;=</span> 0),
+  publication_year <span class="tk-t">INT</span> <span class="tk-k">NOT NULL</span>,
+  cover_url        <span class="tk-t">TEXT</span>,
+  synopsis         <span class="tk-t">TEXT</span>,
+  created_at       <span class="tk-t">TIMESTAMPTZ</span> <span class="tk-k">DEFAULT NOW</span>()
+);
+<span class="tk-c">-- Índices recomendados</span>
+<span class="tk-k">CREATE INDEX</span> idx_pub_year     <span class="tk-k">ON</span> publications(publication_year);
+<span class="tk-k">CREATE INDEX</span> idx_pub_category <span class="tk-k">ON</span> publications(category_id);
+<span class="tk-k">CREATE INDEX</span> idx_pub_type     <span class="tk-k">ON</span> publications(type);
+
+<span class="tk-c">-- 6. Autores y relación N:M</span>
+<span class="tk-k">CREATE TABLE</span> authors (
+  id      <span class="tk-t">SERIAL</span> <span class="tk-k">PRIMARY KEY</span>,
+  name    <span class="tk-t">VARCHAR</span>(150) <span class="tk-k">NOT NULL</span>,
+  country <span class="tk-t">VARCHAR</span>(80)
+);
+<span class="tk-k">CREATE TABLE</span> publication_authors (
+  publication_id <span class="tk-t">INT</span> <span class="tk-k">REFERENCES</span> publications(id) <span class="tk-k">ON DELETE CASCADE</span>,
+  author_id      <span class="tk-t">INT</span> <span class="tk-k">REFERENCES</span> authors(id)      <span class="tk-k">ON DELETE CASCADE</span>,
+  <span class="tk-k">PRIMARY KEY</span> (publication_id, author_id)
+);
+
+<span class="tk-c">-- 7. Pedidos</span>
+<span class="tk-k">CREATE TABLE</span> orders (
+  id         <span class="tk-t">SERIAL</span> <span class="tk-k">PRIMARY KEY</span>,
+  user_id    <span class="tk-t">UUID</span> <span class="tk-k">NOT NULL REFERENCES</span> users(id),
+  total      <span class="tk-t">NUMERIC</span>(10,2) <span class="tk-k">NOT NULL</span>,
+  created_at <span class="tk-t">TIMESTAMPTZ</span> <span class="tk-k">DEFAULT NOW</span>()
+);
+<span class="tk-k">CREATE TABLE</span> order_items (
+  id             <span class="tk-t">SERIAL</span> <span class="tk-k">PRIMARY KEY</span>,
+  order_id       <span class="tk-t">INT</span> <span class="tk-k">NOT NULL REFERENCES</span> orders(id) <span class="tk-k">ON DELETE CASCADE</span>,
+  publication_id <span class="tk-t">INT</span> <span class="tk-k">NOT NULL REFERENCES</span> publications(id),
+  quantity       <span class="tk-t">INT</span> <span class="tk-k">NOT NULL CHECK</span> (quantity <span class="tk-k">&gt;</span> 0),
+  unit_price     <span class="tk-t">NUMERIC</span>(8,2) <span class="tk-k">NOT NULL</span>
+);
+<span class="tk-k">CREATE INDEX</span> idx_orders_user <span class="tk-k">ON</span> orders(user_id);
+
+<span class="tk-c">-- 8. Co-working</span>
+<span class="tk-k">CREATE TABLE</span> coworking_spaces (
+  id          <span class="tk-t">SERIAL</span> <span class="tk-k">PRIMARY KEY</span>,
+  name        <span class="tk-t">VARCHAR</span>(80) <span class="tk-k">NOT NULL</span>,
+  capacity    <span class="tk-t">INT</span> <span class="tk-k">NOT NULL CHECK</span> (capacity <span class="tk-k">&gt;</span> 0),
+  description <span class="tk-t">TEXT</span>
+);
+<span class="tk-k">CREATE TABLE</span> reservations (
+  id        <span class="tk-t">SERIAL</span> <span class="tk-k">PRIMARY KEY</span>,
+  space_id  <span class="tk-t">INT</span> <span class="tk-k">NOT NULL REFERENCES</span> coworking_spaces(id),
+  user_id   <span class="tk-t">UUID</span> <span class="tk-k">NOT NULL REFERENCES</span> users(id),
+  start_at  <span class="tk-t">TIMESTAMPTZ</span> <span class="tk-k">NOT NULL</span>,
+  end_at    <span class="tk-t">TIMESTAMPTZ</span> <span class="tk-k">NOT NULL</span>,
+  seats     <span class="tk-t">INT</span> <span class="tk-k">NOT NULL CHECK</span> (seats <span class="tk-k">&gt;</span> 0),
+  <span class="tk-k">CHECK</span> (end_at <span class="tk-k">&gt;</span> start_at)
+);
+<span class="tk-k">CREATE INDEX</span> idx_res_space_time <span class="tk-k">ON</span> reservations(space_id, start_at, end_at);
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 04 SEEDS -->
+<section class="step" id="s4">
+  <div class="prose">
+    <div class="step-num"><span class="bar"></span>Paso 04 · Seeds</div>
+    <h2>Datos de prueba <em>realistas</em></h2>
+    <p>
+      Necesitamos suficientes filas para que los endpoints (top 10, filtros, disponibilidad)
+      devuelvan algo significativo. La actividad recomienda usar IA para generar los
+      <code class="inline">INSERT</code> — ese paso queda documentado en el apartado 11. Aquí va un
+      extracto representativo que puedes ampliar.
+    </p>
+    <h3>Truco para el “top 10 más vendidos”</h3>
+    <p>
+      No hace falta una columna <code class="inline">sales</code>: el ranking sale de
+      <code class="inline">order_items</code> agregando por <code class="inline">publication_id</code>.
+      Eso sí, los seeds deben crear pedidos suficientes para que la consulta tenga sentido.
+    </p>
+    <div class="callout">
+      <b>Convención:</b> mantenemos los IDs explícitos en los seeds para poder referenciarlos sin
+      depender del orden de inserción.
+    </div>
+  </div>
+  <div class="code">
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>db/seed.sql</span><span>INSERT</span></div>
+<pre><span class="tk-c">-- Usuarios</span>
+<span class="tk-k">INSERT INTO</span> users(id, email, name, auth0_sub) <span class="tk-k">VALUES</span>
+ (<span class="tk-s">'11111111-1111-1111-1111-111111111111'</span>, <span class="tk-s">'ana@unir.net'</span>,   <span class="tk-s">'Ana López'</span>,   <span class="tk-s">'google|ana'</span>),
+ (<span class="tk-s">'22222222-2222-2222-2222-222222222222'</span>, <span class="tk-s">'bruno@unir.net'</span>, <span class="tk-s">'Bruno Marín'</span>, <span class="tk-s">'google|bruno'</span>);
+
+<span class="tk-c">-- Categorías (jerárquicas)</span>
+<span class="tk-k">INSERT INTO</span> categories(id, name, parent_id, type) <span class="tk-k">VALUES</span>
+ (1, <span class="tk-s">'Literatura'</span>,    <span class="tk-k">NULL</span>, <span class="tk-s">'book'</span>),
+ (2, <span class="tk-s">'Narrativa'</span>,     1,    <span class="tk-s">'book'</span>),
+ (3, <span class="tk-s">'Novela negra'</span>,  2,    <span class="tk-s">'book'</span>),
+ (4, <span class="tk-s">'Ciencia'</span>,       <span class="tk-k">NULL</span>, <span class="tk-s">'book'</span>),
+ (5, <span class="tk-s">'Divulgación'</span>,   <span class="tk-k">NULL</span>, <span class="tk-s">'magazine'</span>),
+ (6, <span class="tk-s">'Tecnología'</span>,    <span class="tk-k">NULL</span>, <span class="tk-s">'magazine'</span>);
+<span class="tk-k">SELECT setval</span>(<span class="tk-s">'categories_id_seq'</span>, 6);
+
+<span class="tk-c">-- Autores</span>
+<span class="tk-k">INSERT INTO</span> authors(id, name, country) <span class="tk-k">VALUES</span>
+ (1, <span class="tk-s">'Carmen Mola'</span>,      <span class="tk-s">'ES'</span>),
+ (2, <span class="tk-s">'Yuval Noah Harari'</span>, <span class="tk-s">'IL'</span>),
+ (3, <span class="tk-s">'Redacción Wired'</span>,   <span class="tk-s">'US'</span>);
+<span class="tk-k">SELECT setval</span>(<span class="tk-s">'authors_id_seq'</span>, 3);
+
+<span class="tk-c">-- Publicaciones</span>
+<span class="tk-k">INSERT INTO</span> publications
+  (id, title, type, category_id, isbn, price, stock, publication_year, cover_url, synopsis)
+<span class="tk-k">VALUES</span>
+ (1, <span class="tk-s">'La Bestia'</span>,     <span class="tk-s">'book'</span>, 3, <span class="tk-s">'9788408244', 19.90, 30, 2021, NULL, 'Thriller histórico ambientado en Madrid.'</span>),
+ (2, <span class="tk-s">'Sapiens'</span>,       <span class="tk-s">'book'</span>, 4, <span class="tk-s">'9788499926', 22.50, 25, 2014, NULL, 'Una breve historia de la humanidad.'</span>),
+ (3, <span class="tk-s">'Wired Nov-25'</span>,  <span class="tk-s">'magazine', 6, NULL, 6.50, 40, 2025, NULL, 'Especial IA generativa.'</span>),
+ (4, <span class="tk-s">'Muy Interesante'</span>, <span class="tk-s">'magazine', 5, NULL, 4.50, 50, 2025, NULL, 'Divulgación científica.'</span>);
+<span class="tk-k">SELECT setval</span>(<span class="tk-s">'publications_id_seq'</span>, 4);
+
+<span class="tk-c">-- N:M autoría</span>
+<span class="tk-k">INSERT INTO</span> publication_authors <span class="tk-k">VALUES</span> (1,1),(2,2),(3,3),(4,3);
+
+<span class="tk-c">-- Pedidos (para que el TOP funcione)</span>
+<span class="tk-k">INSERT INTO</span> orders(id, user_id, total) <span class="tk-k">VALUES</span>
+ (1, <span class="tk-s">'11111111-1111-1111-1111-111111111111'</span>, 42.40),
+ (2, <span class="tk-s">'22222222-2222-2222-2222-222222222222'</span>, 26.00);
+<span class="tk-k">SELECT setval</span>(<span class="tk-s">'orders_id_seq'</span>, 2);
+
+<span class="tk-k">INSERT INTO</span> order_items(order_id, publication_id, quantity, unit_price) <span class="tk-k">VALUES</span>
+ (1, 1, 1, 19.90),  (1, 3, 1, 6.50),  (1, 4, 4, 4.50),
+ (2, 2, 1, 22.50),  (2, 3, 1, 6.50);
+
+<span class="tk-c">-- Co-working</span>
+<span class="tk-k">INSERT INTO</span> coworking_spaces(id, name, capacity, description) <span class="tk-k">VALUES</span>
+ (1, <span class="tk-s">'Mesa Norte'</span>, 4, <span class="tk-s">'Mesa de trabajo junto a la ventana norte.'</span>),
+ (2, <span class="tk-s">'Sala Quevedo'</span>, 8, <span class="tk-s">'Sala con pizarra y proyector.'</span>),
+ (3, <span class="tk-s">'Cabina Foco'</span>, 1, <span class="tk-s">'Para llamadas o trabajo individual.'</span>);
+<span class="tk-k">SELECT setval</span>(<span class="tk-s">'coworking_spaces_id_seq'</span>, 3);
+
+<span class="tk-c">-- Una reserva activa</span>
+<span class="tk-k">INSERT INTO</span> reservations(space_id, user_id, start_at, end_at, seats) <span class="tk-k">VALUES</span>
+ (2, <span class="tk-s">'11111111-1111-1111-1111-111111111111'</span>,
+  <span class="tk-k">NOW</span>() <span class="tk-k">-</span> <span class="tk-k">INTERVAL</span> <span class="tk-s">'30 minutes'</span>,
+  <span class="tk-k">NOW</span>() <span class="tk-k">+</span> <span class="tk-k">INTERVAL</span> <span class="tk-s">'90 minutes'</span>,
+  3);
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 05 ESTRUCTURA -->
+<section class="step" id="s5">
+  <div class="prose">
+    <div class="step-num"><span class="bar"></span>Paso 05 · Scaffolding</div>
+    <h2>Estructura del proyecto <em>Next.js</em></h2>
+    <p>
+      Usamos el <b>App Router</b> de Next.js 14, donde cada
+      <code class="inline">route.ts</code> dentro de <code class="inline">app/api/…</code> se
+      convierte en un <b>Route Handler</b>. La organización refleja los recursos REST.
+    </p>
+    <h3>Crear el proyecto</h3>
+    <ol>
+      <li><code class="inline">npx create-next-app@latest nexus --typescript --app --eslint</code></li>
+      <li><code class="inline">cd nexus &amp;&amp; npm install pg zod</code></li>
+      <li><code class="inline">npm install -D @types/pg</code></li>
+    </ol>
+    <p>
+      <b>Por qué <code class="inline">zod</code>:</b> nos permite validar los <i>payloads</i> de los
+      endpoints POST sin escribir validaciones a mano.
+    </p>
+    <div class="callout tip">
+      <b>Variables de entorno</b> en <code class="inline">.env.local</code>:<br>
+      <code class="inline">DATABASE_URL=postgres://postgres:nexus@localhost:5432/nexus</code>
+    </div>
+  </div>
+  <div class="code">
+    <div class="tree"><span class="dir">nexus/</span>
+├── <span class="dir">app/</span>
+│   ├── <span class="file">layout.tsx</span>
+│   ├── <span class="file">page.tsx</span>
+│   └── <span class="dir">api/</span>
+│       ├── <span class="dir">publications/</span>
+│       │   ├── <span class="file hi">route.ts</span>          <span class="tk-c"># GET ?type=&amp;year=&amp;categoryId=</span>
+│       │   ├── <span class="dir">top/</span>
+│       │   │   └── <span class="file hi">route.ts</span>      <span class="tk-c"># GET top 10</span>
+│       │   └── <span class="dir">[id]/</span>
+│       │       └── <span class="file hi">route.ts</span>      <span class="tk-c"># GET single</span>
+│       ├── <span class="dir">categories/</span>
+│       │   └── <span class="file">route.ts</span>
+│       ├── <span class="dir">users/</span>
+│       │   └── <span class="dir">[id]/</span>
+│       │       └── <span class="dir">purchases/</span>
+│       │           └── <span class="file">route.ts</span>
+│       ├── <span class="dir">orders/</span>
+│       │   └── <span class="file hi">route.ts</span>          <span class="tk-c"># POST compra</span>
+│       └── <span class="dir">coworking/</span>
+│           ├── <span class="dir">spaces/</span>
+│           │   ├── <span class="file">route.ts</span>
+│           │   └── <span class="dir">[id]/</span>
+│           │       └── <span class="file">route.ts</span>
+│           └── <span class="dir">reservations/</span>
+│               └── <span class="file">route.ts</span>
+├── <span class="dir">lib/</span>
+│   ├── <span class="file">db.ts</span>            <span class="tk-c"># pool de pg</span>
+│   └── <span class="file">schemas.ts</span>       <span class="tk-c"># zod</span>
+├── <span class="dir">db/</span>
+│   ├── <span class="file">schema.sql</span>
+│   └── <span class="file">seed.sql</span>
+├── <span class="file">.env.local</span>
+└── <span class="file">package.json</span></div>
+    <div class="callout">
+      <b>Regla App Router:</b> los archivos especiales son <code class="inline">route.ts</code> para
+      endpoints, y carpetas <code class="inline">[id]</code> para parámetros de ruta dinámicos.
+    </div>
+  </div>
+</section>
+
+<!-- 06 CONEXIÓN -->
+<section class="step" id="s6">
+  <div class="prose">
+    <div class="step-num"><span class="bar"></span>Paso 06 · Conexión</div>
+    <h2>Cliente único de <em>PostgreSQL</em></h2>
+    <p>
+      Usamos un <b>pool</b> de conexiones reutilizable. Si lo declaras como global, evitas que el
+      <i>hot reload</i> en desarrollo abra cien conexiones cada vez que guardas un archivo —
+      problema clásico en Next.js.
+    </p>
+    <p>
+      También definimos un <b>helper</b> <code class="inline">query()</code> tipado para no repetir
+      la misma estructura de <code class="inline">try/catch</code> en cada handler.
+    </p>
+    <h3>Schemas con Zod</h3>
+    <p>
+      Cada endpoint que recibe un cuerpo (POST de pedido, POST de reserva) usa su
+      <code class="inline">z.object</code> para parsear y devolver errores 400 limpios.
+    </p>
+  </div>
+  <div class="code">
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>lib/db.ts</span><span>TypeScript</span></div>
+<pre><span class="tk-k">import</span> { Pool, <span class="tk-k">type</span> QueryResultRow } <span class="tk-k">from</span> <span class="tk-s">'pg'</span>;
+
+<span class="tk-c">// Truco anti hot-reload: una sola instancia por proceso</span>
+<span class="tk-k">declare global</span> {
+  <span class="tk-c">// eslint-disable-next-line no-var</span>
+  <span class="tk-k">var</span> __pgPool: Pool | <span class="tk-k">undefined</span>;
+}
+
+<span class="tk-k">export const</span> pool =
+  global.__pgPool ??
+  <span class="tk-k">new</span> Pool({ connectionString: process.env.DATABASE_URL });
+
+<span class="tk-k">if</span> (process.env.NODE_ENV !== <span class="tk-s">'production'</span>) global.__pgPool = pool;
+
+<span class="tk-k">export async function</span> <span class="tk-f">query</span>&lt;T <span class="tk-k">extends</span> QueryResultRow&gt;(
+  sql: <span class="tk-t">string</span>,
+  params: <span class="tk-t">unknown</span>[] = []
+): Promise&lt;T[]&gt; {
+  <span class="tk-k">const</span> { rows } = <span class="tk-k">await</span> pool.query&lt;T&gt;(sql, params);
+  <span class="tk-k">return</span> rows;
+}
+</pre>
+    </div>
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>lib/schemas.ts</span><span>Zod</span></div>
+<pre><span class="tk-k">import</span> { z } <span class="tk-k">from</span> <span class="tk-s">'zod'</span>;
+
+<span class="tk-k">export const</span> OrderSchema = z.object({
+  userId: z.<span class="tk-f">string</span>().<span class="tk-f">uuid</span>(),
+  items:  z.<span class="tk-f">array</span>(z.object({
+    publicationId: z.<span class="tk-f">number</span>().<span class="tk-f">int</span>().<span class="tk-f">positive</span>(),
+    quantity:      z.<span class="tk-f">number</span>().<span class="tk-f">int</span>().<span class="tk-f">positive</span>()
+  })).<span class="tk-f">min</span>(1)
+});
+
+<span class="tk-k">export const</span> ReservationSchema = z.object({
+  userId:  z.<span class="tk-f">string</span>().<span class="tk-f">uuid</span>(),
+  spaceId: z.<span class="tk-f">number</span>().<span class="tk-f">int</span>().<span class="tk-f">positive</span>(),
+  startAt: z.<span class="tk-f">string</span>().<span class="tk-f">datetime</span>(),
+  endAt:   z.<span class="tk-f">string</span>().<span class="tk-f">datetime</span>(),
+  seats:   z.<span class="tk-f">number</span>().<span class="tk-f">int</span>().<span class="tk-f">positive</span>()
+}).<span class="tk-f">refine</span>(d =&gt; <span class="tk-k">new</span> <span class="tk-f">Date</span>(d.endAt) &gt; <span class="tk-k">new</span> <span class="tk-f">Date</span>(d.startAt),
+  { message: <span class="tk-s">'endAt debe ser posterior a startAt'</span> });
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 07 DISEÑO API -->
+<section class="step" id="s7">
+  <div class="prose">
+    <div class="step-num"><span class="bar"></span>Paso 07 · Diseño REST</div>
+    <h2>Inventario de <em>endpoints</em></h2>
+    <p>
+      Este es el contrato completo que la API debe ofrecer. Se siguen las convenciones REST:
+      sustantivos en plural, jerarquías por anidamiento (<code class="inline">/users/:id/purchases</code>),
+      filtros por <i>query params</i> y verbos HTTP semánticos.
+    </p>
+    <table class="endpoints">
+      <thead>
+        <tr><th>Verbo</th><th>Ruta</th><th>Descripción</th><th>Códigos</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="verb get">GET</span></td><td>/api/publications</td><td>Listado filtrable (<code class="inline">?type=book&amp;year=2024&amp;categoryId=3&amp;q=texto</code>)</td><td>200</td></tr>
+        <tr><td><span class="verb get">GET</span></td><td>/api/publications/top</td><td>Top 10 más vendidos en N días (<code class="inline">?days=30</code>)</td><td>200</td></tr>
+        <tr><td><span class="verb get">GET</span></td><td>/api/publications/:id</td><td>Ficha individual (con autores y categoría)</td><td>200, 404</td></tr>
+        <tr><td><span class="verb get">GET</span></td><td>/api/categories</td><td>Árbol de categorías</td><td>200</td></tr>
+        <tr><td><span class="verb get">GET</span></td><td>/api/users/:id/purchases</td><td>Historial de compras del usuario</td><td>200, 404</td></tr>
+        <tr><td><span class="verb post">POST</span></td><td>/api/orders</td><td>Crear pedido (transacción + descuento de stock)</td><td>201, 400, 409</td></tr>
+        <tr><td><span class="verb get">GET</span></td><td>/api/coworking/spaces</td><td>Lista con estado actual (ocupado / libre)</td><td>200</td></tr>
+        <tr><td><span class="verb get">GET</span></td><td>/api/coworking/spaces/:id</td><td>Detalle + reservas próximas</td><td>200, 404</td></tr>
+        <tr><td><span class="verb post">POST</span></td><td>/api/coworking/reservations</td><td>Crear reserva (valida solapamientos)</td><td>201, 400, 409</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <b>Códigos coherentes:</b><br>
+      <span class="badge">200</span> OK ·
+      <span class="badge alt">201</span> creado ·
+      <span class="badge warn">400</span> payload inválido ·
+      <span class="badge warn">404</span> recurso inexistente ·
+      <span class="badge warn">409</span> conflicto (stock o solape).
+    </div>
+  </div>
+  <div class="code">
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>Convenciones REST aplicadas</span><span>doc</span></div>
+<pre><span class="tk-c">// ✅ Recursos en plural y sustantivos</span>
+GET /api/publications          <span class="tk-c">// no /getPublications</span>
+GET /api/publications/42       <span class="tk-c">// path param para id</span>
+
+<span class="tk-c">// ✅ Filtros = query params (no parte del path)</span>
+GET /api/publications?type=book&amp;year=2024
+
+<span class="tk-c">// ✅ Sub-recursos anidados</span>
+GET /api/users/UUID/purchases  <span class="tk-c">// "las compras de ese usuario"</span>
+
+<span class="tk-c">// ✅ Verbos HTTP correctos</span>
+POST /api/orders               <span class="tk-c">// crear</span>
+<span class="tk-c">// (PUT / DELETE quedarían para Actividad 3 si toca)</span>
+
+<span class="tk-c">// ✅ Respuestas JSON consistentes</span>
+{ <span class="tk-s">"data"</span>: [...] }              <span class="tk-c">// listado</span>
+{ <span class="tk-s">"data"</span>: { ... } }             <span class="tk-c">// recurso</span>
+{ <span class="tk-s">"error"</span>: <span class="tk-s">"mensaje"</span> }         <span class="tk-c">// error</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 08 LIBRERÍA -->
+<section class="step" id="s8">
+  <div class="prose">
+    <div class="step-num"><span class="bar"></span>Paso 08 · Librería</div>
+    <h2>Route Handlers de <em>publicaciones</em></h2>
+    <p>
+      Veamos tres handlers de la librería: el <b>listado filtrable</b>, el <b>top 10</b> y la
+      <b>compra</b>. Todos comparten el mismo patrón: parsear entrada → ejecutar SQL parametrizado
+      (¡nunca concatenar strings!) → devolver <code class="inline">NextResponse.json</code>.
+    </p>
+    <h3>1) Listado con filtros dinámicos</h3>
+    <p>
+      Construimos la cláusula <code class="inline">WHERE</code> incrementalmente, lo que evita
+      <i>SQL injection</i> y permite combinar cualquier subconjunto de filtros.
+    </p>
+    <h3>2) Top 10 con agregación</h3>
+    <p>
+      El ranking se obtiene con un <code class="inline">SUM(quantity)</code> agrupado por
+      publicación, filtrando los pedidos por ventana de tiempo (<code class="inline">?days=30</code>).
+    </p>
+    <h3>3) Crear pedido con transacción</h3>
+    <p>
+      La compra requiere atomicidad: insertar la cabecera, insertar las líneas, descontar el stock y
+      todo debe deshacerse si una línea falla. Usamos <code class="inline">BEGIN/COMMIT/ROLLBACK</code>
+      con un <i>client</i> dedicado del pool. Si el stock no cubre la cantidad, devolvemos
+      <code class="inline">409</code>.
+    </p>
+  </div>
+  <div class="code">
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>app/api/publications/route.ts</span><span>GET listado</span></div>
+<pre><span class="tk-k">import</span> { NextRequest, NextResponse } <span class="tk-k">from</span> <span class="tk-s">'next/server'</span>;
+<span class="tk-k">import</span> { query } <span class="tk-k">from</span> <span class="tk-s">'@/lib/db'</span>;
+
+<span class="tk-k">export async function</span> <span class="tk-f">GET</span>(req: NextRequest) {
+  <span class="tk-k">const</span> sp = req.nextUrl.searchParams;
+  <span class="tk-k">const</span> where: <span class="tk-t">string</span>[] = [];
+  <span class="tk-k">const</span> params: <span class="tk-t">unknown</span>[] = [];
+
+  <span class="tk-k">const</span> push = (cond: <span class="tk-t">string</span>, value: <span class="tk-t">unknown</span>) =&gt; {
+    params.<span class="tk-f">push</span>(value);
+    where.<span class="tk-f">push</span>(cond.<span class="tk-f">replace</span>(<span class="tk-s">'$$'</span>, <span class="tk-s">`$<span class="tk-n">${params.length}</span>`</span>));
+  };
+
+  <span class="tk-k">if</span> (sp.<span class="tk-f">get</span>(<span class="tk-s">'type'</span>))       <span class="tk-f">push</span>(<span class="tk-s">'p.type = $$'</span>,             sp.<span class="tk-f">get</span>(<span class="tk-s">'type'</span>));
+  <span class="tk-k">if</span> (sp.<span class="tk-f">get</span>(<span class="tk-s">'year'</span>))       <span class="tk-f">push</span>(<span class="tk-s">'p.publication_year = $$'</span>, <span class="tk-f">Number</span>(sp.<span class="tk-f">get</span>(<span class="tk-s">'year'</span>)));
+  <span class="tk-k">if</span> (sp.<span class="tk-f">get</span>(<span class="tk-s">'categoryId'</span>)) <span class="tk-f">push</span>(<span class="tk-s">'p.category_id = $$'</span>,      <span class="tk-f">Number</span>(sp.<span class="tk-f">get</span>(<span class="tk-s">'categoryId'</span>)));
+  <span class="tk-k">if</span> (sp.<span class="tk-f">get</span>(<span class="tk-s">'q'</span>))          <span class="tk-f">push</span>(<span class="tk-s">'p.title ILIKE $$'</span>,         <span class="tk-s">`%<span class="tk-n">${sp.get(<span class="tk-s">'q'</span>)}</span>%`</span>);
+
+  <span class="tk-k">const</span> sql = <span class="tk-s">`
+    SELECT p.id, p.title, p.type, p.price, p.stock, p.publication_year,
+           p.cover_url, c.name AS category_name
+    FROM publications p
+    JOIN categories c ON c.id = p.category_id
+    <span class="tk-n">${</span>where.length ? <span class="tk-s">'WHERE '</span> + where.<span class="tk-f">join</span>(<span class="tk-s">' AND '</span>) : <span class="tk-s">''</span><span class="tk-n">}</span>
+    ORDER BY p.created_at DESC
+    LIMIT 100`</span>;
+
+  <span class="tk-k">const</span> rows = <span class="tk-k">await</span> <span class="tk-f">query</span>(sql, params);
+  <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>({ data: rows });
+}
+</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>app/api/publications/top/route.ts</span><span>GET top 10</span></div>
+<pre><span class="tk-k">import</span> { NextRequest, NextResponse } <span class="tk-k">from</span> <span class="tk-s">'next/server'</span>;
+<span class="tk-k">import</span> { query } <span class="tk-k">from</span> <span class="tk-s">'@/lib/db'</span>;
+
+<span class="tk-k">export async function</span> <span class="tk-f">GET</span>(req: NextRequest) {
+  <span class="tk-k">const</span> days = <span class="tk-f">Number</span>(req.nextUrl.searchParams.<span class="tk-f">get</span>(<span class="tk-s">'days'</span>) ?? 30);
+
+  <span class="tk-k">const</span> rows = <span class="tk-k">await</span> <span class="tk-f">query</span>(<span class="tk-s">`
+    SELECT p.id, p.title, p.cover_url, p.price,
+           SUM(oi.quantity)::int AS sold
+    FROM order_items oi
+    JOIN orders o       ON o.id = oi.order_id
+    JOIN publications p ON p.id = oi.publication_id
+    WHERE o.created_at &gt;= NOW() - ($1 || ' days')::interval
+    GROUP BY p.id
+    ORDER BY sold DESC
+    LIMIT 10`</span>, [days]);
+
+  <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>({ data: rows });
+}
+</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>app/api/orders/route.ts</span><span>POST · transacción</span></div>
+<pre><span class="tk-k">import</span> { NextRequest, NextResponse } <span class="tk-k">from</span> <span class="tk-s">'next/server'</span>;
+<span class="tk-k">import</span> { pool } <span class="tk-k">from</span> <span class="tk-s">'@/lib/db'</span>;
+<span class="tk-k">import</span> { OrderSchema } <span class="tk-k">from</span> <span class="tk-s">'@/lib/schemas'</span>;
+
+<span class="tk-k">export async function</span> <span class="tk-f">POST</span>(req: NextRequest) {
+  <span class="tk-k">const</span> parsed = OrderSchema.<span class="tk-f">safeParse</span>(<span class="tk-k">await</span> req.<span class="tk-f">json</span>());
+  <span class="tk-k">if</span> (!parsed.success)
+    <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>({ error: parsed.error.flatten() }, { status: 400 });
+
+  <span class="tk-k">const</span> { userId, items } = parsed.data;
+  <span class="tk-k">const</span> client = <span class="tk-k">await</span> pool.<span class="tk-f">connect</span>();
+
+  <span class="tk-k">try</span> {
+    <span class="tk-k">await</span> client.<span class="tk-f">query</span>(<span class="tk-s">'BEGIN'</span>);
+
+    <span class="tk-c">// 1) Bloqueamos las filas de las publicaciones implicadas (FOR UPDATE)</span>
+    <span class="tk-k">const</span> ids = items.<span class="tk-f">map</span>(i =&gt; i.publicationId);
+    <span class="tk-k">const</span> { rows: pubs } = <span class="tk-k">await</span> client.<span class="tk-f">query</span>(
+      <span class="tk-s">`SELECT id, price, stock FROM publications WHERE id = ANY($1) FOR UPDATE`</span>,
+      [ids]
+    );
+
+    <span class="tk-c">// 2) Comprobamos stock</span>
+    <span class="tk-k">let</span> total = 0;
+    <span class="tk-k">for</span> (<span class="tk-k">const</span> it <span class="tk-k">of</span> items) {
+      <span class="tk-k">const</span> p = pubs.<span class="tk-f">find</span>((x: <span class="tk-t">any</span>) =&gt; x.id === it.publicationId);
+      <span class="tk-k">if</span> (!p)         <span class="tk-k">throw new</span> <span class="tk-f">Error</span>(<span class="tk-s">`NOT_FOUND:<span class="tk-n">${it.publicationId}</span>`</span>);
+      <span class="tk-k">if</span> (p.stock &lt; it.quantity) <span class="tk-k">throw new</span> <span class="tk-f">Error</span>(<span class="tk-s">`OUT_OF_STOCK:<span class="tk-n">${p.id}</span>`</span>);
+      total += <span class="tk-f">Number</span>(p.price) * it.quantity;
+    }
+
+    <span class="tk-c">// 3) Cabecera</span>
+    <span class="tk-k">const</span> { rows: ord } = <span class="tk-k">await</span> client.<span class="tk-f">query</span>(
+      <span class="tk-s">`INSERT INTO orders(user_id, total) VALUES ($1,$2) RETURNING id, created_at`</span>,
+      [userId, total]
+    );
+    <span class="tk-k">const</span> orderId = ord[0].id;
+
+    <span class="tk-c">// 4) Líneas + descuento de stock</span>
+    <span class="tk-k">for</span> (<span class="tk-k">const</span> it <span class="tk-k">of</span> items) {
+      <span class="tk-k">const</span> p = pubs.<span class="tk-f">find</span>((x: <span class="tk-t">any</span>) =&gt; x.id === it.publicationId);
+      <span class="tk-k">await</span> client.<span class="tk-f">query</span>(
+        <span class="tk-s">`INSERT INTO order_items(order_id, publication_id, quantity, unit_price)
+         VALUES ($1,$2,$3,$4)`</span>,
+        [orderId, it.publicationId, it.quantity, p.price]
+      );
+      <span class="tk-k">await</span> client.<span class="tk-f">query</span>(
+        <span class="tk-s">`UPDATE publications SET stock = stock - $1 WHERE id = $2`</span>,
+        [it.quantity, it.publicationId]
+      );
+    }
+
+    <span class="tk-k">await</span> client.<span class="tk-f">query</span>(<span class="tk-s">'COMMIT'</span>);
+    <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>(
+      { data: { id: orderId, total, items } },
+      { status: 201 }
+    );
+  } <span class="tk-k">catch</span> (e: <span class="tk-t">any</span>) {
+    <span class="tk-k">await</span> client.<span class="tk-f">query</span>(<span class="tk-s">'ROLLBACK'</span>);
+    <span class="tk-k">if</span> (e.message?.<span class="tk-f">startsWith</span>(<span class="tk-s">'OUT_OF_STOCK'</span>))
+      <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>({ error: e.message }, { status: 409 });
+    <span class="tk-k">if</span> (e.message?.<span class="tk-f">startsWith</span>(<span class="tk-s">'NOT_FOUND'</span>))
+      <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>({ error: e.message }, { status: 404 });
+    <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>({ error: <span class="tk-s">'Error interno'</span> }, { status: 500 });
+  } <span class="tk-k">finally</span> {
+    client.<span class="tk-f">release</span>();
+  }
+}
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 09 COWORKING -->
+<section class="step" id="s9">
+  <div class="prose">
+    <div class="step-num"><span class="bar"></span>Paso 09 · Co-working</div>
+    <h2>Disponibilidad y <em>reservas</em></h2>
+    <p>
+      Para el listado, calculamos en SQL el estado actual de cada espacio con un
+      <code class="inline">LEFT JOIN LATERAL</code> que trae la reserva activa
+      <i>justo ahora</i> (<code class="inline">NOW()</code> entre <code class="inline">start_at</code> y
+      <code class="inline">end_at</code>) y la próxima en el futuro.
+    </p>
+    <p>
+      Para crear reservas, debemos comprobar que <b>no haya solapamiento</b> entre intervalos. La
+      lógica clásica:
+      <code class="inline">existing.start_at &lt; new.end_at AND existing.end_at &gt; new.start_at</code>.
+      Devolvemos <code class="inline">409</code> si lo hay.
+    </p>
+    <div class="callout tip">
+      <b>Reservas parciales:</b> si <code class="inline">SUM(seats) + nueva_reserva &gt; capacity</code>,
+      tampoco se admite. Mostrarlo en la vídeo memoria suma puntos en el criterio 3.
+    </div>
+  </div>
+  <div class="code">
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>app/api/coworking/spaces/route.ts</span><span>GET</span></div>
+<pre><span class="tk-k">import</span> { NextResponse } <span class="tk-k">from</span> <span class="tk-s">'next/server'</span>;
+<span class="tk-k">import</span> { query } <span class="tk-k">from</span> <span class="tk-s">'@/lib/db'</span>;
+
+<span class="tk-k">export async function</span> <span class="tk-f">GET</span>() {
+  <span class="tk-k">const</span> rows = <span class="tk-k">await</span> <span class="tk-f">query</span>(<span class="tk-s">`
+    SELECT s.id, s.name, s.capacity, s.description,
+           cur.start_at  AS occupied_since,
+           cur.end_at    AS occupied_until,
+           cur.user_name AS occupied_by,
+           nxt.start_at  AS next_start
+    FROM coworking_spaces s
+    LEFT JOIN LATERAL (
+      SELECT r.start_at, r.end_at, u.name AS user_name
+      FROM reservations r JOIN users u ON u.id = r.user_id
+      WHERE r.space_id = s.id
+        AND NOW() BETWEEN r.start_at AND r.end_at
+      LIMIT 1
+    ) cur ON true
+    LEFT JOIN LATERAL (
+      SELECT r.start_at
+      FROM reservations r
+      WHERE r.space_id = s.id AND r.start_at &gt; NOW()
+      ORDER BY r.start_at ASC LIMIT 1
+    ) nxt ON true
+    ORDER BY s.id`</span>);
+
+  <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>({ data: rows });
+}
+</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>app/api/coworking/reservations/route.ts</span><span>POST · sin solapes</span></div>
+<pre><span class="tk-k">import</span> { NextRequest, NextResponse } <span class="tk-k">from</span> <span class="tk-s">'next/server'</span>;
+<span class="tk-k">import</span> { pool } <span class="tk-k">from</span> <span class="tk-s">'@/lib/db'</span>;
+<span class="tk-k">import</span> { ReservationSchema } <span class="tk-k">from</span> <span class="tk-s">'@/lib/schemas'</span>;
+
+<span class="tk-k">export async function</span> <span class="tk-f">POST</span>(req: NextRequest) {
+  <span class="tk-k">const</span> parsed = ReservationSchema.<span class="tk-f">safeParse</span>(<span class="tk-k">await</span> req.<span class="tk-f">json</span>());
+  <span class="tk-k">if</span> (!parsed.success)
+    <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>({ error: parsed.error.flatten() }, { status: 400 });
+
+  <span class="tk-k">const</span> { userId, spaceId, startAt, endAt, seats } = parsed.data;
+  <span class="tk-k">const</span> client = <span class="tk-k">await</span> pool.<span class="tk-f">connect</span>();
+
+  <span class="tk-k">try</span> {
+    <span class="tk-k">await</span> client.<span class="tk-f">query</span>(<span class="tk-s">'BEGIN'</span>);
+
+    <span class="tk-c">// 1) Capacidad del espacio</span>
+    <span class="tk-k">const</span> { rows: sp } = <span class="tk-k">await</span> client.<span class="tk-f">query</span>(
+      <span class="tk-s">`SELECT capacity FROM coworking_spaces WHERE id = $1 FOR UPDATE`</span>,
+      [spaceId]
+    );
+    <span class="tk-k">if</span> (!sp.length)
+      <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>({ error: <span class="tk-s">'Espacio no encontrado'</span> }, { status: 404 });
+
+    <span class="tk-c">// 2) Comprobamos solapamientos y aforo</span>
+    <span class="tk-k">const</span> { rows: occ } = <span class="tk-k">await</span> client.<span class="tk-f">query</span>(<span class="tk-s">`
+      SELECT COALESCE(SUM(seats), 0)::int AS taken
+      FROM reservations
+      WHERE space_id = $1
+        AND start_at &lt; $3
+        AND end_at   &gt; $2`</span>,
+      [spaceId, startAt, endAt]);
+
+    <span class="tk-k">if</span> (occ[0].taken + seats &gt; sp[0].capacity) {
+      <span class="tk-k">await</span> client.<span class="tk-f">query</span>(<span class="tk-s">'ROLLBACK'</span>);
+      <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>(
+        { error: <span class="tk-s">'Aforo superado en el tramo solicitado'</span> },
+        { status: 409 });
+    }
+
+    <span class="tk-c">// 3) Insertamos</span>
+    <span class="tk-k">const</span> { rows: r } = <span class="tk-k">await</span> client.<span class="tk-f">query</span>(<span class="tk-s">`
+      INSERT INTO reservations(space_id, user_id, start_at, end_at, seats)
+      VALUES ($1,$2,$3,$4,$5)
+      RETURNING id, start_at, end_at`</span>,
+      [spaceId, userId, startAt, endAt, seats]);
+
+    <span class="tk-k">await</span> client.<span class="tk-f">query</span>(<span class="tk-s">'COMMIT'</span>);
+    <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>({ data: r[0] }, { status: 201 });
+  } <span class="tk-k">catch</span> {
+    <span class="tk-k">await</span> client.<span class="tk-f">query</span>(<span class="tk-s">'ROLLBACK'</span>);
+    <span class="tk-k">return</span> NextResponse.<span class="tk-f">json</span>({ error: <span class="tk-s">'Error interno'</span> }, { status: 500 });
+  } <span class="tk-k">finally</span> {
+    client.<span class="tk-f">release</span>();
+  }
+}
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 10 POSTMAN -->
+<section class="step" id="s10">
+  <div class="prose">
+    <div class="step-num"><span class="bar"></span>Paso 10 · Pruebas</div>
+    <h2>Probar la API con <em>Postman</em></h2>
+    <p>
+      Arranca el proyecto con <code class="inline">npm run dev</code>: la API responde en
+      <code class="inline">http://localhost:3000</code>. Crea una <b>Collection</b> en Postman llamada
+      <i>Nexus API</i> con una variable <code class="inline">{{base}}</code> apuntando a esa URL.
+      Recomendado: dos folders, <i>Librería</i> y <i>Co-working</i>.
+    </p>
+    <h3>Casos imprescindibles a grabar en la vídeo memoria</h3>
+    <ol>
+      <li><b>GET</b> <code class="inline">{{base}}/api/publications/top</code> → 10 resultados.</li>
+      <li><b>GET</b> <code class="inline">{{base}}/api/publications?type=book&amp;year=2021</code> → filtros combinados.</li>
+      <li><b>POST</b> <code class="inline">{{base}}/api/orders</code> con el JSON de la derecha → respuesta <code class="inline">201</code>.</li>
+      <li><b>POST</b> repetido con cantidad excesiva → respuesta <code class="inline">409 OUT_OF_STOCK</code>.</li>
+      <li><b>GET</b> <code class="inline">{{base}}/api/coworking/spaces</code> → ver el ocupado.</li>
+      <li><b>POST</b> reserva solapada → <code class="inline">409</code>.</li>
+    </ol>
+    <div class="callout tip">
+      <b>Atajo:</b> exporta la Collection a JSON y súbela junto al proyecto. Demuestra trazabilidad
+      de las pruebas y suele puntuar mejor que solo capturas.
+    </div>
+  </div>
+  <div class="code">
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>POST /api/orders</span><span>body · JSON</span></div>
+<pre>{
+  <span class="tk-s">"userId"</span>: <span class="tk-s">"11111111-1111-1111-1111-111111111111"</span>,
+  <span class="tk-s">"items"</span>: [
+    { <span class="tk-s">"publicationId"</span>: 1, <span class="tk-s">"quantity"</span>: 1 },
+    { <span class="tk-s">"publicationId"</span>: 4, <span class="tk-s">"quantity"</span>: 2 }
+  ]
+}
+</pre>
+    </div>
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>POST /api/coworking/reservations</span><span>body · JSON</span></div>
+<pre>{
+  <span class="tk-s">"userId"</span>:  <span class="tk-s">"22222222-2222-2222-2222-222222222222"</span>,
+  <span class="tk-s">"spaceId"</span>: 1,
+  <span class="tk-s">"startAt"</span>: <span class="tk-s">"2026-05-21T09:00:00Z"</span>,
+  <span class="tk-s">"endAt"</span>:   <span class="tk-s">"2026-05-21T11:00:00Z"</span>,
+  <span class="tk-s">"seats"</span>:   2
+}
+</pre>
+    </div>
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>Respuesta 201</span><span>orders</span></div>
+<pre>{
+  <span class="tk-s">"data"</span>: {
+    <span class="tk-s">"id"</span>: 3,
+    <span class="tk-s">"total"</span>: 28.90,
+    <span class="tk-s">"items"</span>: [
+      { <span class="tk-s">"publicationId"</span>: 1, <span class="tk-s">"quantity"</span>: 1 },
+      { <span class="tk-s">"publicationId"</span>: 4, <span class="tk-s">"quantity"</span>: 2 }
+    ]
+  }
+}
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 11 IA -->
+<section class="step" id="s11">
+  <div class="prose">
+    <div class="step-num"><span class="bar"></span>Paso 11 · IA generativa</div>
+    <h2>Documentar el uso de <em>IA</em></h2>
+    <p>
+      El enunciado es claro: usar IA es <b>obligatorio</b> para (a) generar el modelo relacional
+      DDL y (b) los <code class="inline">INSERT</code> de prueba. En la vídeo memoria debes mostrar
+      <b>prompts</b>, <b>resultados</b> y un análisis cuantitativo.
+    </p>
+    <h3>Plantilla de prompt para el modelo relacional</h3>
+    <p>
+      Cuanto más explícito seas con entidades, atributos y relaciones, menos correcciones tendrás
+      que hacer después. Dale a la IA <i>exactamente</i> el bloque de la derecha y exige PostgreSQL.
+    </p>
+    <h3>Métricas que tienes que reportar</h3>
+    <ul>
+      <li>% de respuestas correctas / parcialmente correctas / incorrectas.</li>
+      <li>Líneas de código generadas con IA (aprox.).</li>
+      <li>Tiempo estimado ahorrado.</li>
+    </ul>
+    <div class="callout warn">
+      <b>Importante:</b> aunque uses IA, <b>siempre</b> revisa el DDL. Errores típicos: poner
+      <code class="inline">ON DELETE CASCADE</code> donde no toca, usar <code class="inline">FLOAT</code>
+      en vez de <code class="inline">NUMERIC</code> para dinero, olvidar <code class="inline">CHECK</code>s.
+    </div>
+  </div>
+  <div class="code">
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>prompt-ddl.md</span><span>plantilla</span></div>
+<pre><span class="tk-c">Eres un experto en bases de datos PostgreSQL.</span>
+<span class="tk-c">Genera el script DDL completo para una aplicación llamada Nexus que tiene</span>
+<span class="tk-c">dos módulos: una librería universitaria y un co-working.</span>
+
+<span class="tk-k">Entidades:</span>
+- users        (id UUID, email único, name, auth0_sub)
+- categories   (jerárquicas, parent_id autoreferencial, type=book|magazine)
+- publications (libros y revistas en una sola tabla, type discriminador)
+- authors      (N:M con publications)
+- orders + order_items (compra con líneas)
+- coworking_spaces (capacity)
+- reservations (space_id, user_id, start_at, end_at, seats)
+
+<span class="tk-k">Requisitos:</span>
+1. UUID para users, SERIAL para el resto.
+2. NUMERIC(8,2) para precios; nunca FLOAT.
+3. Claves foráneas con ON DELETE coherente.
+4. Restricciones CHECK donde aporten (stock&gt;=0, end_at&gt;start_at).
+5. Índices en publication_year, category_id y (space_id, start_at, end_at).
+6. Script idempotente: DROP IF EXISTS al inicio.
+
+<span class="tk-k">Salida:</span> solo SQL, sin explicaciones.
+</pre>
+    </div>
+    <div class="code-block">
+      <div class="filename"><span><span class="dots"><i></i><i></i><i></i></span>prompt-seeds.md</span><span>plantilla</span></div>
+<pre><span class="tk-c">A partir del esquema anterior, genera INSERT realistas:</span>
+- 5 usuarios (con UUIDs explícitos).
+- 6 categorías jerárquicas (al menos un nivel anidado).
+- 20 publicaciones (mezcla libros 2018-2025 y revistas).
+- 8 autores.
+- 6 pedidos con varias líneas, fechas escalonadas en 30 días.
+- 4 espacios de coworking con capacidades 1, 4, 6, 8.
+- 5 reservas, una de ellas activa NOW().
+
+<span class="tk-k">Restricciones:</span>
+- Mantén la integridad referencial.
+- Usa setval() para reajustar las secuencias después de IDs explícitos.
+- No inventes columnas que no estén en el DDL.
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 12 ENTREGA -->
+<section class="step single" id="s12">
+  <div class="prose">
+    <div class="step-num"><span class="bar"></span>Paso 12 · Entrega final</div>
+    <h2>Cierre, <em>ZIP</em> y vídeo memoria</h2>
+    <p>
+      La entrega es un único ZIP. Asegúrate de que cumple <b>al pie de la letra</b> lo que pide el
+      enunciado:
+    </p>
+    <ol>
+      <li><b><code class="inline">Autores.txt</code></b> — solo si la entrega es en grupo.</li>
+      <li><b>Proyecto Next.js sin <code class="inline">node_modules</code></b> y sin comprimir
+        internamente.</li>
+      <li><b><code class="inline">schema.sql</code></b> (y opcionalmente <code class="inline">seed.sql</code>) en la raíz.</li>
+      <li><b>Vídeo memoria MP4</b> (≤ 15 min) con todos los integrantes participando tiempos similares.</li>
+    </ol>
+    <h3>Guion sugerido de la vídeo memoria</h3>
+    <ol>
+      <li><b>00:00 – 03:00</b> · Modelo de datos: abrir DBeaver / DataGrip, mostrar el diagrama
+        sobre la BD ya creada, justificar cardinalidades.</li>
+      <li><b>03:00 – 07:00</b> · API REST: enseñar 3 ó 4 route handlers (listado, top, compra y reserva)
+        y explicar dónde se usan transacciones.</li>
+      <li><b>07:00 – 11:00</b> · Pruebas con Postman: caso feliz + 2 casos de error (409 por stock,
+        409 por solape).</li>
+      <li><b>11:00 – 14:00</b> · Uso de IA: prompts, resultados, % aciertos, líneas y tiempo
+        ahorrado.</li>
+      <li><b>14:00 – 15:00</b> · Conclusiones y feedback.</li>
+    </ol>
+    <div class="callout tip">
+      <b>Tip final:</b> revisa la <b>rúbrica</b>: criterios 2 y 4 valen 20% cada uno. Dedica esfuerzo
+      proporcional a tener una BD bien ingestada y endpoints robustos (validación + códigos HTTP
+      correctos + transacciones).
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <h4>Nexus · Actividad 2</h4>
+  <p>
+    Guía didáctica generada como ayuda al estudio. Adapta nombres, decisiones de diseño y datos a tu
+    propio proyecto antes de entregar. La rúbrica premia <b>justificación</b> y <b>buenas prácticas</b>,
+    no la coincidencia literal con este documento.
+  </p>
+  <p style="margin-top:18px">
+    <span class="badge">Next.js 14 · App Router</span>
+    <span class="badge alt">PostgreSQL 16</span>
+    <span class="badge warn">node-postgres</span>
+    <span class="badge">Zod</span>
+  </p>
+</footer>
+
+</body>
+</html>
