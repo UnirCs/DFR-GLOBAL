@@ -720,6 +720,7 @@ button.ghost:hover { background: var(--bg-3); color: var(--ink); }
   width: calc(100% - 24px);
   padding: 0;
 }
+.term-cursor {
   display: inline-block;
   width: 8px; height: 14px;
   background: var(--acc);
@@ -1971,11 +1972,6 @@ figure.diagram figcaption {
   <ol>
     <li><a href="#m11">Proxies / middleware</a></li>
     <li><a href="#m12">Redirect vs rewrite</a></li>
-  </ol>
-
-  <h4 style="margin-top:36px">Apéndice</h4>
-  <ol>
-    <li><a href="#m15">Server vs Client Components</a></li>
   </ol>
 
   <h4 style="margin-top:36px">Cierre</h4>
@@ -4584,64 +4580,342 @@ DATABASE_URL=<span class="c-str">postgres://postgres:secret@localhost:5432/coche
 <!-- ============================================================ -->
 <section class="module" id="m11">
 <div class="label">Módulo 11 — Sesión III</div>
-<h2><em>Proxies</em>: lógica transversal.</h2>
+<h2><em>Proxies</em>: el guardia de seguridad de tu app.</h2>
 
 <p>
-Imagina que tienes 50 endpoints y todos necesitan comprobar si el usuario está logueado. ¿Vas a escribir esa comprobación 50 veces? <strong>No.</strong> Para eso están los <strong>proxies</strong> (en Next.js antiguo se llamaban <em>middleware</em>).
+Antes de empezar con código, una analogía. Imagina que tu aplicación es un edificio de oficinas. Cada oficina (una página, un endpoint) tiene una puerta donde puede entrar gente. ¿Qué pasaría si <strong>antes de cada puerta</strong> hubiera un guardia que comprueba quién entra, anota un número de visita en una libreta y, si la persona no tiene permiso, la manda de vuelta a recepción?
 </p>
 
 <p>
-Un <strong>proxy</strong> es un punto de <em>interceptación</em>: un código que se ejecuta <strong>antes</strong> de que la petición llegue a su destino (página, server component o route handler). Puede:
+Eso es exactamente un <strong>proxy</strong>: un trozo de código que se ejecuta <em>justo antes</em> de que cualquier petición llegue a su destino. Una sola pieza de código que vigila <em>todas</em> las puertas a la vez.
 </p>
 
-<div class="cards-3">
-  <div class="mini-card"><div class="t">1 · Continuar</div><p style="font-size:14px;color:var(--ink);margin:6px 0 0">Llamar a <code>next()</code>: la petición sigue su curso.</p></div>
-  <div class="mini-card"><div class="t">2 · Redirigir</div><p style="font-size:14px;color:var(--ink);margin:6px 0 0">Mandar al cliente a otra URL (la URL <em>cambia</em> en el navegador).</p></div>
-  <div class="mini-card"><div class="t">3 · Reescribir</div><p style="font-size:14px;color:var(--ink);margin:6px 0 0">Servir contenido de otra ruta sin cambiar la URL visible.</p></div>
+
+<h3>¿Para qué sirve un proxy?</h3>
+
+<p>El problema que resuelve es muy concreto. Imagina que en tu app tienes 50 endpoints distintos (<code>/api/v1/cars</code>, <code>/api/v1/orders</code>, <code>/api/v1/users</code>...) y todos necesitan comprobar si el usuario está logueado antes de responder. Sin un proxy, tendrías que <strong>copiar el mismo código de comprobación</strong> en los 50 archivos. Si un día cambias cómo se gestionan las sesiones, te toca modificar 50 sitios.</p>
+
+<p>Con un proxy, escribes esa comprobación <strong>una sola vez</strong> en un sitio centralizado, y se aplica automáticamente a todas las rutas que tú decidas.</p>
+
+<div class="callout">
+  <div class="callout-title">"¿Y qué es un middleware?"</div>
+  <p style="margin:6px 0; font-size:14.5px">Si vienes de Express.js o Node tradicional, te sonará la palabra <strong>middleware</strong>: código que vive "en medio" (de ahí el nombre) entre la petición y la respuesta. Es <em>la misma idea</em> que un proxy. De hecho, hasta Next.js 15, este archivo se llamaba <code>middleware.js</code> y la función <code>middleware()</code>. Desde Next.js 16, App Router lo renombró a <code>proxy.js</code> y <code>proxy()</code> porque la palabra "middleware" sugería <em>cadena de middlewares</em> (uno tras otro, como en Express), y aquí solo hay un único archivo. <strong>Si ves cualquiera de los dos nombres en tutoriales, es lo mismo.</strong></p>
 </div>
 
-<h4>El archivo <code>proxy.js</code></h4>
 
-<pre><code><span class="tk-com">// proxy.js (en la raíz del proyecto, junto a app/)</span>
+<h3>Las tres cosas que un proxy puede hacer</h3>
+
+<p>Cuando llega una petición, el proxy puede decidir entre tres acciones:</p>
+
+<div class="cards-3">
+  <div class="mini-card">
+    <div class="t">1 · Dejar pasar</div>
+    <p style="font-size:14px;color:var(--ink);margin:6px 0 0">Llama a <code>NextResponse.next()</code> y la petición sigue su curso normal hasta el endpoint o la página.</p>
+    <p style="font-size:13px; color:var(--ink-3); margin:6px 0 0; font-style:italic">→ "Adelante, puede pasar."</p>
+  </div>
+  <div class="mini-card">
+    <div class="t">2 · Redirigir</div>
+    <p style="font-size:14px;color:var(--ink);margin:6px 0 0">Manda al cliente a otra URL distinta con <code>NextResponse.redirect()</code>. La URL <strong>cambia</strong> en el navegador.</p>
+    <p style="font-size:13px; color:var(--ink-3); margin:6px 0 0; font-style:italic">→ "No puede entrar, vaya a la recepción."</p>
+  </div>
+  <div class="mini-card">
+    <div class="t">3 · Reescribir</div>
+    <p style="font-size:14px;color:var(--ink);margin:6px 0 0">Sirve contenido de otra ruta interna con <code>NextResponse.rewrite()</code>. La URL del navegador <strong>no cambia</strong>.</p>
+    <p style="font-size:13px; color:var(--ink-3); margin:6px 0 0; font-style:italic">→ "Pasa, pero le llevo a otra oficina sin que se entere."</p>
+  </div>
+</div>
+
+<p style="margin-top:18px"><em>Los puntos 2 y 3 los desarrollamos en el módulo siguiente — son la distinción más confusa al empezar.</em></p>
+
+
+<h3>¿Dónde vive el proxy en tu proyecto Next.js?</h3>
+
+<p>Esta es <strong>la pregunta clave</strong> para no perderse: el archivo <code>proxy.js</code> va en la <strong>raíz del proyecto, al mismo nivel que la carpeta <code>app/</code></strong>. No dentro de <code>app/</code>, no dentro de <code>lib/</code>. En la raíz.</p>
+
+<figure class="diagram" style="padding:24px">
+  <svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; display:block">
+    <text x="350" y="22" font-family="Fraunces" font-style="italic" font-size="15" fill="#a8b0bd" text-anchor="middle">Estructura de carpetas de tu proyecto Next.js</text>
+
+    <!-- Carpeta raíz -->
+    <text x="40" y="60" font-family="IBM Plex Mono" font-size="13" fill="#a8b0bd">📁</text>
+    <text x="64" y="60" font-family="IBM Plex Mono" font-size="13" fill="#ffffff" font-weight="600">mi-proyecto/</text>
+
+    <!-- app/ -->
+    <text x="80" y="92" font-family="IBM Plex Mono" font-size="13" fill="#a8b0bd">├─ 📁</text>
+    <text x="128" y="92" font-family="IBM Plex Mono" font-size="13" fill="#e2e6ec">app/</text>
+    <text x="180" y="92" font-family="IBM Plex Mono" font-size="11.5" fill="#6e7681" font-style="italic">← tus páginas y endpoints</text>
+
+    <!-- app/api/ -->
+    <text x="120" y="118" font-family="IBM Plex Mono" font-size="13" fill="#a8b0bd">├─ 📁</text>
+    <text x="168" y="118" font-family="IBM Plex Mono" font-size="13" fill="#e2e6ec">api/</text>
+    <text x="120" y="144" font-family="IBM Plex Mono" font-size="13" fill="#a8b0bd">├─ 📁</text>
+    <text x="168" y="144" font-family="IBM Plex Mono" font-size="13" fill="#e2e6ec">admin/</text>
+    <text x="120" y="170" font-family="IBM Plex Mono" font-size="13" fill="#a8b0bd">├─ 📁</text>
+    <text x="168" y="170" font-family="IBM Plex Mono" font-size="13" fill="#e2e6ec">login/</text>
+    <text x="120" y="196" font-family="IBM Plex Mono" font-size="13" fill="#a8b0bd">└─ 📄</text>
+    <text x="168" y="196" font-family="IBM Plex Mono" font-size="13" fill="#e2e6ec">page.js</text>
+
+    <!-- lib/ -->
+    <text x="80" y="228" font-family="IBM Plex Mono" font-size="13" fill="#a8b0bd">├─ 📁</text>
+    <text x="128" y="228" font-family="IBM Plex Mono" font-size="13" fill="#e2e6ec">lib/</text>
+
+    <!-- public/ -->
+    <text x="80" y="254" font-family="IBM Plex Mono" font-size="13" fill="#a8b0bd">├─ 📁</text>
+    <text x="128" y="254" font-family="IBM Plex Mono" font-size="13" fill="#e2e6ec">public/</text>
+
+    <!-- proxy.js (DESTACADO) -->
+    <rect x="60" y="270" width="380" height="32" rx="6" fill="rgba(134,239,172,0.10)" stroke="#86efac" stroke-width="2"/>
+    <text x="80" y="290" font-family="IBM Plex Mono" font-size="13" fill="#86efac">├─ 📄</text>
+    <text x="128" y="290" font-family="IBM Plex Mono" font-size="13" fill="#86efac" font-weight="700">proxy.js</text>
+    <text x="225" y="290" font-family="IBM Plex Mono" font-size="12" fill="#86efac">← AQUÍ va tu proxy</text>
+
+    <!-- package.json, etc -->
+    <text x="80" y="324" font-family="IBM Plex Mono" font-size="13" fill="#a8b0bd">├─ 📄</text>
+    <text x="128" y="324" font-family="IBM Plex Mono" font-size="13" fill="#6e7681">package.json</text>
+    <text x="80" y="350" font-family="IBM Plex Mono" font-size="13" fill="#a8b0bd">├─ 📄</text>
+    <text x="128" y="350" font-family="IBM Plex Mono" font-size="13" fill="#6e7681">next.config.js</text>
+    <text x="80" y="370" font-family="IBM Plex Mono" font-size="13" fill="#a8b0bd">└─ 📄</text>
+    <text x="128" y="370" font-family="IBM Plex Mono" font-size="13" fill="#6e7681">.env.local</text>
+
+    <!-- Flecha indicadora -->
+    <path d="M 470 286 Q 540 240 540 200" stroke="#86efac" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/>
+    <rect x="500" y="100" width="180" height="90" rx="6" fill="#181b21" stroke="#86efac" stroke-width="1.5"/>
+    <text x="590" y="124" font-family="IBM Plex Mono" font-size="10.5" fill="#86efac" text-anchor="middle" letter-spacing="2">CLAVE</text>
+    <text x="590" y="148" font-family="IBM Plex Sans" font-size="12" fill="#ffffff" text-anchor="middle">Next.js detecta este archivo</text>
+    <text x="590" y="164" font-family="IBM Plex Sans" font-size="12" fill="#ffffff" text-anchor="middle">automáticamente porque</text>
+    <text x="590" y="180" font-family="IBM Plex Sans" font-size="12" fill="#ffffff" text-anchor="middle">se llama <tspan font-family="IBM Plex Mono" fill="#86efac">proxy.js</tspan></text>
+  </svg>
+</figure>
+
+<p>Next.js no necesita que importes nada ni que configures nada en <code>next.config.js</code>: <strong>el simple hecho de que exista un archivo llamado <code>proxy.js</code> (o <code>middleware.js</code> en versiones anteriores) en la raíz hace que Next.js lo ejecute en cada petición</strong>. Esa es la "magia" del framework.</p>
+
+
+<h3>Diagrama de flujo: el viaje de una petición</h3>
+
+<p>Para ver cómo encaja el proxy en el ciclo de vida de una petición, sígue esta línea de tiempo:</p>
+
+<figure class="diagram" style="padding:30px 24px">
+  <svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; display:block">
+    <defs>
+      <marker id="arr-px" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#86efac"/>
+      </marker>
+    </defs>
+
+    <!-- Navegador -->
+    <rect x="20" y="140" width="130" height="80" rx="8" fill="#181b21" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="85" y="170" font-family="IBM Plex Mono" font-size="10" fill="#93c5fd" text-anchor="middle" letter-spacing="2">CLIENTE</text>
+    <text x="85" y="195" font-family="Fraunces" font-style="italic" font-size="16" fill="#ffffff" text-anchor="middle">Navegador</text>
+
+    <!-- Flecha -->
+    <line x1="150" y1="180" x2="218" y2="180" stroke="#86efac" stroke-width="2" marker-end="url(#arr-px)"/>
+    <text x="184" y="170" font-family="IBM Plex Mono" font-size="10.5" fill="#86efac" text-anchor="middle">petición</text>
+
+    <!-- PROXY -->
+    <rect x="220" y="100" width="220" height="160" rx="10" fill="rgba(134,239,172,0.08)" stroke="#86efac" stroke-width="2.5"/>
+    <text x="330" y="124" font-family="IBM Plex Mono" font-size="11" fill="#86efac" text-anchor="middle" letter-spacing="3">PROXY.JS</text>
+    <line x1="240" y1="134" x2="420" y2="134" stroke="#2f3641"/>
+    <text x="330" y="156" font-family="IBM Plex Sans" font-size="13" fill="#ffffff" text-anchor="middle">1. Intercepta la petición</text>
+    <text x="330" y="180" font-family="IBM Plex Sans" font-size="13" fill="#ffffff" text-anchor="middle">2. Lee cookies, headers, URL</text>
+    <text x="330" y="204" font-family="IBM Plex Sans" font-size="13" fill="#ffffff" text-anchor="middle">3. Decide qué hacer:</text>
+    <text x="330" y="226" font-family="IBM Plex Mono" font-size="12" fill="#86efac" text-anchor="middle">next() / redirect() / rewrite()</text>
+
+    <!-- Flecha hacia destino -->
+    <line x1="440" y1="180" x2="508" y2="180" stroke="#86efac" stroke-width="2" marker-end="url(#arr-px)"/>
+    <text x="474" y="170" font-family="IBM Plex Mono" font-size="10.5" fill="#86efac" text-anchor="middle">si next()</text>
+
+    <!-- Destino: page o api -->
+    <rect x="510" y="100" width="170" height="74" rx="8" fill="#181b21" stroke="#fde68a" stroke-width="1.5"/>
+    <text x="595" y="124" font-family="IBM Plex Mono" font-size="10" fill="#fde68a" text-anchor="middle" letter-spacing="2">DESTINO</text>
+    <text x="595" y="148" font-family="Fraunces" font-style="italic" font-size="14" fill="#ffffff" text-anchor="middle">app/.../page.js</text>
+    <text x="595" y="166" font-family="Fraunces" font-style="italic" font-size="14" fill="#ffffff" text-anchor="middle">app/api/.../route.js</text>
+
+    <rect x="510" y="186" width="170" height="74" rx="8" fill="#181b21" stroke="#fca5a5" stroke-width="1.5"/>
+    <text x="595" y="210" font-family="IBM Plex Mono" font-size="10" fill="#fca5a5" text-anchor="middle" letter-spacing="2">SI BLOQUEA</text>
+    <text x="595" y="234" font-family="Fraunces" font-style="italic" font-size="14" fill="#ffffff" text-anchor="middle">Redirect → /login</text>
+    <text x="595" y="252" font-family="Fraunces" font-style="italic" font-size="14" fill="#ffffff" text-anchor="middle">o respuesta 401/403</text>
+
+    <!-- Flecha de respuesta de vuelta -->
+    <path d="M 595 174 Q 595 280 85 280 L 85 220" stroke="#fde68a" stroke-width="1.5" fill="none" stroke-dasharray="4,4" marker-end="url(#arr-px)"/>
+    <text x="350" y="296" font-family="IBM Plex Mono" font-size="10.5" fill="#fde68a" text-anchor="middle">respuesta de vuelta al navegador</text>
+
+    <!-- Etiqueta abajo -->
+    <text x="450" y="338" font-family="IBM Plex Mono" font-size="11" fill="#a8b0bd" text-anchor="middle" letter-spacing="1">TODA petición pasa primero por el proxy, antes de llegar a su destino</text>
+  </svg>
+</figure>
+
+
+<h3>El código de un proxy completo, línea a línea</h3>
+
+<p>Vamos a ver un ejemplo real con tres comportamientos típicos. Léelo con calma — debajo hay explicaciones de cada parte:</p>
+
+<pre><code><span class="tk-com">// 📄 proxy.js (en la raíz del proyecto, junto a app/)</span>
 <span class="tk-kw">import</span> { NextResponse } <span class="tk-kw">from</span> <span class="tk-str">'next/server'</span>;
 
 <span class="tk-kw">export function</span> <span class="tk-fn">proxy</span>(request) {
-  <span class="tk-com">// 1 · Generar un x-request-id para trazabilidad</span>
+
+  <span class="tk-com">// ─── 1) Generar un ID único para trazar esta petición ──────────────</span>
   <span class="tk-kw">const</span> requestId = request.headers.<span class="tk-fn">get</span>(<span class="tk-str">'x-request-id'</span>) ?? crypto.<span class="tk-fn">randomUUID</span>();
 
-  <span class="tk-com">// 2 · Comprobar autenticación en rutas privadas</span>
+  <span class="tk-com">// ─── 2) Si la ruta es privada, comprobar que el usuario está logueado ─</span>
   <span class="tk-kw">if</span> (request.nextUrl.pathname.<span class="tk-fn">startsWith</span>(<span class="tk-str">'/admin'</span>)) {
     <span class="tk-kw">const</span> token = request.cookies.<span class="tk-fn">get</span>(<span class="tk-str">'session'</span>);
     <span class="tk-kw">if</span> (!token) {
+      <span class="tk-com">// No tiene sesión → redirigir a /login</span>
       <span class="tk-kw">return</span> NextResponse.<span class="tk-fn">redirect</span>(<span class="tk-kw">new</span> <span class="tk-fn">URL</span>(<span class="tk-str">'/login'</span>, request.url));
     }
   }
 
-  <span class="tk-com">// 3 · Continuar pasando el x-request-id al siguiente eslabón</span>
+  <span class="tk-com">// ─── 3) Dejar pasar la petición y añadirle el x-request-id ─────────</span>
   <span class="tk-kw">const</span> response = NextResponse.<span class="tk-fn">next</span>();
   response.headers.<span class="tk-fn">set</span>(<span class="tk-str">'x-request-id'</span>, requestId);
   <span class="tk-kw">return</span> response;
 }
 
-<span class="tk-com">// Limita las rutas en las que se ejecuta (¡rendimiento!)</span>
+<span class="tk-com">// ─── 4) Configurar EN QUÉ RUTAS se ejecuta este proxy ─────────────────</span>
 <span class="tk-kw">export const</span> config = {
   matcher: [<span class="tk-str">'/admin/:path*'</span>, <span class="tk-str">'/api/:path*'</span>],
 };</code></pre>
 
-<div class="callout warn">
-  <div class="callout-title">⚠ Edge Runtime, no Node.js</div>
-  <p style="margin:6px 0; font-size:14.5px">El proxy se ejecuta en <strong>Edge Runtime</strong> (V8 ligero), no en Node.js. Eso significa:</p>
-  <ul style="margin:6px 0; font-size:14.5px">
-    <li>NO puedes usar <code>fs</code>, <code>child_process</code> ni la mayoría de módulos de Node.</li>
-    <li>NO puedes usar drivers de BD pesados (como <code>pg</code>).</li>
-    <li>SÍ puedes usar Web APIs: <code>fetch</code>, <code>Request</code>, <code>Response</code>, <code>Headers</code>, <code>URL</code>, <code>crypto</code>, cookies.</li>
-    <li>Debe ser <strong>rápido</strong>: se ejecuta en cada petición que pase por el matcher.</li>
-  </ul>
+<h4>¿Qué hace cada bloque? Desarmemos el código</h4>
+
+<table style="width:100%; border-collapse:collapse; margin:14px 0; font-size:14.5px">
+  <tbody>
+    <tr style="border-bottom:1px solid var(--line)">
+      <td style="padding:12px; vertical-align:top; width:30%; color:var(--acc); font-family:var(--mono); font-size:12.5px">Bloque 1<br/><code>x-request-id</code></td>
+      <td style="padding:12px; color:var(--ink)">Un <strong><code>x-request-id</code></strong> es un identificador único (estilo <code>"a8f3-e2d9-b1c4-..."</code>) que se le pone a cada petición. Sirve para <strong>rastrearla</strong> entre tus logs: si algo falla, puedes buscar ese ID en todos tus servidores y reconstruir el viaje de esa petición concreta. El nombre del header empieza por <code>x-</code> porque <em>antiguamente</em> era la convención para headers personalizados (no estándar). <code>crypto.randomUUID()</code> es una función nativa del navegador y de Node que genera identificadores aleatorios únicos.</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--line)">
+      <td style="padding:12px; vertical-align:top; color:var(--acc); font-family:var(--mono); font-size:12.5px">Bloque 2<br/>Autenticación</td>
+      <td style="padding:12px; color:var(--ink)">Si la URL pedida empieza por <code>/admin</code>, buscamos una <strong>cookie</strong> llamada <code>session</code> (esto lo viste en el módulo de auth). Si no existe, el usuario no está logueado y lo mandamos a <code>/login</code> con un <code>redirect</code>. Si sí existe la cookie, dejamos que la petición continúe a su destino.</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--line)">
+      <td style="padding:12px; vertical-align:top; color:var(--acc); font-family:var(--mono); font-size:12.5px">Bloque 3<br/><code>NextResponse.next()</code></td>
+      <td style="padding:12px; color:var(--ink)">"Dejar pasar". <code>NextResponse.next()</code> dice: <em>"deja que esta petición siga su curso normal hacia su destino"</em>. Aprovechamos para añadirle el header <code>x-request-id</code> a la respuesta, para que el destino (y los logs) puedan usarlo.</td>
+    </tr>
+    <tr>
+      <td style="padding:12px; vertical-align:top; color:var(--acc); font-family:var(--mono); font-size:12.5px">Bloque 4<br/><code>matcher</code></td>
+      <td style="padding:12px; color:var(--ink)">El <strong>matcher</strong> dice <em>en qué URLs se ejecuta el proxy</em>. Sin esto, el proxy correría en TODAS las peticiones, incluidos archivos estáticos (CSS, imágenes, fuentes) — un desastre de rendimiento. La sintaxis <code>'/admin/:path*'</code> significa "cualquier URL que empiece por <code>/admin/</code>". Aquí decimos: solo aplica el proxy en rutas <code>/admin</code> y <code>/api</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h3>Vista interactiva del proyecto completo</h3>
+
+<p>Cambia de pestaña para ver los tres archivos clave de un proyecto Next.js con autenticación basada en proxy:</p>
+
+<div class="ide">
+  <div class="ide-titlebar">mi-proyecto/</div>
+  <div class="ide-tabs">
+    <div class="ide-tab active" data-pane="proxy-pane" onclick="ideTab(this)"><span class="ic ic-rt">→</span>proxy.js</div>
+    <div class="ide-tab" data-pane="login-pane" onclick="ideTab(this)"><span class="ic ic-js">js</span>app/api/login/route.js</div>
+    <div class="ide-tab" data-pane="admin-pane" onclick="ideTab(this)"><span class="ic ic-js">js</span>app/admin/page.js</div>
+  </div>
+
+  <div class="ide-content">
+<div class="ide-pane active" data-pane="proxy-pane"><span class="c-com">// proxy.js — en la raíz del proyecto</span>
+<span class="c-kw">import</span> { NextResponse } <span class="c-kw">from</span> <span class="c-str">'next/server'</span>;
+
+<span class="c-kw">export function</span> <span class="c-fn">proxy</span>(<span class="c-prop">request</span>) {
+  <span class="c-kw">const</span> requestId = request.<span class="c-prop">headers</span>.<span class="c-fn">get</span>(<span class="c-str">'x-request-id'</span>)
+    ?? crypto.<span class="c-fn">randomUUID</span>();
+
+  <span class="c-com">// Protege /admin con sesión</span>
+  <span class="c-kw">if</span> (request.<span class="c-prop">nextUrl</span>.<span class="c-prop">pathname</span>.<span class="c-fn">startsWith</span>(<span class="c-str">'/admin'</span>)) {
+    <span class="c-kw">const</span> token = request.<span class="c-prop">cookies</span>.<span class="c-fn">get</span>(<span class="c-str">'session'</span>);
+    <span class="c-kw">if</span> (!token) {
+      <span class="c-kw">return</span> NextResponse.<span class="c-fn">redirect</span>(<span class="c-kw">new</span> <span class="c-fn">URL</span>(<span class="c-str">'/login'</span>, request.<span class="c-prop">url</span>));
+    }
+  }
+
+  <span class="c-kw">const</span> response = NextResponse.<span class="c-fn">next</span>();
+  response.<span class="c-prop">headers</span>.<span class="c-fn">set</span>(<span class="c-str">'x-request-id'</span>, requestId);
+  <span class="c-kw">return</span> response;
+}
+
+<span class="c-kw">export const</span> config = {
+  matcher: [<span class="c-str">'/admin/:path*'</span>, <span class="c-str">'/api/:path*'</span>],
+};</div>
+
+<div class="ide-pane" data-pane="login-pane"><span class="c-com">// app/api/login/route.js</span>
+<span class="c-com">// Endpoint que CREA la cookie de sesión</span>
+<span class="c-kw">import</span> { NextResponse } <span class="c-kw">from</span> <span class="c-str">'next/server'</span>;
+<span class="c-kw">import</span> { cookies } <span class="c-kw">from</span> <span class="c-str">'next/headers'</span>;
+
+<span class="c-kw">export async function</span> <span class="c-fn">POST</span>(<span class="c-prop">request</span>) {
+  <span class="c-kw">const</span> { email, password } = <span class="c-kw">await</span> request.<span class="c-fn">json</span>();
+
+  <span class="c-com">// (en la vida real verificarías contra tu BD)</span>
+  <span class="c-kw">if</span> (email !== <span class="c-str">'admin@app.com'</span>) {
+    <span class="c-kw">return</span> NextResponse.<span class="c-fn">json</span>({ error: <span class="c-str">'invalid'</span> }, { status: <span class="c-num">401</span> });
+  }
+
+  <span class="c-com">// Crear cookie de sesión que el proxy comprobará</span>
+  <span class="c-kw">const</span> cookieStore = <span class="c-kw">await</span> <span class="c-fn">cookies</span>();
+  cookieStore.<span class="c-fn">set</span>(<span class="c-str">'session'</span>, <span class="c-str">'token-firmado-aqui'</span>, {
+    httpOnly: <span class="c-kw">true</span>,
+    secure: <span class="c-kw">true</span>,
+    maxAge: <span class="c-num">60</span> * <span class="c-num">60</span> * <span class="c-num">24</span>,
+  });
+
+  <span class="c-kw">return</span> NextResponse.<span class="c-fn">json</span>({ ok: <span class="c-kw">true</span> });
+}</div>
+
+<div class="ide-pane" data-pane="admin-pane"><span class="c-com">// app/admin/page.js — página protegida</span>
+<span class="c-com">// NO necesita comprobar nada: el proxy ya lo hizo</span>
+
+<span class="c-kw">export default function</span> <span class="c-fn">AdminPage</span>() {
+  <span class="c-kw">return</span> (
+    &lt;<span class="c-tp">div</span>&gt;
+      &lt;<span class="c-tp">h1</span>&gt;Panel de admin&lt;/<span class="c-tp">h1</span>&gt;
+      &lt;<span class="c-tp">p</span>&gt;Si estás viendo esto, ya pasaste el proxy.&lt;/<span class="c-tp">p</span>&gt;
+    &lt;/<span class="c-tp">div</span>&gt;
+  );
+}
+
+<span class="c-com">// 👆 Limpio, sin lógica de auth duplicada</span>
+<span class="c-com">// El proxy es el guardia; esta página solo renderiza.</span></div>
+  </div>
 </div>
 
-<div class="pro-tip">
-  <p>Hasta Next.js 15 el archivo se llamaba <code>middleware.js</code> y la función <code>middleware(request)</code>. Desde Next.js 16, App Router recomienda <code>proxy.js</code> y <code>proxy(request)</code>. La semántica es idéntica; el rename clarifica que <em>no</em> es un middleware tipo Express (no se encadena, solo hay uno).</p>
-  <p>El matcher acepta sintaxis tipo path-to-regexp y se compila a un <em>edge function</em>. Si lo dejas vacío, el proxy se ejecuta en <strong>todas</strong> las peticiones (incluyendo assets estáticos) — desastre de rendimiento. Siempre define <code>matcher</code>.</p>
+<p style="font-size:14.5px; margin-top:14px"><strong>Fíjate en algo importante:</strong> el archivo <code>app/admin/page.js</code> <em>no tiene</em> ningún <code>if</code> de "¿está logueado?". <strong>El proxy ya hizo esa comprobación antes de que la página se ejecute siquiera.</strong> Si llegas a esta función, garantizado que el usuario tiene cookie de sesión. Eso es lo que limpia tu código: la lógica transversal vive en un solo sitio.</p>
+
+
+<h3>Tres preguntas frecuentes</h3>
+
+<div class="callout">
+  <div class="callout-title">"¿Qué es eso de Edge Runtime que mencionas?"</div>
+  <p style="margin:6px 0; font-size:14.5px">Por defecto, tu app Next.js se ejecuta en <strong>Node.js</strong>: un entorno potente con acceso a sistema de archivos, librerías nativas, bases de datos, etc. Pero el proxy se ejecuta en un entorno distinto llamado <strong>Edge Runtime</strong>: una versión "ligera" basada en el motor V8 (el mismo de Chrome). Es <em>mucho más rápido</em> al arrancar pero <strong>tiene menos herramientas disponibles</strong>:</p>
+  <ul style="margin:6px 0; font-size:14.5px">
+    <li><strong>NO</strong> puedes usar <code>fs</code>, <code>child_process</code> ni la mayoría de módulos de Node.</li>
+    <li><strong>NO</strong> puedes usar drivers de BD pesados (como <code>pg</code>).</li>
+    <li><strong>SÍ</strong> puedes usar Web APIs estándar: <code>fetch</code>, <code>Request</code>, <code>Response</code>, <code>Headers</code>, <code>URL</code>, <code>crypto</code>, cookies.</li>
+  </ul>
+  <p style="margin:6px 0; font-size:14.5px">Esta limitación es intencional: el proxy se ejecuta en CADA petición que pase por el matcher, así que tiene que ser ligero. Si necesitas tocar la BD en tu lógica de auth, hazlo dentro de las páginas o endpoints (Node), no en el proxy (Edge).</p>
+</div>
+
+<div class="callout">
+  <div class="callout-title">"¿Cuántos archivos proxy puedo tener?"</div>
+  <p style="margin:6px 0; font-size:14.5px"><strong>Solo uno.</strong> En toda tu app, en la raíz, un único <code>proxy.js</code> con una única función <code>proxy(request)</code>. Si necesitas distinta lógica para distintas rutas, lo gestionas con <code>if</code> dentro de esa función (como el ejemplo, que solo protege <code>/admin</code>). Esta es la principal diferencia con Express, donde puedes encadenar muchos middlewares: en Next.js hay <strong>uno y solo uno</strong>.</p>
+</div>
+
+<div class="callout">
+  <div class="callout-title">"¿Y si el matcher no encaja con la petición?"</div>
+  <p style="margin:6px 0; font-size:14.5px">El proxy <strong>no se ejecuta</strong>. La petición va directamente a su destino (página o endpoint) sin pasar por <code>proxy.js</code>. Por eso es tan importante configurar bien el matcher: si una ruta privada se queda fuera del matcher, no estará protegida. Si te olvidas de incluir <code>/admin</code> en el matcher, cualquiera podría entrar a <code>/admin</code> sin estar logueado.</p>
+</div>
+
+
+<div class="dev-checklist">
+  <h4>Cuando crees tu primer proxy en un proyecto Next.js, sí o sí necesitas:</h4>
+  <ul>
+    <li><strong>Crear el archivo en la raíz del proyecto</strong> (al mismo nivel que <code>app/</code>), llamado <code>proxy.js</code>. Next.js lo detecta automáticamente por el nombre.</li>
+    <li><strong>Exportar una función llamada <code>proxy</code></strong> que reciba <code>request</code> como parámetro. Si la llamas <code>handleProxy</code> o cualquier otro nombre, no funciona.</li>
+    <li><strong>Devolver siempre un <code>NextResponse</code></strong>: <code>next()</code> para continuar, <code>redirect()</code> para mandar a otra URL, o <code>rewrite()</code> para servir otra ruta sin cambiar la URL.</li>
+    <li><strong>Definir <code>export const config = { matcher: [...] }</code></strong> con las rutas exactas donde quieres que se aplique. Sin matcher, se ejecuta en TODO (mal para rendimiento).</li>
+    <li><strong>Recordar que estás en Edge Runtime</strong>: nada de drivers de BD, nada de <code>fs</code>. Solo Web APIs estándar.</li>
+    <li><strong>Reiniciar el dev server</strong> de Next.js (<code>npm run dev</code>) tras crear el archivo por primera vez, para que Next.js lo registre.</li>
+  </ul>
 </div>
 
 </section>
@@ -4703,186 +4977,6 @@ Un <strong>proxy</strong> es un punto de <em>interceptación</em>: un código qu
 
 
 
-<!-- ============================================================ -->
-<!-- MÓDULO 15 (APÉNDICE): SERVER VS CLIENT COMPONENTS -->
-<!-- ============================================================ -->
-<section class="module" id="m15">
-<div class="label">Apéndice</div>
-<h2>API, <em>Server Components</em> y <em>Client Components</em>.</h2>
-
-<p>
-Pregunta de oro: <em>"si Next.js tiene Server Components que ya corren en el servidor y pueden ir a la BD directamente, ¿para qué crear una carpeta <code>/api/</code> y endpoints REST?"</em>
-</p>
-
-<p>La respuesta es <strong>"depende"</strong>, y entender cuándo usar cada cosa es probablemente la decisión arquitectónica más importante en Next.js moderno.</p>
-
-<h3>Recordatorio: Server Component vs Client Component</h3>
-
-<div class="cards-2">
-  <div class="mini-card">
-    <div class="t">Server Component (por defecto en App Router)</div>
-    <p style="font-size:14.5px; color:var(--ink); margin:6px 0">Se renderiza <strong>en el servidor</strong>. Puede leer archivos, tocar la BD, leer secretos. <strong>NO</strong> tiene <code>useState</code>, <code>useEffect</code>, ni puede manejar clicks. El usuario recibe HTML ya renderizado.</p>
-  </div>
-  <div class="mini-card">
-    <div class="t">Client Component (lleva <code>'use client'</code> arriba)</div>
-    <p style="font-size:14.5px; color:var(--ink); margin:6px 0">Se renderiza <strong>en el navegador</strong>. Tiene hooks, eventos, estado, todo el React clásico. <strong>NO</strong> puede tocar la BD ni leer secretos: su código viaja al cliente.</p>
-  </div>
-</div>
-
-<p>
-Y entre medias está el tercer espacio: las <strong>Route Handlers</strong> (<code>app/api/.../route.js</code>), que son endpoints HTTP que viven en el servidor.
-</p>
-
-<h3>Las tres rutas para conseguir datos</h3>
-
-<h4 style="color:var(--acc)">Ruta A · Server Component → BD directamente</h4>
-
-<pre><code><span class="tk-com">// app/cars/page.js — es un Server Component (por defecto)</span>
-<span class="tk-kw">import</span> { query } <span class="tk-kw">from</span> <span class="tk-str">'@/lib/db'</span>;
-
-<span class="tk-kw">export default async function</span> <span class="tk-fn">CarsPage</span>() {
-  <span class="tk-com">// 👇 Sin fetch. Sin /api. Hablamos directamente con la BD.</span>
-  <span class="tk-kw">const</span> { rows: cars } = <span class="tk-kw">await</span> <span class="tk-fn">query</span>(<span class="tk-str">'SELECT * FROM cars'</span>);
-
-  <span class="tk-kw">return</span> (
-    &lt;ul&gt;
-      {cars.<span class="tk-fn">map</span>(c =&gt; &lt;li key={c.id}&gt;{c.brand} {c.model}&lt;/li&gt;)}
-    &lt;/ul&gt;
-  );
-}</code></pre>
-
-<p style="color:var(--good)"><strong>✓ Ventajas:</strong></p>
-<ul>
-  <li>Más rápido: <strong>no hay HTTP</strong>. No hay serialización JSON. No hay red.</li>
-  <li>Más simple: menos código. Menos archivos.</li>
-  <li>Más seguro: la query no viaja al cliente.</li>
-  <li>SEO perfecto: el HTML llega ya con los datos.</li>
-</ul>
-
-<p style="color:var(--bad)"><strong>✗ Limitaciones:</strong></p>
-<ul>
-  <li>Solo funciona <strong>al renderizar la página</strong>. Si el usuario hace click en "filtrar", no puedes refrescar sin recargar (a menos que uses Server Actions).</li>
-  <li>Los datos no son accesibles desde otros clientes (apps móviles, integraciones externas...).</li>
-</ul>
-
-<h4 style="color:var(--acc)">Ruta B · Client Component → fetch a <code>/api/...</code></h4>
-
-<pre><code><span class="tk-str">'use client'</span>;
-<span class="tk-kw">import</span> { useState, useEffect } <span class="tk-kw">from</span> <span class="tk-str">'react'</span>;
-
-<span class="tk-kw">export default function</span> <span class="tk-fn">CarFilter</span>() {
-  <span class="tk-kw">const</span> [cars, setCars] = <span class="tk-fn">useState</span>([]);
-  <span class="tk-kw">const</span> [brand, setBrand] = <span class="tk-fn">useState</span>(<span class="tk-str">''</span>);
-
-  <span class="tk-fn">useEffect</span>(() =&gt; {
-    <span class="tk-com">// 👇 Aquí SÍ necesitamos un endpoint HTTP</span>
-    <span class="tk-fn">fetch</span>(<span class="tk-str">`/api/v1/cars?brand=${brand}`</span>)
-      .<span class="tk-fn">then</span>(r =&gt; r.<span class="tk-fn">json</span>())
-      .<span class="tk-fn">then</span>(setCars);
-  }, [brand]);
-
-  <span class="tk-kw">return</span> (
-    &lt;&gt;
-      &lt;input value={brand} onChange={e =&gt; <span class="tk-fn">setBrand</span>(e.target.value)} /&gt;
-      &lt;ul&gt;{cars.<span class="tk-fn">map</span>(c =&gt; &lt;li key={c.id}&gt;{c.brand}&lt;/li&gt;)}&lt;/ul&gt;
-    &lt;/&gt;
-  );
-}</code></pre>
-
-<p>
-Aquí <strong>sí necesitas el endpoint <code>/api/v1/cars</code></strong>. ¿Por qué? Porque el componente vive en el navegador, y el navegador no puede hablar con tu BD. Necesita pedírselo a alguien que sí pueda — y ese alguien es tu Route Handler.
-</p>
-
-<h4 style="color:var(--acc)">Ruta C · Server Action (atajo moderno)</h4>
-
-<pre><code><span class="tk-com">// app/cars/actions.js</span>
-<span class="tk-str">'use server'</span>;
-<span class="tk-kw">import</span> { query } <span class="tk-kw">from</span> <span class="tk-str">'@/lib/db'</span>;
-
-<span class="tk-kw">export async function</span> <span class="tk-fn">getCarsByBrand</span>(brand) {
-  <span class="tk-kw">const</span> { rows } = <span class="tk-kw">await</span> <span class="tk-fn">query</span>(
-    <span class="tk-str">'SELECT * FROM cars WHERE brand = $1'</span>, [brand]
-  );
-  <span class="tk-kw">return</span> rows;
-}
-
-<span class="tk-com">// app/cars/CarFilter.js</span>
-<span class="tk-str">'use client'</span>;
-<span class="tk-kw">import</span> { getCarsByBrand } <span class="tk-kw">from</span> <span class="tk-str">'./actions'</span>;
-
-<span class="tk-kw">export default function</span> <span class="tk-fn">CarFilter</span>() {
-  <span class="tk-kw">const</span> [cars, setCars] = <span class="tk-fn">useState</span>([]);
-  <span class="tk-kw">async function</span> <span class="tk-fn">handleSearch</span>(brand) {
-    <span class="tk-com">// 👇 No hay /api. Llamas a la función como si fuera local.</span>
-    <span class="tk-com">// Next.js se encarga del HTTP por debajo.</span>
-    <span class="tk-kw">const</span> result = <span class="tk-kw">await</span> <span class="tk-fn">getCarsByBrand</span>(brand);
-    <span class="tk-fn">setCars</span>(result);
-  }
-  <span class="tk-com">// ...</span>
-}</code></pre>
-
-<p>
-Las <strong>Server Actions</strong> son el atajo: escribes una función con <code>'use server'</code> y la llamas desde un Client Component <em>como si fuera local</em>. Next.js genera por debajo el endpoint HTTP, la serialización, etc. Magia.
-</p>
-
-<h3>Entonces... ¿cuándo crear la carpeta <code>/api/</code>?</h3>
-
-<table style="width:100%; border-collapse:collapse; margin:14px 0; font-size:14.5px">
-  <tbody>
-    <tr style="border-bottom:1px solid var(--line)">
-      <td style="padding:12px; color:var(--good); width:35%; vertical-align:top"><strong>SÍ crear /api/</strong></td>
-      <td style="padding:12px; color:var(--ink)">Cuando otros clientes (apps móviles, integraciones externas, webhooks de terceros, otra app distinta) necesiten consumir tus datos. Una API REST con <code>/api/v1/...</code> es <em>el contrato público</em> hacia fuera.</td>
-    </tr>
-    <tr style="border-bottom:1px solid var(--line)">
-      <td style="padding:12px; color:var(--good); vertical-align:top"><strong>SÍ crear /api/</strong></td>
-      <td style="padding:12px; color:var(--ink)">Cuando necesitas un webhook (Stripe te llama a una URL, GitHub te notifica un push...). Sí o sí necesitas un endpoint HTTP público.</td>
-    </tr>
-    <tr style="border-bottom:1px solid var(--line)">
-      <td style="padding:12px; color:var(--good); vertical-align:top"><strong>SÍ crear /api/</strong></td>
-      <td style="padding:12px; color:var(--ink)">Cuando quieres separar arquitectónicamente front y back, o estás migrando desde una arquitectura tradicional, o tu equipo está organizado por especialidades.</td>
-    </tr>
-    <tr style="border-bottom:1px solid var(--line)">
-      <td style="padding:12px; color:var(--bad); vertical-align:top"><strong>NO crear /api/</strong></td>
-      <td style="padding:12px; color:var(--ink)">Para datos que solo consume <em>tu propia web</em> al renderizar. Mejor: Server Component que lee la BD directamente. Más rápido, más simple.</td>
-    </tr>
-    <tr>
-      <td style="padding:12px; color:var(--bad); vertical-align:top"><strong>NO crear /api/</strong></td>
-      <td style="padding:12px; color:var(--ink)">Para acciones desde Client Components (mutaciones, formularios, filtros). Mejor: Server Actions. Menos boilerplate.</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3>Resumen: árbol de decisión</h3>
-
-<div style="border:1px solid var(--line); background:var(--bg-2); border-radius:6px; padding:18px 22px; margin:16px 0; font-family:var(--mono); font-size:14px; line-height:1.9">
-  <div style="color:var(--ink)">¿Necesito datos en una página?</div>
-  <div style="padding-left:18px; color:var(--ink)">└─ ¿Es para mostrar al renderizar?</div>
-  <div style="padding-left:54px; color:var(--good)">└─ <strong>Server Component → BD directa</strong></div>
-  <div style="padding-left:18px; color:var(--ink)">└─ ¿Es para una acción del usuario (click, formulario)?</div>
-  <div style="padding-left:54px; color:var(--good)">└─ <strong>Server Action</strong></div>
-  <div style="padding-left:18px; color:var(--ink)">└─ ¿Lo va a consumir alguien fuera de mi web?</div>
-  <div style="padding-left:54px; color:var(--good)">└─ <strong>Route Handler en /api/v1/...</strong></div>
-  <div style="padding-left:18px; color:var(--ink)">└─ ¿Es un webhook entrante?</div>
-  <div style="padding-left:54px; color:var(--good)">└─ <strong>Route Handler en /api/webhooks/...</strong></div>
-</div>
-
-<div class="callout">
-  <div class="callout-title">Y entonces, ¿por qué este curso enseña /api/ con tanto detalle?</div>
-  <p style="margin:6px 0; font-size:14.5px">Porque entender REST y los Route Handlers es <strong>fundamento</strong>. Los Server Components y las Server Actions son azúcar sintáctico: por debajo, Next.js sigue hablando HTTP. Si no entiendes HTTP/REST, no sabrás depurar cuando algo falle, ni diseñar tu API pública el día que la necesites, ni decidir bien entre las tres rutas. <em>Aprende los fundamentos primero, los atajos después.</em></p>
-</div>
-
-<div class="pro-tip">
-  <p>El patrón ganador en proyectos serios suele ser <strong>híbrido</strong>:</p>
-  <ul>
-    <li>La lógica de acceso a datos vive en funciones reutilizables (<code>lib/cars.js</code> con <code>getCarsByBrand()</code>, <code>createCar()</code>...).</li>
-    <li>Los Server Components la usan directamente.</li>
-    <li>Los Route Handlers en <code>/api/</code> la envuelven para exponerla a clientes externos.</li>
-    <li>Las Server Actions la envuelven para mutaciones desde Client Components.</li>
-  </ul>
-  <p>Una sola lógica, tres formas de exponerla. Sin duplicación.</p>
-</div>
-
-</section>
 
 
 <!-- ============================================================ -->
