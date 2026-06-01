@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tema 7 · Autenticación en Next.js</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0e1a;
+  --ink-soft:#1a2235;
+  --paper:#f4f1ea;
+  --paper-2:#ece7db;
+  --cyan:#00a3d9;
+  --cyan-deep:#0077a8;
+  --cyan-ink:#003a52;
+  --amber:#ffc94d;
+  --amber-deep:#e8a200;
+  --coral:#ff5d52;
+  --green:#1db98a;
+  --violet:#7b6cff;
+  --line:rgba(10,14,26,.12);
+  --shadow:0 18px 50px -22px rgba(10,14,26,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Space Grotesk',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.6;
+  overflow-x:hidden;
+  background-image:radial-gradient(circle at 1px 1px, rgba(10,14,26,.05) 1px, transparent 0);
+  background-size:26px 26px;
+}
+::selection{background:var(--cyan);color:#fff}
+
+/* ============ NAV ============ */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;
+  background:rgba(244,241,234,.82);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.topbar .brand{font-family:'Fraunces';font-weight:900;font-size:1.05rem;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.topbar .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px rgba(0,163,217,.18)}
+.topbar nav{display:flex;gap:4px;flex-wrap:wrap}
+.topbar nav a{
+  font-size:.78rem;font-weight:500;text-decoration:none;color:var(--ink-soft);
+  padding:6px 11px;border-radius:99px;transition:.2s;white-space:nowrap;
+}
+.topbar nav a:hover{background:var(--ink);color:var(--paper)}
+@media(max-width:880px){.topbar nav{display:none}}
+
+/* ============ LAYOUT ============ */
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+section{padding:88px 0;position:relative}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'JetBrains Mono';font-size:.72rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.18em;
+  color:var(--cyan-deep);margin-bottom:18px;
+}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--cyan)}
+h2.sec{font-family:'Fraunces';font-weight:900;font-size:clamp(2rem,5vw,3.4rem);line-height:1.02;letter-spacing:-.03em;margin-bottom:14px}
+.lead{font-size:1.12rem;max-width:62ch;color:var(--ink-soft)}
+
+/* ============ HERO ============ */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+  background:var(--ink);color:var(--paper);
+  position:relative;overflow:hidden;padding-top:60px;
+}
+.hero::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(700px 460px at 80% 18%, rgba(0,163,217,.34), transparent 60%),
+    radial-gradient(560px 420px at 12% 92%, rgba(123,108,255,.22), transparent 60%);
+}
+.hero .grid-bg{
+  position:absolute;inset:0;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:54px 54px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000,transparent);
+}
+.hero .wrap{position:relative;z-index:2}
+.tema-tag{
+  font-family:'JetBrains Mono';font-size:.8rem;letter-spacing:.34em;text-transform:uppercase;
+  color:var(--cyan);font-weight:700;margin-bottom:22px;
+}
+.hero h1{
+  font-family:'Fraunces';font-weight:900;font-size:clamp(3rem,11vw,8rem);
+  line-height:.92;letter-spacing:-.045em;margin-bottom:8px;
+}
+.hero h1 em{font-style:italic;color:var(--cyan);font-weight:500}
+.hero .subtitle{font-size:1.3rem;max-width:50ch;color:rgba(244,241,234,.78);margin:18px 0 40px}
+.hero .meta-row{display:flex;gap:14px;flex-wrap:wrap}
+.chip{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 16px;border-radius:99px;
+  border:1px solid rgba(255,255,255,.2);
+  font-size:.84rem;font-weight:500;
+  background:rgba(255,255,255,.04);
+}
+.chip b{color:var(--cyan)}
+.scroll-hint{
+  position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+  font-family:'JetBrains Mono';font-size:.7rem;letter-spacing:.2em;color:rgba(244,241,234,.5);
+  text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2;
+}
+.scroll-hint .arrow{width:1px;height:34px;background:linear-gradient(rgba(244,241,234,.5),transparent);animation:drop 1.8s infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* tokens floating motif */
+.token-float{position:absolute;font-family:'JetBrains Mono';font-size:.7rem;color:rgba(0,163,217,.5);user-select:none;z-index:1}
+
+/* ============ DEFINITION ============ */
+.def-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px}
+@media(max-width:760px){.def-grid{grid-template-columns:1fr}}
+.qa-card{
+  border-radius:22px;padding:32px;position:relative;overflow:hidden;
+  border:1px solid var(--line);
+}
+.qa-card.who{background:var(--ink);color:var(--paper)}
+.qa-card.what{background:#fff}
+.qa-card .qmark{font-family:'Fraunces';font-weight:900;font-size:3.2rem;line-height:1;opacity:.9}
+.qa-card.who .qmark{color:var(--cyan)}
+.qa-card.what .qmark{color:var(--amber-deep)}
+.qa-card h3{font-family:'Fraunces';font-size:1.5rem;margin:12px 0 8px;font-weight:600}
+.qa-card p{font-size:.96rem}
+.qa-card.who p{color:rgba(244,241,234,.8)}
+.qa-card.what p{color:var(--ink-soft)}
+.qa-card .tagline{margin-top:18px;font-family:'JetBrains Mono';font-size:.74rem;letter-spacing:.06em;padding-top:14px;border-top:1px solid currentColor;opacity:.6}
+
+/* ============ TYPES TABS ============ */
+.types-nav{display:flex;gap:10px;flex-wrap:wrap;margin:42px 0 30px}
+.type-tab{
+  font-family:'Space Grotesk';font-weight:700;font-size:.92rem;cursor:pointer;
+  padding:13px 20px;border-radius:14px;border:1px solid var(--line);
+  background:#fff;color:var(--ink-soft);transition:.18s;display:flex;align-items:center;gap:10px;
+}
+.type-tab .num{font-family:'JetBrains Mono';font-size:.74rem;opacity:.5}
+.type-tab:hover{transform:translateY(-2px)}
+.type-tab.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.type-tab.active .num{color:var(--cyan);opacity:1}
+.type-panel{display:none;animation:fade .4s ease}
+.type-panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.type-head{display:flex;align-items:flex-start;gap:18px;margin-bottom:8px;flex-wrap:wrap}
+.type-badge{
+  flex-shrink:0;width:54px;height:54px;border-radius:15px;display:grid;place-items:center;
+  font-size:1.6rem;background:var(--paper-2);border:1px solid var(--line);
+}
+.type-head h3{font-family:'Fraunces';font-weight:900;font-size:1.8rem;letter-spacing:-.02em;line-height:1.05}
+.type-head .sub{font-size:.92rem;color:var(--cyan-deep);font-weight:500;font-family:'JetBrains Mono'}
+.type-body{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:24px;align-items:start}
+@media(max-width:840px){.type-body{grid-template-columns:1fr}}
+.type-desc p{margin-bottom:14px;font-size:.98rem;color:var(--ink-soft)}
+.feature-list{list-style:none;margin-top:8px}
+.feature-list li{position:relative;padding-left:20px;margin-bottom:11px;font-size:.92rem;line-height:1.6}
+.feature-list li::before{content:"";position:absolute;left:0;top:9px;width:7px;height:7px;border-radius:2px;background:var(--cyan);transform:rotate(45deg)}
+.pros-cons{display:flex;gap:14px;margin-top:20px;flex-wrap:wrap}
+.pc{flex:1;min-width:130px;border-radius:13px;padding:14px;font-size:.84rem}
+.pc.pro{background:rgba(29,185,138,.1);border:1px solid rgba(29,185,138,.3)}
+.pc.con{background:rgba(255,93,82,.08);border:1px solid rgba(255,93,82,.28)}
+.pc b{display:block;margin-bottom:6px;font-family:'JetBrains Mono';font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+.pc.pro b{color:var(--green)}.pc.con b{color:var(--coral)}
+
+/* ============ SEQUENCE DIAGRAM ============ */
+.seq{background:var(--ink);border-radius:20px;padding:26px 18px;overflow-x:auto;border:1px solid var(--line)}
+.seq svg{display:block;min-width:520px;width:100%;height:auto}
+.seq-note{font-family:'JetBrains Mono';font-size:.72rem;color:rgba(244,241,234,.55);text-align:center;margin-top:14px}
+
+/* ============ STEP BLOCKS / SETUP ============ */
+.steps{counter-reset:step;margin-top:44px;position:relative}
+.steps::before{content:"";position:absolute;left:22px;top:18px;bottom:18px;width:2px;background:var(--line)}
+.step{position:relative;padding-left:64px;margin-bottom:40px}
+.step::before{
+  counter-increment:step;content:counter(step);
+  position:absolute;left:0;top:-4px;width:46px;height:46px;border-radius:14px;
+  background:var(--ink);color:var(--cyan);display:grid;place-items:center;
+  font-family:'JetBrains Mono';font-weight:700;font-size:1.1rem;z-index:2;
+}
+.step h3{font-family:'Fraunces';font-weight:600;font-size:1.4rem;margin-bottom:8px}
+.step p{color:var(--ink-soft);font-size:.98rem;margin-bottom:14px;max-width:60ch}
+
+/* ============ CODE ============ */
+.code{
+  background:#0d1320;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.08);
+  box-shadow:var(--shadow);
+}
+.code-head{display:flex;align-items:center;gap:8px;padding:11px 16px;background:#131b2e;border-bottom:1px solid rgba(255,255,255,.06)}
+.code-head .dots{display:flex;gap:6px}
+.code-head .dots span{width:11px;height:11px;border-radius:50%}
+.code-head .dots span:nth-child(1){background:#ff5f56}
+.code-head .dots span:nth-child(2){background:#ffbd2e}
+.code-head .dots span:nth-child(3){background:#27c93f}
+.code-head .fname{font-family:'JetBrains Mono';font-size:.76rem;color:#7a89a8;margin-left:6px}
+.code pre{margin:0;padding:18px 20px;overflow-x:auto}
+.code code{font-family:'JetBrains Mono';font-size:.82rem;line-height:1.7;color:#cdd6f4;white-space:pre}
+.tk-key{color:#c792ea}.tk-str{color:#c3e88d}.tk-fn{color:#82aaff}.tk-com{color:#546178;font-style:italic}.tk-num{color:#f78c6c}.tk-tag{color:#f07178}.tk-attr{color:#ffcb6b}.tk-cyan{color:#89ddff}
+
+/* terminal */
+.term{background:#0d1320;border-radius:12px;padding:16px 18px;font-family:'JetBrains Mono';font-size:.82rem;color:#cdd6f4;line-height:1.8;border:1px solid rgba(255,255,255,.08)}
+.term .pr{color:var(--cyan)}
+.term .out{color:#7a89a8}
+
+/* callout */
+.callout{
+  border-radius:16px;padding:20px 24px;margin:24px 0;display:flex;gap:16px;align-items:flex-start;
+  background:rgba(255,201,77,.13);border:1px solid rgba(232,162,0,.4);
+}
+.callout .ico{font-size:1.4rem;flex-shrink:0}
+.callout p{font-size:.94rem;color:var(--cyan-ink)}
+.callout b{color:var(--amber-deep)}
+.callout.tip{background:rgba(0,163,217,.1);border-color:rgba(0,119,168,.35)}
+.callout.tip p{color:var(--cyan-ink)}
+.callout.danger{background:rgba(255,93,82,.1);border-color:rgba(255,93,82,.35)}
+
+/* ============ PLAYGROUND ============ */
+.pg-section{background:var(--ink);color:var(--paper)}
+.pg-section .eyebrow{color:var(--cyan)}
+.pg-section .lead{color:rgba(244,241,234,.78)}
+.playground{
+  margin-top:40px;border-radius:20px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.12);background:#0d1320;box-shadow:var(--shadow);
+}
+.pg-bar{display:flex;align-items:center;gap:6px;padding:0 10px;background:#131b2e;border-bottom:1px solid rgba(255,255,255,.07);overflow-x:auto}
+.pg-tab{
+  font-family:'JetBrains Mono';font-size:.78rem;color:#7a89a8;cursor:pointer;
+  padding:13px 15px;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s;display:flex;align-items:center;gap:7px;
+}
+.pg-tab:hover{color:#cdd6f4}
+.pg-tab.active{color:#fff;border-bottom-color:var(--cyan)}
+.pg-tab .fdot{width:8px;height:8px;border-radius:2px}
+.pg-body{display:grid;grid-template-columns:1.15fr .85fr;min-height:430px}
+@media(max-width:860px){.pg-body{grid-template-columns:1fr}}
+.pg-editor{border-right:1px solid rgba(255,255,255,.07);position:relative}
+.pg-editor textarea{
+  width:100%;height:100%;min-height:430px;resize:none;border:0;outline:0;
+  background:transparent;color:#cdd6f4;font-family:'JetBrains Mono';font-size:.8rem;line-height:1.7;
+  padding:18px 20px;tab-size:2;white-space:pre;overflow-wrap:normal;
+}
+.pg-preview{background:#0a0e1a;display:flex;flex-direction:column}
+.pg-browser-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#11192b;border-bottom:1px solid rgba(255,255,255,.07)}
+.pg-url{
+  flex:1;font-family:'JetBrains Mono';font-size:.74rem;color:#89ddff;
+  background:#0a0e1a;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 12px;
+}
+.pg-run{
+  font-family:'Space Grotesk';font-weight:700;font-size:.78rem;cursor:pointer;
+  background:var(--cyan);color:#001520;border:0;border-radius:8px;padding:7px 16px;transition:.15s;
+}
+.pg-run:hover{background:#fff}
+.pg-screen{flex:1;padding:22px;overflow:auto;color:#e6ecf5;font-size:.9rem}
+.pg-console{background:#070b14;border-top:1px solid rgba(255,255,255,.07);padding:12px 16px;font-family:'JetBrains Mono';font-size:.74rem;color:#7a89a8;max-height:140px;overflow:auto}
+.pg-console .log-line{margin-bottom:4px}
+.pg-console .log-line .t{color:#546178}
+.pg-console .ok{color:var(--green)}
+.pg-console .info{color:#89ddff}
+.pg-console .warn{color:var(--amber)}
+
+/* mock rendered app */
+.mock-app{font-family:'Space Grotesk'}
+.mock-app .ma-nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:22px}
+.mock-app .ma-logo{font-family:'Fraunces';font-weight:900;font-size:1.05rem}
+.mock-app .ma-logo .c{color:var(--cyan)}
+.mock-app button{
+  font-family:'Space Grotesk';font-weight:600;cursor:pointer;border-radius:9px;border:0;transition:.15s;
+}
+.btn-google{
+  display:inline-flex;align-items:center;gap:10px;background:#fff;color:#1a2235;
+  padding:11px 18px;font-size:.9rem;box-shadow:0 4px 14px rgba(0,0,0,.3);
+}
+.btn-google:hover{transform:translateY(-1px)}
+.btn-ghost{background:rgba(255,255,255,.08);color:#e6ecf5;padding:9px 14px;font-size:.82rem}
+.btn-ghost:hover{background:rgba(255,255,255,.15)}
+.ma-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:22px;margin-top:8px}
+.ma-card h4{font-family:'Fraunces';font-size:1.25rem;margin-bottom:6px}
+.ma-card .muted{color:#7a89a8;font-size:.84rem}
+.profile-row{display:flex;align-items:center;gap:14px;margin:18px 0}
+.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--violet));display:grid;place-items:center;font-weight:700;font-size:1.2rem;color:#fff}
+.json-box{background:#070b14;border-radius:10px;padding:14px;font-family:'JetBrains Mono';font-size:.74rem;color:#c3e88d;margin-top:12px;white-space:pre-wrap;word-break:break-word;line-height:1.6}
+
+/* ============ COMPARISON / WRAP ============ */
+.cmp-table{width:100%;border-collapse:collapse;margin-top:40px;font-size:.9rem;background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.cmp-table th,.cmp-table td{padding:15px 16px;text-align:left;border-bottom:1px solid var(--line)}
+.cmp-table th{background:var(--ink);color:var(--paper);font-family:'JetBrains Mono';font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.cmp-table td:first-child{font-weight:700}
+.cmp-table tr:last-child td{border-bottom:0}
+.cmp-table .tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.72rem;font-weight:700;font-family:'JetBrains Mono'}
+.tag-hi{background:rgba(29,185,138,.18);color:#0e7a5a}
+.tag-mid{background:rgba(255,201,77,.25);color:#9a6b00}
+.tag-lo{background:rgba(255,93,82,.16);color:#c43c33}
+
+/* footer */
+footer{background:var(--ink);color:var(--paper);padding:70px 0 50px;text-align:center;position:relative;overflow:hidden}
+footer::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 50% 0,rgba(0,163,217,.25),transparent 65%)}
+footer .wrap{position:relative;z-index:2}
+footer h2{font-family:'Fraunces';font-weight:900;font-size:clamp(2.2rem,7vw,4.5rem);letter-spacing:-.03em;margin-bottom:14px}
+footer p{color:rgba(244,241,234,.65);max-width:46ch;margin:0 auto 30px}
+footer .fmeta{font-family:'JetBrains Mono';font-size:.74rem;color:rgba(244,241,234,.4);letter-spacing:.08em;margin-top:38px}
+
+.reveal{opacity:0;transform:translateY(28px);transition:.8s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* término con definición al pasar el ratón */
+.term-def{
+  border-bottom:2px dotted var(--cyan-deep);cursor:help;font-weight:600;color:var(--cyan-deep);
+}
+.term-def .tip-box{
+  position:fixed;
+  width:260px;max-width:calc(100vw - 32px);
+  background:var(--ink);color:var(--paper);padding:12px 14px;border-radius:11px;
+  font-size:.8rem;font-weight:400;line-height:1.5;opacity:0;pointer-events:none;transition:opacity .15s;z-index:9999;
+  box-shadow:0 14px 36px -12px rgba(0,0,0,.5);border:1px solid rgba(0,163,217,.4);
+  left:0;top:0;
+}
+.term-def.tip-on .tip-box{opacity:1}
+.term-def .tip-box b{color:var(--cyan)}
+@media(max-width:760px){.term-def .tip-box{width:220px}}
+
+/* caja "en cristiano" / analogía */
+.plain{
+  background:#fff;border:1px solid var(--line);border-left:4px solid var(--green);
+  border-radius:12px;padding:16px 20px;margin:18px 0;font-size:.94rem;color:var(--ink-soft);
+}
+.plain .ptag{display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono';font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:7px}
+.type-panel .plain{background:rgba(29,185,138,.06)}
+
+/* glosario */
+.gloss-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:40px}
+@media(max-width:760px){.gloss-grid{grid-template-columns:1fr}}
+.gloss-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.gloss-card .g-term{font-family:'Fraunces';font-weight:600;font-size:1.12rem;margin-bottom:4px;display:flex;align-items:baseline;gap:9px}
+.gloss-card .g-pron{font-family:'JetBrains Mono';font-size:.72rem;color:var(--cyan-deep);font-weight:400}
+.gloss-card p{font-size:.9rem;color:var(--ink-soft)}
+.gloss-card .g-like{margin-top:9px;font-size:.84rem;color:var(--green);font-style:italic}
+
+/* pasos gráficos Auth0 (mockups de pantalla) */
+.screens{display:flex;flex-direction:column;gap:50px;margin-top:44px}
+.screen-step{display:grid;grid-template-columns:.85fr 1.15fr;gap:32px;align-items:center}
+.screen-step:nth-child(even){grid-template-columns:1.15fr .85fr}
+.screen-step:nth-child(even) .screen-txt{order:2}
+@media(max-width:840px){.screen-step,.screen-step:nth-child(even){grid-template-columns:1fr}.screen-step:nth-child(even) .screen-txt{order:0}}
+.screen-txt .s-num{font-family:'JetBrains Mono';font-size:.78rem;font-weight:700;color:var(--cyan-deep);letter-spacing:.1em}
+.screen-txt h3{font-family:'Fraunces';font-weight:600;font-size:1.5rem;margin:8px 0 10px;line-height:1.1}
+.screen-txt p{color:var(--ink-soft);font-size:.96rem;margin-bottom:10px}
+.screen-txt .hint{font-size:.84rem;color:var(--cyan-deep);font-family:'JetBrains Mono';display:flex;align-items:flex-start;gap:8px}
+
+/* mockup de ventana de navegador para Auth0 */
+.uiwin{background:#fff;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line)}
+.uiwin .uibar{display:flex;align-items:center;gap:7px;padding:9px 13px;background:#eceae3;border-bottom:1px solid var(--line)}
+.uiwin .uibar .ud{width:10px;height:10px;border-radius:50%}
+.uiwin .uibar .ud:nth-child(1){background:#ff5f56}.uiwin .uibar .ud:nth-child(2){background:#ffbd2e}.uiwin .uibar .ud:nth-child(3){background:#27c93f}
+.uiwin .uibar .uurl{margin-left:8px;flex:1;background:#fff;border-radius:6px;padding:4px 10px;font-family:'JetBrains Mono';font-size:.7rem;color:#7a89a8}
+.uiwin .uibody{padding:22px;min-height:170px;font-size:.9rem}
+/* auth0 brand bits */
+.a0-logo{font-family:'Fraunces';font-weight:900;font-size:1.15rem;color:#000;letter-spacing:-.02em}
+.a0-logo span{color:#eb5424}
+.a0-btn{display:block;width:100%;text-align:center;background:#000;color:#fff;border:0;border-radius:8px;padding:11px;font-family:'Space Grotesk';font-weight:600;font-size:.88rem;margin-top:6px;cursor:default}
+.a0-social{display:flex;align-items:center;justify-content:center;gap:9px;background:#fff;border:1px solid #d4d2cb;border-radius:8px;padding:10px;font-size:.86rem;font-weight:500;margin-bottom:9px;color:#1a2235}
+.a0-input{width:100%;border:1px solid #d4d2cb;border-radius:8px;padding:9px 11px;font-size:.82rem;color:#555;margin-bottom:10px;background:#fafafa}
+.a0-label{font-size:.74rem;font-weight:600;color:#555;display:block;margin-bottom:4px}
+.a0-side{display:flex;gap:0}
+.a0-menu{width:130px;background:#1a1a2e;color:#cdd6f4;border-radius:8px 0 0 8px;padding:14px 0;font-size:.76rem}
+.a0-menu .mi{padding:7px 16px;display:flex;align-items:center;gap:8px}
+.a0-menu .mi.on{background:rgba(235,84,36,.2);color:#fff;border-left:3px solid #eb5424}
+.a0-main{flex:1;background:#f6f6f9;border-radius:0 8px 8px 0;padding:16px;border:1px solid #e4e4ec;border-left:0}
+.a0-pill{display:inline-block;background:#000;color:#fff;border-radius:7px;padding:7px 14px;font-size:.78rem;font-weight:600}
+.a0-card-app{background:#fff;border:1px solid #e4e4ec;border-radius:8px;padding:11px 13px;display:flex;align-items:center;gap:10px;font-size:.82rem;margin-top:9px}
+.a0-typecard{border:1.5px solid #e4e4ec;border-radius:9px;padding:10px;text-align:center;font-size:.74rem;color:#555}
+.a0-typecard.sel{border-color:#eb5424;background:rgba(235,84,36,.06);color:#000;font-weight:600}
+.a0-field-row{background:#fff;border:1px solid #e4e4ec;border-radius:7px;padding:9px 11px;margin-top:8px;font-family:'JetBrains Mono';font-size:.7rem;color:#333;display:flex;justify-content:space-between;align-items:center;gap:8px;word-break:break-all}
+.a0-field-row .cp{flex-shrink:0;color:#eb5424;font-size:.66rem;font-weight:700}
+.a0-tenant-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(235,84,36,.1);color:#c43c00;border-radius:6px;padding:4px 9px;font-size:.72rem;font-weight:600;font-family:'JetBrains Mono'}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> TEMA 7 · Autenticación</div>
+  <nav>
+    <a href="#concepto">Concepto</a>
+    <a href="#tipos">Tipos</a>
+    <a href="#integracion">Integración</a>
+    <a href="#cuenta">Crear cuenta</a>
+    <a href="#setup">Setup Next.js</a>
+    <a href="#playground">Playground</a>
+    <a href="#comparativa">Comparativa</a>
+    <a href="#glosario">Glosario</a>
+  </nav>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="grid-bg"></div>
+  <span class="token-float" style="top:22%;left:14%">access_token</span>
+  <span class="token-float" style="top:34%;right:12%">id_token</span>
+  <span class="token-float" style="bottom:30%;left:20%">session=…</span>
+  <span class="token-float" style="bottom:22%;right:22%">refresh_token</span>
+  <div class="wrap">
+    <div class="tema-tag">Desarrollo Frontend · Sesión I</div>
+    <h1>Auten<em>ti</em>cación<br>en <em>Next.js</em></h1>
+    <p class="subtitle">Cómo demostrar <b style="color:var(--cyan)">quién eres</b> en una aplicación web moderna — de la teoría a un proyecto real con Auth0 y Google.</p>
+    <div class="meta-row">
+      <span class="chip">🔐 <b>4</b> tipos de autenticación</span>
+      <span class="chip">⚡ Integración con <b>Auth0</b></span>
+      <span class="chip">🧪 Playground <b>interactivo</b></span>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>scroll</span><span class="arrow"></span></div>
+</header>
+
+<!-- ============ CONCEPTO ============ -->
+<section id="concepto">
+  <div class="wrap reveal">
+    <div class="eyebrow">01 · El concepto</div>
+    <h2 class="sec">¿Qué es la autenticación?</h2>
+    <p class="lead">Es la forma en que una aplicación <b>comprueba que eres quien dices ser</b> antes de dejarte entrar. Responde a una pregunta muy simple: «¿quién eres?». Y tú lo demuestras enseñando algo que solo tú tienes: una contraseña, un código que llega a tu móvil, un enlace en tu correo…</p>
+
+    <div class="plain">
+      <span class="ptag">🛂 Aclaración</span>
+      Es como entrar a un edificio enseñando tu DNI en recepción. El guardia <b>autentica</b> (mira la foto y confirma que eres tú). Luego, ya dentro, tu tarjeta de empleado decide a qué plantas puedes subir: eso es <b>autorizar</b>.
+    </div>
+
+    <div class="def-grid">
+      <div class="qa-card who">
+        <div class="qmark">?</div>
+        <h3>Autenticación</h3>
+        <p>«¿Quién eres?» — Confirmar tu <b>identidad</b>. Enseñas una prueba (contraseña, código, enlace o un «pase» de Google) y el sistema verifica que eres tú.</p>
+        <div class="tagline">demostrando quién eres</div>
+      </div>
+      <div class="qa-card what">
+        <div class="qmark">!</div>
+        <h3>Autorización</h3>
+        <p>«¿Qué puedes hacer?» — Ocurre <b>después</b>, cuando ya saben quién eres. Decide qué puedes ver y qué no (por ejemplo: un usuario normal frente a un administrador).</p>
+        <div class="tagline">qué te está permitido</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="ico">💡</span>
+      <p><b>No las confundas.</b> Primero se autentica (saben <i>quién</i> eres) y luego se autoriza (deciden <i>qué</i> puedes hacer). Son dos pasos distintos, en este orden.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TIPOS ============ -->
+<section id="tipos" style="background:var(--paper-2)">
+  <div class="wrap reveal">
+    <div class="eyebrow">02 · Los mecanismos</div>
+    <h2 class="sec">Tipos de autenticación</h2>
+    <p class="lead">Cuatro formas de demostrar que eres tú, de la más clásica a la más moderna. Cada una sigue una conversación de ida y vuelta entre tu navegador y los servidores. Pulsa cada pestaña para verlo como un cómic paso a paso.</p>
+
+    <div class="plain">
+      <span class="ptag">📖 Cómo leer los diagramas</span>
+      Las líneas verticales son los «personajes» (tú, el navegador, la app, etc.). Las flechas son mensajes que se envían, <b>numerados en orden</b>. Las flechas con línea continua son peticiones; las de línea discontinua son respuestas.
+    </div>
+
+    <div class="types-nav">
+      <div class="type-tab active" data-tt="0"><span class="num">01</span>Usuario y contraseña</div>
+      <div class="type-tab" data-tt="1"><span class="num">02</span>SMS / OTP</div>
+      <div class="type-tab" data-tt="2"><span class="num">03</span>Magic link</div>
+      <div class="type-tab" data-tt="3"><span class="num">04</span>OAuth 2.0</div>
+    </div>
+
+    <!-- PANEL 0: password -->
+    <div class="type-panel active" data-tp="0">
+      <div class="type-head">
+        <div class="type-badge">🔑</div>
+        <div>
+          <h3>Usuario y contraseña</h3>
+          <div class="sub">// Un clásico</div>
+        </div>
+      </div>
+      <div class="type-body">
+        <div class="type-desc">
+          <p>Escribes tu usuario y tu contraseña en un formulario. El servidor las comprueba y, si son correctas, te «recuerda» durante un rato para que no tengas que volver a escribirlas en cada página.</p>
+          <div class="plain">
+            <span class="ptag">🍪 ¿Qué es una cookie de sesión?</span>
+            Cuando entras, el servidor te da un «sello invisible» (una <b>cookie</b>) que tu navegador guarda y enseña automáticamente en cada página que visitas. Así sabe que sigues siendo tú sin pedirte la contraseña una y otra vez.
+          </div>
+          <ul class="feature-list">
+            <li>La contraseña <b>nunca se guarda tal cual</b>. Se guarda revuelta con una técnica llamada <span class="term-def">hash<span class="tip-box"><b>Hash:</b> convertir la contraseña en una cadena de letras y números imposible de revertir. Así, aunque roben la base de datos, no ven tu contraseña real.</span></span>, imposible de descifrar.</li>
+            <li>El navegador reenvía esa cookie solo, en cada visita.</li>
+          </ul>
+          <div class="pros-cons">
+            <div class="pc pro"><b>A favor</b>Lo entiende todo el mundo, no depende de nadie externo.</div>
+            <div class="pc con"><b>En contra</b>La gente reutiliza y olvida contraseñas; pueden filtrarse.</div>
+          </div>
+        </div>
+        <div>
+          <div class="seq" id="seq0"></div>
+          <p class="seq-note">En requests posteriores, el navegador envía la cookie automáticamente</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 1: SMS -->
+    <div class="type-panel" data-tp="1">
+      <div class="type-head">
+        <div class="type-badge">📱</div>
+        <div>
+          <h3>Autenticación por SMS</h3>
+          <div class="sub">// Añadiendo otro factor</div>
+        </div>
+      </div>
+      <div class="type-body">
+        <div class="type-desc">
+          <p>La app te envía un código por SMS y tú lo escribes para demostrar que tienes ese teléfono en la mano. Suele usarse <b>además</b> de la contraseña, como segundo candado.</p>
+          <div class="plain">
+            <span class="ptag">🔐 ¿Qué es un "segundo factor"?</span>
+            Es añadir una segunda prueba distinta. Una contraseña es algo que <i>sabes</i>; el código del SMS es algo que <i>tienes</i> (tu móvil). Si un ladrón roba tu contraseña, todavía le falta tu teléfono. A esto se le llama <b>verificación en dos pasos</b> (2FA/MFA).
+          </div>
+          <ul class="feature-list">
+            <li>El código (<span class="term-def">OTP<span class="tip-box"><b>OTP</b> = <i>One-Time Password</i>, contraseña de un solo uso. Sirve una sola vez y caduca en pocos minutos.</span></span>) caduca enseguida y solo vale una vez.</li>
+            <li>La app necesita un servicio externo que mande los SMS.</li>
+          </ul>
+          <div class="pros-cons">
+            <div class="pc pro"><b>A favor</b>Añade seguridad: hace falta tener el teléfono.</div>
+            <div class="pc con"><b>En contra</b>Cuesta dinero por SMS y depende de la cobertura.</div>
+          </div>
+        </div>
+        <div>
+          <div class="seq" id="seq1"></div>
+          <p class="seq-note">Al fallar, se incrementan intentos y se puede invalidar el challenge</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 2: magic link -->
+    <div class="type-panel" data-tp="2">
+      <div class="type-head">
+        <div class="type-badge">✨</div>
+        <div>
+          <h3>Magic link</h3>
+          <div class="sub">// Muy actual</div>
+        </div>
+      </div>
+      <div class="type-body">
+        <div class="type-desc">
+          <p>Solo escribes tu correo. La app te manda un email con un enlace especial; haces clic y ya estás dentro. <b>Sin contraseñas que recordar.</b></p>
+          <div class="plain">
+            <span class="ptag">✨ ¿Por qué "mágico"?</span>
+            Porque el enlace lleva una especie de «llave de un solo uso» escondida. Al pulsarlo, la app reconoce la llave y te abre la puerta. La llave caduca enseguida y, una vez usada, ya no sirve, para que nadie pueda reutilizar ese correo si lo intercepta.
+          </div>
+          <ul class="feature-list">
+            <li>El enlace es de <b>un solo uso</b> y caduca pronto.</li>
+            <li>La app responde siempre lo mismo («revisa tu correo»), exista o no esa cuenta, para no dar pistas a un atacante.</li>
+          </ul>
+          <div class="pros-cons">
+            <div class="pc pro"><b>A favor</b>Nada de contraseñas: muy cómodo.</div>
+            <div class="pc con"><b>En contra</b>Dependes de que llegue el email y de revisarlo.</div>
+          </div>
+        </div>
+        <div>
+          <div class="seq" id="seq2"></div>
+          <p class="seq-note">El enlace debe ser de uso único y expiración corta para reducir riesgo</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 3: OAuth -->
+    <div class="type-panel" data-tp="3">
+      <div class="type-head">
+        <div class="type-badge">🌐</div>
+        <div>
+          <h3>OAuth 2.0</h3>
+          <div class="sub">// "Continuar con Google"</div>
+        </div>
+      </div>
+      <div class="type-body">
+        <div class="type-desc">
+          <p>Es el famoso botón <b>«Continuar con Google»</b> (o con Apple, GitHub…). En lugar de crear otra contraseña, le pides a Google que confirme tu identidad por ti. Es el método que usaremos con Auth0 en el playground.</p>
+          <div class="plain">
+            <span class="ptag">🎟️ La analogía del portero</span>
+            Imagina que Google es un portero de confianza que ya te conoce. Tu app le pregunta: «¿este de aquí es quien dice ser?». Google te enseña una pantalla de permiso, tú aceptas, y le da a la app un <span class="term-def">pase firmado<span class="tip-box"><b>Token / id_token:</b> un «pase» digital firmado por Google que dice quién eres. La app comprueba la firma para saber que es auténtico y no falsificado.</span></span> que dice quién eres. La app nunca ve tu contraseña de Google.
+          </div>
+          <ul class="feature-list">
+            <li>Tu app <b>no guarda ninguna contraseña</b>: confía en Google.</li>
+            <li>Detrás funciona un protocolo estándar y seguro (Auth0 se encarga de toda la parte difícil).</li>
+          </ul>
+          <div class="pros-cons">
+            <div class="pc pro"><b>A favor</b>Un solo clic, sin contraseñas, y aprovechas la seguridad de Google.</div>
+            <div class="pc con"><b>En contra</b>Dependes de ese proveedor y el flujo por dentro es más complejo.</div>
+          </div>
+        </div>
+        <div>
+          <div class="seq" id="seq3"></div>
+          <p class="seq-note">La sesión se mantiene con cookie HttpOnly para no exponer tokens a JS</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INTEGRACIÓN ============ -->
+<section id="integracion">
+  <div class="wrap reveal">
+    <div class="eyebrow">03 · El problema de la semana</div>
+    <h2 class="sec">Integrar autenticación con Auth0</h2>
+    <p class="lead">Montar todo el sistema de login tú mismo (contraseñas, seguridad, botón de Google…) es difícil y arriesgado. <b>Auth0 lo hace por ti</b>: es una empresa especializada en identidad. Tú solo conectas tu app y ella se encarga de la parte complicada y peligrosa.</p>
+
+    <div class="plain">
+      <span class="ptag">🏢 ¿Qué es Auth0?</span>
+      Piensa en Auth0 como una <b>«recepción de seguridad» que alquilas</b> en lugar de construir la tuya. Cuando alguien quiere entrar en tu app, lo mandas a esa recepción; allí lo identifican (con Google, contraseña, etc.) y te avisan de quién es. Tú nunca tocas las contraseñas. Tiene un <b>plan gratuito</b> de sobra para aprender y proyectos pequeños.
+    </div>
+
+    <div class="def-grid">
+      <div class="qa-card who">
+        <div class="qmark">1</div>
+        <h3>¿Cómo creamos una cuenta?</h3>
+        <p>Te registras gratis en auth0.com. Al hacerlo se crea tu <span class="term-def" style="color:var(--cyan)">tenant<span class="tip-box"><b>Tenant</b> (se pronuncia «ténant»): tu espacio privado dentro de Auth0, como tu propia carpeta o tu propia oficina. Ahí vive todo lo de tu proyecto: tus usuarios, tus apps y tu configuración.</span></span> y entras al panel de control. Lo verás <b>paso a paso justo abajo 👇</b></p>
+        <div class="tagline">auth0.com → sign up</div>
+      </div>
+      <div class="qa-card what">
+        <div class="qmark">2</div>
+        <h3>¿Cómo añadimos login con Google?</h3>
+        <p>Dentro de Auth0 activas la conexión con Google (un par de clics) y, en tu proyecto de Next.js, colocas el botón «Continuar con Google». Auth0 hace el resto.</p>
+        <div class="tagline">authentication → social → google</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CREAR CUENTA AUTH0 (PASO A PASO GRÁFICO) ============ -->
+<section id="cuenta">
+  <div class="wrap reveal">
+    <div class="eyebrow">04 · Tu primera vez</div>
+    <h2 class="sec">Crear la cuenta en Auth0, pantalla a pantalla</h2>
+    <p class="lead">No hace falta tarjeta de crédito. En unos 5 minutos tendrás tu cuenta lista y las tres «llaves» que tu proyecto necesita. Esto es lo que verás en cada paso 👇</p>
+
+    <div class="screens">
+
+      <!-- paso 1 -->
+      <div class="screen-step">
+        <div class="screen-txt">
+          <div class="s-num">PASO 1</div>
+          <h3>Entra en auth0.com y pulsa «Sign Up»</h3>
+          <p>Abre <b>auth0.com</b> en el navegador y busca el botón <b>Sign Up</b> (registrarse), arriba a la derecha.</p>
+          <p class="hint">💡 Consejo: regístrate con tu cuenta de Google. Es más rápido y no tendrás que crear otra contraseña.</p>
+        </div>
+        <div class="uiwin">
+          <div class="uibar"><span class="ud"></span><span class="ud"></span><span class="ud"></span><span class="uurl">https://auth0.com</span></div>
+          <div class="uibody" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:14px;background:#000">
+            <div class="a0-logo" style="color:#fff;font-size:1.6rem">auth<span>0</span></div>
+            <p style="color:#bbb;font-size:.86rem;max-width:30ch">La plataforma para añadir login a tu aplicación sin complicarte.</p>
+            <span class="a0-pill" style="background:#eb5424">Sign Up →</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- paso 2 -->
+      <div class="screen-step">
+        <div class="screen-txt">
+          <div class="s-num">PASO 2</div>
+          <h3>Regístrate (mejor con Google)</h3>
+          <p>Elige «Continue with Google» o escribe un email y una contraseña. Si usas email, recibirás un correo de confirmación: ábrelo y pulsa el enlace para activar la cuenta.</p>
+          <p class="hint">📧 Si no llega el correo, mira en la carpeta de spam.</p>
+        </div>
+        <div class="uiwin">
+          <div class="uibar"><span class="ud"></span><span class="ud"></span><span class="ud"></span><span class="uurl">auth0.com/signup</span></div>
+          <div class="uibody" style="max-width:300px;margin:0 auto">
+            <div class="a0-logo" style="text-align:center;margin-bottom:14px">auth<span>0</span></div>
+            <div class="a0-social"><svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.4 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.4 5.7c4.3-4 6.8-9.9 6.8-17.4z"/><path fill="#FBBC05" d="M10.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l-7.9-6.2C.9 16.5 0 20.1 0 24s.9 7.5 2.6 10.6l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.2-8.5 2.2-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/></svg> Continue with Google</div>
+            <div style="text-align:center;color:#aaa;font-size:.72rem;margin:8px 0">— o —</div>
+            <span class="a0-label">Email</span><div class="a0-input">tu@correo.com</div>
+            <span class="a0-label">Password</span><div class="a0-input">••••••••</div>
+            <div class="a0-btn">Continue</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- paso 3 -->
+      <div class="screen-step">
+        <div class="screen-txt">
+          <div class="s-num">PASO 3</div>
+          <h3>Se crea tu tenant automáticamente</h3>
+          <p>Auth0 te pedirá una <b>región</b> (elige Europa si estás en España) y le dará un nombre a tu <span class="term-def">tenant<span class="tip-box"><b>Tenant:</b> tu espacio privado dentro de Auth0. Su nombre forma parte de la dirección de tu «recepción de seguridad», por ejemplo <i>mi-proyecto.eu.auth0.com</i>.</span></span>. No te preocupes por el nombre: puedes dejar el que sugiere.</p>
+          <p class="hint">🌍 La región solo afecta a dónde se guardan los datos. Para la UE, elige EU.</p>
+        </div>
+        <div class="uiwin">
+          <div class="uibar"><span class="ud"></span><span class="ud"></span><span class="ud"></span><span class="uurl">manage.auth0.com · creando tenant…</span></div>
+          <div class="uibody" style="display:flex;flex-direction:column;gap:12px;justify-content:center">
+            <span class="a0-label">Region / Región</span>
+            <div style="display:flex;gap:8px">
+              <div class="a0-typecard sel">🇪🇺 EU<br><span style="font-size:.66rem">Europe</span></div>
+              <div class="a0-typecard">🇺🇸 US<br><span style="font-size:.66rem">United States</span></div>
+              <div class="a0-typecard">🇦🇺 AU<br><span style="font-size:.66rem">Australia</span></div>
+            </div>
+            <div style="margin-top:6px">Tu tenant será: <span class="a0-tenant-tag">dev-mi-proyecto.eu.auth0.com</span></div>
+            <div class="a0-btn" style="margin-top:4px">Create</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- paso 4 -->
+      <div class="screen-step">
+        <div class="screen-txt">
+          <div class="s-num">PASO 4</div>
+          <h3>Crea una «Application»</h3>
+          <p>Ya dentro del panel, ve al menú <b>Applications</b> y pulsa <b>Create Application</b>. Una «Application» es simplemente <b>cómo Auth0 representa a tu proyecto</b> de Next.js.</p>
+          <p class="hint">📂 Una cuenta puede tener varias apps (web, móvil…). Hoy solo necesitas una.</p>
+        </div>
+        <div class="uiwin">
+          <div class="uibar"><span class="ud"></span><span class="ud"></span><span class="ud"></span><span class="uurl">manage.auth0.com/dashboard</span></div>
+          <div class="uibody">
+            <div class="a0-side">
+              <div class="a0-menu">
+                <div class="mi">📊 Getting Started</div>
+                <div class="mi on">📱 Applications</div>
+                <div class="mi">🔐 Authentication</div>
+                <div class="mi">👤 User Management</div>
+              </div>
+              <div class="a0-main">
+                <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:.86rem">Applications</b><span class="a0-pill">+ Create Application</span></div>
+                <div class="a0-card-app">🎬 <span>UNIR Cinema <span style="color:#999">— recién creada</span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- paso 5 -->
+      <div class="screen-step">
+        <div class="screen-txt">
+          <div class="s-num">PASO 5</div>
+          <h3>Elige el tipo «Regular Web Application»</h3>
+          <p>Auth0 te pregunta qué tipo de app es. Como Next.js funciona con un servidor, elige <b>Regular Web Application</b>. Ponle un nombre (por ejemplo «UNIR Cinema») y pulsa crear.</p>
+          <p class="hint">🧭 ¿Por qué esa y no otra? Porque tu app tiene servidor; ahí es donde se guardan los secretos de forma segura.</p>
+        </div>
+        <div class="uiwin">
+          <div class="uibar"><span class="ud"></span><span class="ud"></span><span class="ud"></span><span class="uurl">create application</span></div>
+          <div class="uibody">
+            <span class="a0-label">Name</span><div class="a0-input">UNIR Cinema</div>
+            <span class="a0-label">¿Qué tipo de aplicación?</span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+              <div class="a0-typecard">📄 Single Page App</div>
+              <div class="a0-typecard sel">🖥️ Regular Web App ✓</div>
+              <div class="a0-typecard">📱 Native</div>
+              <div class="a0-typecard">⚙️ Machine to Machine</div>
+            </div>
+            <div class="a0-btn" style="margin-top:12px">Create</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- paso 6 -->
+      <div class="screen-step">
+        <div class="screen-txt">
+          <div class="s-num">PASO 6</div>
+          <h3>Copia tus tres «llaves»</h3>
+          <p>En la pestaña <b>Settings</b> de tu aplicación verás tres datos. Son los que pegarás en tu proyecto de Next.js (en el siguiente apartado):</p>
+          <ul class="feature-list" style="margin-top:6px">
+            <li><b>Domain</b>: la dirección de tu recepción de seguridad.</li>
+            <li><b>Client ID</b>: el «nombre público» de tu app (no es secreto).</li>
+            <li><b>Client Secret</b>: la <b>contraseña secreta</b> de tu app. ⚠️ No la enseñes a nadie ni la subas a internet.</li>
+          </ul>
+        </div>
+        <div class="uiwin">
+          <div class="uibar"><span class="ud"></span><span class="ud"></span><span class="ud"></span><span class="uurl">UNIR Cinema › Settings</span></div>
+          <div class="uibody">
+            <span class="a0-label">Domain</span>
+            <div class="a0-field-row">dev-mi-proyecto.eu.auth0.com <span class="cp">📋 COPY</span></div>
+            <span class="a0-label" style="margin-top:10px">Client ID</span>
+            <div class="a0-field-row">Kx9fQ2aB7cD4eF6gH8iJ0kL <span class="cp">📋 COPY</span></div>
+            <span class="a0-label" style="margin-top:10px">Client Secret 🔒</span>
+            <div class="a0-field-row">••••••••••••••••••••••••• <span class="cp">👁 REVEAL</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- paso 7 -->
+      <div class="screen-step">
+        <div class="screen-txt">
+          <div class="s-num">PASO 7</div>
+          <h3>Activa el login con Google</h3>
+          <p>Ve a <b>Authentication → Social</b> y activa <b>Google</b>. Con eso, el botón «Continuar con Google» ya funcionará. Auth0 trae una configuración de prueba lista para usar mientras aprendes.</p>
+          <p class="hint">✅ Para desarrollo no necesitas nada más. En producción Auth0 te pedirá tus propias claves de Google.</p>
+        </div>
+        <div class="uiwin">
+          <div class="uibar"><span class="ud"></span><span class="ud"></span><span class="ud"></span><span class="uurl">Authentication › Social</span></div>
+          <div class="uibody">
+            <div class="a0-side">
+              <div class="a0-menu">
+                <div class="mi">📱 Applications</div>
+                <div class="mi on">🔐 Authentication</div>
+                <div class="mi" style="padding-left:28px">› Social</div>
+                <div class="mi" style="padding-left:28px">› Database</div>
+              </div>
+              <div class="a0-main">
+                <b style="font-size:.82rem">Social Connections</b>
+                <div class="a0-card-app" style="justify-content:space-between"><span>🟢 Google / Gmail</span><span class="a0-tenant-tag" style="background:rgba(29,185,138,.15);color:#0e7a5a">● Activado</span></div>
+                <div class="a0-card-app" style="justify-content:space-between;opacity:.5"><span>🐙 GitHub</span><span style="font-size:.72rem;color:#999">○ Desactivado</span></div>
+                <div class="a0-card-app" style="justify-content:space-between;opacity:.5"><span>🍎 Apple</span><span style="font-size:.72rem;color:#999">○ Desactivado</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout">
+      <span class="ico">🎉</span>
+      <p><b>¡Cuenta lista!</b> Ya tienes tu <i>tenant</i>, una <i>application</i> de tipo web y el login de Google activado. Guarda tu <b>Domain</b>, <b>Client ID</b> y <b>Client Secret</b>: los usarás ahora mismo en el proyecto.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SETUP ============ -->
+<section id="setup" style="background:var(--paper-2)">
+  <div class="wrap reveal">
+    <div class="eyebrow">05 · Manos a la obra</div>
+    <h2 class="sec">Montarlo en un proyecto Next.js</h2>
+    <p class="lead">Ahora conectamos las llaves de Auth0 con tu app. Son seis pasos cortos. No necesitas entender cada línea de código: te explico qué hace cada archivo y para qué sirve.</p>
+
+    <div class="steps">
+
+      <div class="step">
+        <h3>Crear el proyecto e instalar el ayudante de Auth0</h3>
+        <p>Primero creamos una app de Next.js y le añadimos el <span class="term-def">SDK<span class="tip-box"><b>SDK:</b> un «kit» de código ya hecho que te ahorra programar la parte difícil. El de Auth0 hace todo el login por ti.</span></span> oficial de Auth0: una librería que se encarga del login por nosotros.</p>
+        <div class="term">
+<span class="pr">$</span> npx create-next-app@latest cinema-app
+<span class="pr">$</span> cd cinema-app
+<span class="pr">$</span> npm install <span style="color:#c3e88d">@auth0/nextjs-auth0</span>
+<span class="out">added 1 package · listo ✓</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Pegar tus llaves en un archivo de secretos</h3>
+        <p>Creamos un archivo <code>.env.local</code> y pegamos ahí el <b>Domain</b>, <b>Client ID</b> y <b>Client Secret</b> que copiaste de Auth0. Es como el «llavero privado» del proyecto.</p>
+        <div class="code">
+          <div class="code-head"><div class="dots"><span></span><span></span><span></span></div><span class="fname">.env.local</span></div>
+          <pre><code><span class="tk-com"># una contraseña larga al azar para firmar la sesión</span>
+<span class="tk-attr">AUTH0_SECRET</span>=<span class="tk-str">'una-cadena-larga-y-aleatoria'</span>
+<span class="tk-attr">APP_BASE_URL</span>=<span class="tk-str">'http://localhost:3000'</span>
+<span class="tk-com"># las 3 llaves que copiaste de Auth0:</span>
+<span class="tk-attr">AUTH0_DOMAIN</span>=<span class="tk-str">'dev-mi-proyecto.eu.auth0.com'</span>
+<span class="tk-attr">AUTH0_CLIENT_ID</span>=<span class="tk-str">'Kx9fQ2aB7cD4eF6gH8iJ0kL'</span>
+<span class="tk-attr">AUTH0_CLIENT_SECRET</span>=<span class="tk-str">'tu-secreto-de-auth0'</span></code></pre>
+        </div>
+        <div class="callout danger" style="margin-top:18px">
+          <span class="ico">🔒</span>
+          <p>Este archivo <b>nunca se sube a internet</b> (ni a GitHub). Contiene tu <b>Client Secret</b>, que es la contraseña de tu app. Si se filtra, otros podrían hacerse pasar por ti. Next.js ya lo ignora automáticamente.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Preparar el ayudante una sola vez</h3>
+        <p>Creamos un archivo que «enciende» el SDK de Auth0 leyendo esas llaves. Lo escribes una vez y lo reutilizas en todo el proyecto.</p>
+        <div class="code">
+          <div class="code-head"><div class="dots"><span></span><span></span><span></span></div><span class="fname">lib/auth0.ts</span></div>
+          <pre><code><span class="tk-key">import</span> { <span class="tk-cyan">Auth0Client</span> } <span class="tk-key">from</span> <span class="tk-str">'@auth0/nextjs-auth0/server'</span>
+
+<span class="tk-com">// Lee las llaves de .env.local automáticamente</span>
+<span class="tk-key">export const</span> <span class="tk-cyan">auth0</span> = <span class="tk-key">new</span> <span class="tk-fn">Auth0Client</span>()</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Dejar que Auth0 gestione las páginas de login</h3>
+        <p>Este archivo (el <span class="term-def">middleware<span class="tip-box"><b>Middleware:</b> código que se ejecuta «en la puerta», antes de que la petición llegue a tus páginas. Aquí, Auth0 lo usa para atender las direcciones de login, logout y vuelta de Google sin que tú las programes.</span></span>) hace que las direcciones <code>/auth/login</code>, <code>/auth/logout</code> y la vuelta desde Google funcionen <b>solas</b>. Cópialo tal cual.</p>
+        <div class="code">
+          <div class="code-head"><div class="dots"><span></span><span></span><span></span></div><span class="fname">middleware.ts</span></div>
+          <pre><code><span class="tk-key">import</span> { <span class="tk-cyan">auth0</span> } <span class="tk-key">from</span> <span class="tk-str">'./lib/auth0'</span>
+
+<span class="tk-com">// Auth0 atiende las páginas de login por ti</span>
+<span class="tk-key">export async function</span> <span class="tk-fn">middleware</span>(req) {
+  <span class="tk-key">return await</span> auth0.<span class="tk-fn">middleware</span>(req)
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Poner el botón «Continuar con Google»</h3>
+        <p>En la página principal, si <b>no</b> hay sesión, mostramos el botón. Si <b>sí</b> la hay, saludamos al usuario por su nombre. El enlace de login lo gestiona Auth0.</p>
+        <div class="code">
+          <div class="code-head"><div class="dots"><span></span><span></span><span></span></div><span class="fname">app/page.tsx</span></div>
+          <pre><code><span class="tk-key">import</span> { <span class="tk-cyan">auth0</span> } <span class="tk-key">from</span> <span class="tk-str">'@/lib/auth0'</span>
+
+<span class="tk-key">export default async function</span> <span class="tk-fn">Home</span>() {
+  <span class="tk-com">// ¿hay alguien con sesión iniciada?</span>
+  <span class="tk-key">const</span> session = <span class="tk-key">await</span> auth0.<span class="tk-fn">getSession</span>()
+
+  <span class="tk-key">if</span> (!session) {
+    <span class="tk-key">return</span> (
+      <span class="tk-tag">&lt;a</span> <span class="tk-attr">href</span>=<span class="tk-str">"/auth/login?connection=google-oauth2"</span><span class="tk-tag">&gt;</span>
+        Continuar con Google
+      <span class="tk-tag">&lt;/a&gt;</span>
+    )
+  }
+
+  <span class="tk-key">return</span> <span class="tk-tag">&lt;p&gt;</span>Hola, {session.user.name} 👋<span class="tk-tag">&lt;/p&gt;</span>
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Proteger una página privada</h3>
+        <p>Para una página que solo deben ver los usuarios con sesión: preguntamos si hay sesión y, si no la hay, los mandamos al login. Así protegemos el área privada del «UNIR Cinema».</p>
+        <div class="code">
+          <div class="code-head"><div class="dots"><span></span><span></span><span></span></div><span class="fname">app/dashboard/page.tsx</span></div>
+          <pre><code><span class="tk-key">import</span> { <span class="tk-cyan">redirect</span> } <span class="tk-key">from</span> <span class="tk-str">'next/navigation'</span>
+<span class="tk-key">import</span> { <span class="tk-cyan">auth0</span> } <span class="tk-key">from</span> <span class="tk-str">'@/lib/auth0'</span>
+
+<span class="tk-key">export default async function</span> <span class="tk-fn">Dashboard</span>() {
+  <span class="tk-key">const</span> session = <span class="tk-key">await</span> auth0.<span class="tk-fn">getSession</span>()
+  <span class="tk-com">// sin sesión → fuera, al login</span>
+  <span class="tk-key">if</span> (!session) <span class="tk-fn">redirect</span>(<span class="tk-str">'/auth/login'</span>)
+
+  <span class="tk-com">// session.user trae: nombre, email y foto</span>
+  <span class="tk-key">return</span> <span class="tk-tag">&lt;Catalogo</span> <span class="tk-attr">user</span>={session.user} <span class="tk-tag">/&gt;</span>
+}</code></pre>
+        </div>
+        <div class="callout tip" style="margin-top:18px">
+          <span class="ico">🛡️</span>
+          <p>La comprobación se hace en el <b>servidor</b>, no en el navegador. Por eso es segura: nadie puede saltársela trucando la página desde su ordenador.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ PLAYGROUND ============ -->
+<section id="playground" class="pg-section">
+  <div class="wrap reveal">
+    <div class="eyebrow">06 · Pruébalo</div>
+    <h2 class="sec">Playground Next.js + Auth0</h2>
+    <p class="lead">Un mini-proyecto de Next.js de mentira para que juegues sin instalar nada. Edita los archivos a la izquierda, pulsa <b>Run</b> y mira cómo se comporta la «app» a la derecha. El botón <b>Continuar con Google</b> te enseña, paso a paso en la consola de abajo, todo lo que pasa por dentro cuando inicias sesión.</p>
+
+    <div class="playground">
+      <div class="pg-bar" id="pgBar">
+        <div class="pg-tab active" data-file="page"><span class="fdot" style="background:#82aaff"></span>app/page.tsx</div>
+        <div class="pg-tab" data-file="auth0"><span class="fdot" style="background:#c792ea"></span>lib/auth0.ts</div>
+        <div class="pg-tab" data-file="dashboard"><span class="fdot" style="background:#c3e88d"></span>app/dashboard/page.tsx</div>
+        <div class="pg-tab" data-file="env"><span class="fdot" style="background:#ffcb6b"></span>.env.local</div>
+      </div>
+      <div class="pg-body">
+        <div class="pg-editor">
+          <textarea id="pgCode" spellcheck="false"></textarea>
+        </div>
+        <div class="pg-preview">
+          <div class="pg-browser-bar">
+            <span style="color:#546178;font-family:'JetBrains Mono';font-size:.8rem">localhost:3000</span>
+            <span class="pg-url" id="pgUrl">/</span>
+            <button class="pg-run" id="pgRun">▶ Run</button>
+          </div>
+          <div class="pg-screen" id="pgScreen"></div>
+          <div class="pg-console" id="pgConsole"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip" style="margin-top:28px">
+      <span class="ico">🧪</span>
+      <p><b>Qué está pasando.</b> Cuando pulsas el botón, tu app manda al usuario a Auth0, que a su vez lo manda a Google. Google confirma quién es y lo devuelve a tu app con un «pase». Tu app crea entonces la sesión (el sello invisible) y muestra el área privada. <b>Pruébalo tú:</b> cambia el nombre en <code>.env.local</code>, o quita la línea de protección del dashboard, y pulsa Run otra vez para ver la diferencia.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPARATIVA ============ -->
+<section id="comparativa">
+  <div class="wrap reveal">
+    <div class="eyebrow">07 · Para decidir</div>
+    <h2 class="sec">¿Cuál elegir?</h2>
+    <p class="lead">No hay un ganador absoluto: depende del contexto, la UX deseada y los requisitos de seguridad. Esta es la foto rápida de los cuatro mecanismos.</p>
+
+    <table class="cmp-table">
+      <thead>
+        <tr><th>Mecanismo</th><th>UX</th><th>Seguridad base</th><th>Infra externa</th><th>Mejor para</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Usuario y contraseña</td>
+          <td><span class="tag tag-mid">Media</span></td>
+          <td><span class="tag tag-lo">Débil sola</span></td>
+          <td>Ninguna</td>
+          <td>Apps internas, control total</td>
+        </tr>
+        <tr>
+          <td>SMS / OTP</td>
+          <td><span class="tag tag-mid">Media</span></td>
+          <td><span class="tag tag-mid">2º factor</span></td>
+          <td>SMS Gateway</td>
+          <td>Reforzar otro método (MFA)</td>
+        </tr>
+        <tr>
+          <td>Magic link</td>
+          <td><span class="tag tag-hi">Alta</span></td>
+          <td><span class="tag tag-mid">Buena</span></td>
+          <td>Email Service</td>
+          <td>Sin contraseñas, baja fricción</td>
+        </tr>
+        <tr>
+          <td>OAuth 2.0 (Auth0 + Google)</td>
+          <td><span class="tag tag-hi">Alta</span></td>
+          <td><span class="tag tag-hi">Fuerte</span></td>
+          <td>Proveedor IdP</td>
+          <td>Apps modernas, login social</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout" style="margin-top:34px">
+      <span class="ico">🎬</span>
+      <p><b>Recurso del Aula Virtual.</b> Complementa esto con los vídeos «Autenticación con Auth0», «UNIR Cinema: Añadiendo autenticación» y «UNIR Cinema: Completando la funcionalidad».</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GLOSARIO ============ -->
+<section id="glosario" style="background:var(--paper-2)">
+  <div class="wrap reveal">
+    <div class="eyebrow">08 · Chuleta</div>
+    <h2 class="sec">Glosario rápido</h2>
+    <p class="lead">Todas las palabras raras de este tema, explicadas en una frase. Vuelve aquí siempre que te pierdas.</p>
+
+    <div class="gloss-grid">
+      <div class="gloss-card">
+        <div class="g-term">Autenticación <span class="g-pron">/auth/</span></div>
+        <p>Comprobar <b>quién</b> eres antes de dejarte entrar.</p>
+        <div class="g-like">≈ enseñar el DNI en recepción</div>
+      </div>
+      <div class="gloss-card">
+        <div class="g-term">Autorización</div>
+        <p>Decidir <b>qué</b> puedes hacer una vez te conocen.</p>
+        <div class="g-like">≈ a qué plantas puede subir tu tarjeta</div>
+      </div>
+      <div class="gloss-card">
+        <div class="g-term">Auth0 <span class="g-pron">«auth cero»</span></div>
+        <p>Empresa que te gestiona todo el login para que tú no tengas que construirlo.</p>
+        <div class="g-like">≈ una recepción de seguridad de alquiler</div>
+      </div>
+      <div class="gloss-card">
+        <div class="g-term">Tenant <span class="g-pron">«ténant»</span></div>
+        <p>Tu espacio privado dentro de Auth0, con tus usuarios y tu configuración.</p>
+        <div class="g-like">≈ tu propia oficina dentro del edificio</div>
+      </div>
+      <div class="gloss-card">
+        <div class="g-term">Cookie de sesión</div>
+        <p>El «sello invisible» que el navegador guarda para recordar que ya entraste.</p>
+        <div class="g-like">≈ el sello de tinta en la mano de una discoteca</div>
+      </div>
+      <div class="gloss-card">
+        <div class="g-term">Hash</div>
+        <p>Revolver una contraseña para guardarla sin que se pueda leer.</p>
+        <div class="g-like">≈ una batidora: entra fácil, no sale entero</div>
+      </div>
+      <div class="gloss-card">
+        <div class="g-term">Token / id_token</div>
+        <p>Un «pase» digital firmado que demuestra quién eres, imposible de falsificar.</p>
+        <div class="g-like">≈ una entrada con holograma</div>
+      </div>
+      <div class="gloss-card">
+        <div class="g-term">OTP</div>
+        <p>Código de un solo uso (el del SMS) que caduca enseguida.</p>
+        <div class="g-like">≈ una contraseña de usar y tirar</div>
+      </div>
+      <div class="gloss-card">
+        <div class="g-term">OAuth 2.0</div>
+        <p>El estándar detrás del botón «Continuar con Google».</p>
+        <div class="g-like">≈ las reglas de cómo Google te avala</div>
+      </div>
+      <div class="gloss-card">
+        <div class="g-term">SDK</div>
+        <p>Un kit de código ya hecho que te ahorra programar lo difícil.</p>
+        <div class="g-like">≈ un mueble de IKEA medio montado</div>
+      </div>
+      <div class="gloss-card">
+        <div class="g-term">Middleware</div>
+        <p>Código que actúa «en la puerta», antes de que la petición entre en tus páginas.</p>
+        <div class="g-like">≈ el portero que revisa antes de pasar</div>
+      </div>
+      <div class="gloss-card">
+        <div class="g-term">2FA / MFA</div>
+        <p>Verificación en dos pasos: pedir dos pruebas distintas en vez de una.</p>
+        <div class="g-like">≈ llave + huella, no solo la llave</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <h2>Hands on! 🛠️</h2>
+    <p>Ya sabes demostrar <b style="color:var(--cyan)">quién eres</b> en Next.js. Ahora monta tu propio Auth0, conecta Google y protege tu primera ruta.</p>
+    <span class="chip" style="border-color:rgba(255,255,255,.25)">Tema 7 · Autenticación · Desarrollo Frontend</span>
+    <div class="fmeta">Material didáctico interactivo · Sesión I</div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   1) DIAGRAMAS DE SECUENCIA (SVG generados)
+   ============================================================ */
+const C = {cyan:'#00a3d9', amber:'#ffc94d', paper:'#f4f1ea', muted:'rgba(244,241,234,.55)', line:'rgba(244,241,234,.28)'};
+
+function buildSeq(actors, msgs, noteAt){
+  // actors: ['Usuario','Browser',...]  msgs: [{from,to,label,dashed,self}]
+  const W = 760, padX=70, topY=46, rowH=34;
+  const n = actors.length;
+  const gap = (W - padX*2) / (n-1);
+  const xs = actors.map((_,i)=> padX + i*gap);
+  const bottomY = topY + (msgs.length+1)*rowH + 18;
+  let svg = `<svg viewBox="0 0 ${W} ${bottomY+30}" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">`;
+  // lifelines + headers
+  actors.forEach((a,i)=>{
+    const x = xs[i];
+    svg += `<line x1="${x}" y1="${topY}" x2="${x}" y2="${bottomY}" stroke="${C.line}" stroke-width="1"/>`;
+    const w = Math.max(a.length*6.6+16, 44);
+    [topY-12, bottomY].forEach(yy=>{
+      svg += `<rect x="${x-w/2}" y="${yy-12}" width="${w}" height="24" rx="6" fill="#131b2e" stroke="${C.cyan}" stroke-width="1"/>`;
+      svg += `<text x="${x}" y="${yy+4}" fill="${C.paper}" font-size="10.5" text-anchor="middle">${a}</text>`;
+    });
+  });
+  // messages
+  msgs.forEach((m,idx)=>{
+    const y = topY + (idx+1)*rowH + 8;
+    const fx = xs[m.from], tx = xs[m.to];
+    const stroke = C.cyan;
+    const dash = m.dashed ? 'stroke-dasharray="5 4"' : '';
+    // number bubble
+    svg += `<circle cx="${fx}" cy="${y}" r="8" fill="${C.cyan}"/><text x="${fx}" y="${y+3.5}" fill="#001520" font-size="9" font-weight="700" text-anchor="middle">${idx+1}</text>`;
+    if(m.self){
+      const r=16;
+      svg += `<path d="M ${fx} ${y} h ${r} v 16 h -${r}" fill="none" stroke="${stroke}" stroke-width="1.4" ${dash}/>`;
+      svg += `<path d="M ${fx+4} ${y+12} l -5 4 l 5 4" fill="none" stroke="${stroke}" stroke-width="1.4"/>`;
+      svg += `<text x="${fx+r+6}" y="${y+10}" fill="${C.muted}" font-size="9.5">${m.label}</text>`;
+    } else {
+      const dir = tx>fx?1:-1;
+      svg += `<line x1="${fx}" y1="${y}" x2="${tx-dir*9}" y2="${y}" stroke="${stroke}" stroke-width="1.4" ${dash}/>`;
+      svg += `<path d="M ${tx-dir*9} ${y-4} L ${tx-dir*1} ${y} L ${tx-dir*9} ${y+4} Z" fill="${stroke}"/>`;
+      const midx = (fx+tx)/2;
+      svg += `<text x="${midx}" y="${y-6}" fill="${C.muted}" font-size="9.5" text-anchor="middle">${m.label}</text>`;
+    }
+  });
+  // note band
+  if(noteAt!=null){
+    const y = topY + (noteAt+1)*rowH + 8;
+    svg += `<rect x="${padX}" y="${y+12}" width="${W-padX*2}" height="20" rx="4" fill="${C.amber}" opacity=".22"/>`;
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
+const seqData = [
+  { // password
+    actors:['Usuario','Browser','Next.js App','Auth API','Users DB'],
+    msgs:[
+      {from:0,to:1,label:'Introduce user/password'},
+      {from:1,to:2,label:'POST /login (credenciales)'},
+      {from:2,to:3,label:'Validar credenciales'},
+      {from:3,to:4,label:'Buscar usuario + hash'},
+      {from:4,to:3,label:'hash almacenado',dashed:true},
+      {from:3,to:2,label:'OK + sessionId',dashed:true},
+      {from:2,to:1,label:'Set-Cookie: session… HttpOnly',dashed:true},
+      {from:1,to:0,label:'Redirección a área privada',dashed:true},
+      {from:1,to:2,label:'GET /dashboard (Cookie)'},
+      {from:2,to:3,label:'Verificar sesión / token'},
+      {from:3,to:2,label:'Identidad válida (userId)',dashed:true},
+      {from:2,to:1,label:'HTML/JSON protegido',dashed:true},
+    ], note:7
+  },
+  { // SMS
+    actors:['Usuario','Browser','Next.js App','Auth API','SMS GW'],
+    msgs:[
+      {from:0,to:1,label:'Introduce teléfono, pide código'},
+      {from:1,to:2,label:'POST /otp/request'},
+      {from:2,to:3,label:'Iniciar desafío OTP'},
+      {from:3,to:3,self:true,label:'Guardar OTP (hash)+exp+intentos'},
+      {from:3,to:4,label:'Enviar SMS con código'},
+      {from:4,to:0,label:'Recibe código por SMS',dashed:true},
+      {from:3,to:2,label:'Challenge creado (challengeId)',dashed:true},
+      {from:0,to:1,label:'Introduce OTP recibido'},
+      {from:1,to:2,label:'POST /otp/verify'},
+      {from:2,to:3,label:'Verificar OTP'},
+      {from:3,to:2,label:'OK + sesión/token',dashed:true},
+      {from:2,to:1,label:'Set-Cookie: session…',dashed:true},
+      {from:1,to:0,label:'Acceso concedido',dashed:true},
+    ], note:9
+  },
+  { // magic link
+    actors:['Usuario','Browser','Next.js App','Auth API','Email Svc'],
+    msgs:[
+      {from:0,to:1,label:'Introduce email (magic link)'},
+      {from:1,to:2,label:'POST /magic/request (email)'},
+      {from:2,to:3,label:'Crear token de un solo uso'},
+      {from:3,to:3,self:true,label:'Guardar token (hash)+exp'},
+      {from:3,to:4,label:'Enviar email con enlace firmado'},
+      {from:4,to:0,label:'Recibe email con magic link',dashed:true},
+      {from:2,to:1,label:'UI "Revisa tu correo"',dashed:true},
+      {from:0,to:1,label:'Abre el enlace del correo'},
+      {from:1,to:2,label:'GET /magic/callback?token='},
+      {from:2,to:3,label:'Canjear token'},
+      {from:3,to:2,label:'Token válido + identidad',dashed:true},
+      {from:2,to:1,label:'Set-Cookie: session…',dashed:true},
+      {from:1,to:0,label:'Redirección a área privada',dashed:true},
+    ], note:8
+  },
+  { // OAuth
+    actors:['Usuario','Browser','Next.js','Google','Users DB'],
+    msgs:[
+      {from:0,to:1,label:'Clic "Continuar con Google"'},
+      {from:1,to:2,label:'GET /auth/login'},
+      {from:2,to:1,label:'302 Redirect a Google /authorize',dashed:true},
+      {from:1,to:3,label:'GET /authorize (PKCE, state, nonce)'},
+      {from:3,to:0,label:'UI Google: login + consent',dashed:true},
+      {from:0,to:3,label:'Autentica y consiente'},
+      {from:3,to:1,label:'302 redirect_uri?code&state',dashed:true},
+      {from:1,to:2,label:'GET /auth/callback?code'},
+      {from:2,to:2,self:true,label:'Validar state + nonce'},
+      {from:2,to:3,label:'POST /token (code, verifier)'},
+      {from:3,to:2,label:'id_token + access_token',dashed:true},
+      {from:2,to:4,label:'Mapear sub/email → usuario'},
+      {from:2,to:1,label:'Set-Cookie: session… HttpOnly',dashed:true},
+      {from:1,to:0,label:'Redirección a área privada',dashed:true},
+    ], note:12
+  },
+];
+
+seqData.forEach((d,i)=>{
+  const el = document.getElementById('seq'+i);
+  if(el) el.innerHTML = buildSeq(d.actors, d.msgs, d.note);
+});
+
+/* ============================================================
+   2) PESTAÑAS DE TIPOS
+   ============================================================ */
+document.querySelectorAll('.type-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    const id = tab.dataset.tt;
+    document.querySelectorAll('.type-tab').forEach(t=>t.classList.toggle('active', t===tab));
+    document.querySelectorAll('.type-panel').forEach(p=>p.classList.toggle('active', p.dataset.tp===id));
+  });
+});
+
+/* ============================================================
+   3) PLAYGROUND — simulador Next.js + Auth0
+   ============================================================ */
+const files = {
+  page:`import { auth0 } from '@/lib/auth0'
+
+export default async function Home() {
+  const session = await auth0.getSession()
+
+  if (!session) {
+    return (
+      <a href="/auth/login?connection=google-oauth2">
+        Continuar con Google
+      </a>
+    )
+  }
+  return <p>Hola, {session.user.name} 👋</p>
+}`,
+  auth0:`import { Auth0Client } from '@auth0/nextjs-auth0/server'
+
+// Cliente único que lee las variables de .env.local
+export const auth0 = new Auth0Client()`,
+  dashboard:`import { redirect } from 'next/navigation'
+import { auth0 } from '@/lib/auth0'
+
+export default async function Dashboard() {
+  const session = await auth0.getSession()
+  if (!session) redirect('/auth/login')
+
+  // Ruta PROTEGIDA: solo con sesión válida
+  return <Catalogo user={session.user} />
+}`,
+  env:`AUTH0_SECRET='a1b2c3d4e5f6...'
+APP_BASE_URL='http://localhost:3000'
+AUTH0_DOMAIN='unir-cinema.eu.auth0.com'
+AUTH0_CLIENT_ID='Kx9fQ2...'
+AUTH0_CLIENT_SECRET='zZ7pLm...'
+# nombre simulado del usuario Google
+DEMO_USER_NAME='Ana García'
+DEMO_USER_EMAIL='ana@gmail.com'`
+};
+let activeFile='page', loggedIn=false;
+const codeEl=document.getElementById('pgCode');
+const screenEl=document.getElementById('pgScreen');
+const consoleEl=document.getElementById('pgConsole');
+const urlEl=document.getElementById('pgUrl');
+codeEl.value=files.page;
+
+document.querySelectorAll('.pg-tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    files[activeFile]=codeEl.value;          // guardar edición actual
+    activeFile=t.dataset.file;
+    document.querySelectorAll('.pg-tab').forEach(x=>x.classList.toggle('active',x===t));
+    codeEl.value=files[activeFile];
+  });
+});
+
+function log(msg,cls=''){
+  const time=new Date().toLocaleTimeString('es-ES',{hour12:false});
+  const div=document.createElement('div');
+  div.className='log-line';
+  div.innerHTML=`<span class="t">${time}</span> <span class="${cls}">${msg}</span>`;
+  consoleEl.appendChild(div);
+  consoleEl.scrollTop=consoleEl.scrollHeight;
+}
+function clearConsole(){consoleEl.innerHTML='';}
+function getEnv(key){
+  const m=files.env.match(new RegExp(key+"='?([^'\\n]+)'?"));
+  return m?m[1]:undefined;
+}
+
+function renderApp(){
+  files[activeFile]=codeEl.value;
+  const name=getEnv('DEMO_USER_NAME')||'Usuario';
+  const email=getEnv('DEMO_USER_EMAIL')||'user@gmail.com';
+  const protectDash = files.dashboard.includes("redirect('/auth/login')");
+  if(!loggedIn){
+    urlEl.textContent='/';
+    screenEl.innerHTML=`<div class="mock-app">
+      <div class="ma-nav"><div class="ma-logo">UNIR<span class="c">·</span>Cinema</div><span class="muted" style="font-size:.8rem">sin sesión</span></div>
+      <div class="ma-card">
+        <h4>Bienvenido 🎬</h4>
+        <p class="muted">Inicia sesión para ver el catálogo privado.</p>
+        <div style="margin-top:18px">
+          <button class="btn-google" id="googleBtn">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.4 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.4 5.7c4.3-4 6.8-9.9 6.8-17.4z"/><path fill="#FBBC05" d="M10.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l-7.9-6.2C.9 16.5 0 20.1 0 24s.9 7.5 2.6 10.6l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.2-8.5 2.2-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/></svg>
+            Continuar con Google
+          </button>
+        </div>
+      </div>
+    </div>`;
+    document.getElementById('googleBtn').addEventListener('click',startOAuth);
+  } else {
+    urlEl.textContent='/dashboard';
+    const init=name.split(' ').map(w=>w[0]).slice(0,2).join('');
+    screenEl.innerHTML=`<div class="mock-app">
+      <div class="ma-nav">
+        <div class="ma-logo">UNIR<span class="c">·</span>Cinema</div>
+        <button class="btn-ghost" id="logoutBtn">Cerrar sesión</button>
+      </div>
+      <div class="ma-card">
+        <h4>Área privada 🔒</h4>
+        <p class="muted">Ruta protegida${protectDash?' · verificada en servidor ✓':' · ⚠ sin protección'}</p>
+        <div class="profile-row">
+          <div class="avatar">${init}</div>
+          <div><div style="font-weight:700">${name}</div><div class="muted">${email}</div></div>
+        </div>
+        <div class="json-box">session.user = {
+  "sub": "google-oauth2|10458...",
+  "name": "${name}",
+  "email": "${email}",
+  "picture": "https://lh3.googleusercontent.com/..."
+}</div>
+      </div>
+    </div>`;
+    document.getElementById('logoutBtn').addEventListener('click',()=>{
+      loggedIn=false;
+      log('GET /auth/logout → borra cookie de sesión','info');
+      log('302 Redirect → /','info');
+      renderApp();
+    });
+  }
+}
+
+function startOAuth(){
+  const btn=document.getElementById('googleBtn');
+  if(btn) btn.style.opacity='.5';
+  const domain=getEnv('AUTH0_DOMAIN'), cid=getEnv('AUTH0_CLIENT_ID');
+  const steps=[
+    ['GET /auth/login?connection=google-oauth2','info'],
+    [`302 Redirect → https://${domain}/authorize?client_id=${(cid||'').slice(0,8)}…&code_challenge=…`,'info'],
+    ['Auth0 delega en Google · usuario consiente','info'],
+    ['302 Redirect → /auth/callback?code=AUTH_CODE&state=STATE','info'],
+    ['Validar state (anti-CSRF) y nonce (OIDC) ✓','ok'],
+    ['POST /oauth/token (code + code_verifier) → id_token','info'],
+    ['Verificar firma, issuer, audience, exp del id_token ✓','ok'],
+    ['Mapear sub/email → usuario interno (Users DB)','info'],
+    ['Set-Cookie: appSession=… HttpOnly; Secure; SameSite=Lax','ok'],
+    ['Sesión creada · redirección a área privada ✓','ok'],
+  ];
+  let i=0;
+  log('▶ Iniciando Authorization Code Flow con PKCE…','warn');
+  const iv=setInterval(()=>{
+    if(i>=steps.length){clearInterval(iv);loggedIn=true;renderApp();return;}
+    log(steps[i][0],steps[i][1]); i++;
+  },340);
+}
+
+document.getElementById('pgRun').addEventListener('click',()=>{
+  clearConsole();
+  log('next dev → compilando…','warn');
+  setTimeout(()=>{ log('✓ Ready en http://localhost:3000','ok'); renderApp(); },400);
+});
+// primer render
+renderApp();
+log('Pulsa ▶ Run para arrancar el servidor de Next.js','warn');
+
+/* ============================================================
+   4) TOOLTIPS (posicionados con position:fixed, sin recortes)
+   ============================================================ */
+document.querySelectorAll('.term-def').forEach(td=>{
+  const box=td.querySelector('.tip-box');
+  if(!box) return;
+  function place(){
+    // medir dejándolo visible momentáneamente fuera de pantalla
+    box.style.left='-9999px'; box.style.top='0px';
+    td.classList.add('tip-on');
+    const r=td.getBoundingClientRect();
+    const bw=box.offsetWidth, bh=box.offsetHeight;
+    const margin=10, vw=window.innerWidth, vh=window.innerHeight;
+    // horizontal: centrado sobre la palabra, sin salirse
+    let left=r.left+r.width/2-bw/2;
+    left=Math.max(margin, Math.min(left, vw-bw-margin));
+    // vertical: arriba si cabe, si no abajo
+    let top=r.top-bh-9;
+    if(top<margin) top=r.bottom+9;
+    box.style.left=left+'px';
+    box.style.top=top+'px';
+  }
+  td.addEventListener('mouseenter',place);
+  td.addEventListener('focus',place);
+  td.addEventListener('mouseleave',()=>td.classList.remove('tip-on'));
+  td.addEventListener('blur',()=>td.classList.remove('tip-on'));
+  td.tabIndex=0;
+});
+
+/* ============================================================
+   5) REVEAL ON SCROLL + NAV ACTIVE
+   ============================================================ */
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{ if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);} });
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
