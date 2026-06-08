@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playground · Internacionalización en Next.js</title>
+<style>
+  :root{
+    --c-deep:#005a8c;
+    --c-cyan:#00a3d9;
+    --c-cyan-light:#33b9e6;
+    --c-ink:#10212b;
+    --c-slate:#41525e;
+    --c-muted:#7c8a94;
+    --c-line:#dce6ec;
+    --c-bg:#f4f8fb;
+    --c-card:#ffffff;
+    --c-code-bg:#0e1f2b;
+    --c-ok:#2e9e6b;
+    --c-warn:#d98014;
+    --shadow:0 1px 2px rgba(16,33,43,.06),0 6px 24px rgba(16,33,43,.07);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--c-ink);background:var(--c-bg);line-height:1.6;
+  }
+  code,pre,.mono{font-family:"SF Mono",ui-monospace,"Cascadia Code","Fira Code",Consolas,monospace}
+
+  /* ---------- Header ---------- */
+  header.hero{
+    background:linear-gradient(135deg,var(--c-deep),var(--c-cyan));
+    color:#fff;padding:46px 24px 54px;text-align:center;position:relative;overflow:hidden;
+  }
+  header.hero::after{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(circle at 85% 20%,rgba(255,255,255,.10),transparent 40%),
+      radial-gradient(circle at 12% 88%,rgba(255,255,255,.08),transparent 38%);
+  }
+  .hero .kicker{
+    display:inline-block;font-size:12px;letter-spacing:3px;text-transform:uppercase;
+    background:rgba(255,255,255,.16);padding:5px 14px;border-radius:999px;margin-bottom:16px;font-weight:600;
+  }
+  .hero h1{margin:0 0 8px;font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-.5px}
+  .hero p{margin:0 auto;max-width:620px;opacity:.92;font-size:16px}
+  .hero .globe{font-size:40px;margin-bottom:10px;display:block}
+
+  /* ---------- Layout ---------- */
+  main{max-width:1080px;margin:-30px auto 80px;padding:0 18px;position:relative;z-index:2}
+
+  nav.toc{
+    display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+    background:var(--c-card);border:1px solid var(--c-line);border-radius:999px;
+    padding:8px;box-shadow:var(--shadow);margin-bottom:34px;
+  }
+  nav.toc a{
+    text-decoration:none;color:var(--c-slate);font-size:13.5px;font-weight:600;
+    padding:7px 15px;border-radius:999px;transition:.15s;
+  }
+  nav.toc a:hover{background:var(--c-bg);color:var(--c-deep)}
+
+  section.card{
+    background:var(--c-card);border:1px solid var(--c-line);border-radius:var(--radius);
+    padding:30px 30px 34px;margin-bottom:26px;box-shadow:var(--shadow);scroll-margin-top:18px;
+  }
+  .sec-head{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+  .sec-num{
+    flex:none;width:38px;height:38px;border-radius:10px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--c-deep),var(--c-cyan));color:#fff;font-weight:800;font-size:16px;
+  }
+  .sec-head h2{margin:0;font-size:22px;letter-spacing:-.3px}
+  .sec-sub{color:var(--c-muted);font-size:14px;margin:0 0 22px 52px}
+  h3{font-size:16px;margin:26px 0 10px}
+
+  .lead{font-size:15.5px;color:var(--c-slate)}
+  .term{font-weight:700;color:var(--c-deep)}
+  .pill{display:inline-block;background:#e7f4fa;color:var(--c-deep);font-weight:700;
+    font-size:12px;padding:2px 9px;border-radius:6px;font-family:inherit}
+
+  .note{
+    border-left:4px solid var(--c-cyan);background:#eef8fc;padding:12px 16px;border-radius:0 10px 10px 0;
+    font-size:14px;color:var(--c-slate);margin:18px 0;
+  }
+  .note b{color:var(--c-deep)}
+
+  /* ---------- Grid of cards ---------- */
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:8px}
+  .mini{border:1px solid var(--c-line);border-radius:12px;padding:16px;background:#fafdff}
+  .mini .ico{font-size:22px}
+  .mini h4{margin:8px 0 4px;font-size:15px;color:var(--c-deep)}
+  .mini p{margin:0;font-size:13.5px;color:var(--c-slate)}
+
+  /* ---------- Interactive controls ---------- */
+  .demo{border:1px solid var(--c-line);border-radius:12px;overflow:hidden;margin-top:14px}
+  .demo-bar{
+    display:flex;align-items:center;gap:8px;background:#f0f6fa;border-bottom:1px solid var(--c-line);
+    padding:9px 14px;font-size:12.5px;font-weight:600;color:var(--c-slate)
+  }
+  .demo-bar .dot{width:10px;height:10px;border-radius:50%}
+  .demo-body{padding:20px}
+
+  .locale-switch{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .locale-switch button{
+    border:1.5px solid var(--c-line);background:#fff;border-radius:10px;padding:9px 14px;cursor:pointer;
+    font-size:14px;font-weight:600;color:var(--c-slate);transition:.15s;display:flex;align-items:center;gap:8px
+  }
+  .locale-switch button:hover{border-color:var(--c-cyan)}
+  .locale-switch button.active{background:linear-gradient(135deg,var(--c-deep),var(--c-cyan));color:#fff;border-color:transparent}
+  .locale-switch .flag{font-size:18px}
+
+  label.field{display:block;font-size:13px;font-weight:600;color:var(--c-slate);margin:14px 0 5px}
+  select,input[type=number],input[type=text]{
+    width:100%;padding:9px 12px;border:1.5px solid var(--c-line);border-radius:10px;font-size:14px;
+    font-family:inherit;color:var(--c-ink);background:#fff
+  }
+  .row2{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+  @media(max-width:560px){.row2{grid-template-columns:1fr}}
+
+  .output{
+    margin-top:16px;background:var(--c-code-bg);color:#e6f1f7;border-radius:10px;padding:16px 18px;
+    font-size:14px
+  }
+  .output .line{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.10)}
+  .output .line:last-child{border-bottom:0}
+  .output .k{color:#8fd2ec}
+  .output .v{color:#fff;font-weight:600;text-align:right}
+
+  /* ---------- Phone mockup ---------- */
+  .phone-wrap{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+  .phone{
+    flex:none;width:270px;background:#0e1f2b;border-radius:28px;padding:12px;box-shadow:var(--shadow)
+  }
+  .phone .screen{background:#fff;border-radius:18px;overflow:hidden;min-height:380px}
+  .phone .topbar{background:var(--c-deep);color:#fff;padding:10px 14px;font-size:12px;font-weight:600;display:flex;justify-content:space-between}
+  .phone .url{
+    background:#06303f;border-radius:6px;padding:4px 8px;font-size:11px;font-family:inherit;
+    margin:8px 12px;color:#9fe0f5;word-break:break-all
+  }
+  .phone .content{padding:16px}
+  .phone h5{margin:0 0 6px;font-size:18px;color:var(--c-ink)}
+  .phone .sub{color:var(--c-muted);font-size:12.5px;margin:0 0 14px}
+  .phone .btn{background:var(--c-cyan);color:#fff;border:0;border-radius:8px;padding:9px 12px;width:100%;font-weight:600;font-size:13px;cursor:default}
+  .phone .meta{margin-top:14px;border-top:1px solid var(--c-line);padding-top:12px;font-size:12px;color:var(--c-slate)}
+  .phone .meta div{display:flex;justify-content:space-between;padding:3px 0}
+  .phone-side{flex:1;min-width:240px}
+
+  /* ---------- Code blocks ---------- */
+  pre{
+    background:var(--c-code-bg);color:#e6f1f7;border-radius:12px;padding:18px 20px;overflow:auto;
+    font-size:13px;line-height:1.65;margin:14px 0
+  }
+  pre .cm{color:#6f8a99}
+  pre .kw{color:#ff9ec4}
+  pre .st{color:#9be8a3}
+  pre .fn{color:#8fd2ec}
+  pre .nm{color:#ffd479}
+  .tabs{display:flex;gap:4px;margin-top:14px;flex-wrap:wrap}
+  .tabs button{
+    border:1px solid var(--c-line);background:#f0f6fa;border-bottom:none;border-radius:9px 9px 0 0;
+    padding:8px 14px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--c-slate);font-family:inherit
+  }
+  .tabs button.active{background:var(--c-code-bg);color:#fff;border-color:var(--c-code-bg)}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block}
+  .tab-panel pre{margin-top:0;border-top-left-radius:0}
+
+  /* ---------- Negotiation flow ---------- */
+  .flow{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  .flow .step{
+    display:flex;align-items:center;gap:14px;border:1px solid var(--c-line);border-radius:12px;padding:13px 16px;
+    background:#fafdff;cursor:pointer;transition:.15s
+  }
+  .flow .step:hover{border-color:var(--c-cyan)}
+  .flow .step.win{border-color:var(--c-ok);background:#effaf3}
+  .flow .step.skip{opacity:.5}
+  .flow .badge{flex:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:13px;background:#e7f4fa;color:var(--c-deep)}
+  .flow .step.win .badge{background:var(--c-ok);color:#fff}
+  .flow .step .body{flex:1}
+  .flow .step .body b{font-size:14px}
+  .flow .step .body span{display:block;font-size:12.5px;color:var(--c-muted)}
+  .flow .step .val{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--c-slate)}
+  .flow .step.win .val{color:var(--c-ok)}
+  .neg-controls{display:grid;gap:10px;grid-template-columns:1fr 1fr;margin-bottom:6px}
+  @media(max-width:560px){.neg-controls{grid-template-columns:1fr}}
+  .result-line{margin-top:14px;font-size:14px;background:#eef8fc;border-radius:10px;padding:12px 16px}
+  .result-line b{color:var(--c-deep);font-family:inherit}
+
+  /* ---------- Quiz ---------- */
+  .quiz .q{font-weight:700;margin-bottom:12px;font-size:15px}
+  .quiz .opt{
+    display:block;width:100%;text-align:left;border:1.5px solid var(--c-line);background:#fff;border-radius:10px;
+    padding:11px 14px;margin-bottom:8px;cursor:pointer;font-size:14px;color:var(--c-slate);transition:.12s;font-family:inherit
+  }
+  .quiz .opt:hover{border-color:var(--c-cyan)}
+  .quiz .opt.right{border-color:var(--c-ok);background:#effaf3;color:#1c6b46;font-weight:600}
+  .quiz .opt.wrong{border-color:#e08585;background:#fdeeee;color:#a33}
+  .quiz .fb{margin-top:8px;font-size:13.5px;padding:10px 14px;border-radius:10px;display:none}
+  .quiz .fb.show{display:block}
+  .quiz .fb.ok{background:#effaf3;color:#1c6b46}
+  .quiz .fb.no{background:#fdeeee;color:#a33}
+
+  footer{text-align:center;color:var(--c-muted);font-size:13px;padding:30px 18px 60px}
+  footer b{color:var(--c-slate)}
+  .tag{display:inline-block;background:#e7f4fa;color:var(--c-deep);font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;margin:0 3px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="globe">🌍</span>
+  <span class="kicker">Tema 8 · Desarrollo Frontend</span>
+  <h1>Internacionalización en Next.js</h1>
+  <p>¿Empezando a programar y nunca oíste hablar de "i18n"? Tranqui. Aquí aprenderás, paso a paso y sin prisa, cómo hacer que una app hable varios idiomas. Cada palabra rara la explicamos en el momento.</p>
+</header>
+
+<main>
+  <nav class="toc">
+    <a href="#porque">¿Por qué?</a>
+    <a href="#conceptos">Conceptos</a>
+    <a href="#locale">Locale</a>
+    <a href="#negociacion">Negociación</a>
+    <a href="#intl">API Intl</a>
+    <a href="#nextjs">Next.js</a>
+    <a href="#quiz">Repaso</a>
+  </nav>
+
+  <section class="card" style="border-left:5px solid var(--c-cyan)">
+    <div class="sec-head"><div class="sec-num" style="background:#fff;color:var(--c-cyan);border:2px solid var(--c-cyan)">👋</div><h2>Antes de empezar: ¿de qué va esto?</h2></div>
+    <p class="lead" style="margin-bottom:14px">Imagina que has hecho una página web o una <b>app</b> (una aplicación: un programa con el que la gente interactúa desde el navegador o el móvil). Si la escribiste en español, una persona de Japón o Alemania la verá <b>toda en español</b> y no entenderá nada.</p>
+    <p class="lead" style="margin-bottom:14px">Podrías hacer una copia de la app por cada idioma… pero sería una pesadilla de mantener. La solución elegante se llama <b>internacionalización</b>, y a eso vamos en esta página.</p>
+    <div class="note" style="margin-bottom:0"><b>📖 Cómo usar esta guía:</b> baja tranquilamente de arriba a abajo. Las cajas <span style="background:var(--c-code-bg);color:#e6f1f7;padding:1px 7px;border-radius:5px;font-size:12px">oscuras</span> son cosas que puedes <b>tocar y probar</b> tú mismo: cambia opciones y mira cómo reacciona. No se rompe nada, experimenta sin miedo.</div>
+  </section>
+
+  <!-- ============ 1. POR QUÉ ============ -->
+  <section class="card" id="porque">
+    <div class="sec-head"><div class="sec-num">1</div><h2>¿Por qué internacionalizar?</h2></div>
+    <p class="sec-sub">Leer las cosas en tu idioma no es ninguna tontería…</p>
+
+    <p class="lead">La palabra es larga y rara, así que los programadores la abrevian como <span class="pill">i18n</span>. ¿De dónde sale ese "18"? De contar las letras: <b>i</b> + (18 letras en medio) + <b>n</b> = i<span style="color:var(--c-muted)">nternacionalizació</span>n. Un truco para no escribirla entera cada vez. 😉</p>
+
+    <p class="lead" style="margin-top:14px">Internacionalizar significa <b>preparar tu app para que pueda mostrarse en varios idiomas y adaptarse a las costumbres de cada país</b> (cómo escriben las fechas, el dinero, etc.) <b>sin tener que reescribir el programa entero</b> cada vez que añades un idioma.</p>
+
+    <div class="note"><b>Ojo, no es solo "traducir":</b> también es pensar en el formato del dinero (¿€ o $?), de las fechas (¿08/06 o 06/08?) y en lo que cada cultura espera ver. Hacerlo bien abre tu producto a millones de personas más.</div>
+
+    <p class="lead" style="margin-top:20px;margin-bottom:4px">Y a alguien que solo está aprendiendo, ¿por qué le importa esto? Porque marca la diferencia entre una app de juguete y una de verdad:</p>
+
+    <div class="grid">
+      <div class="mini"><div class="ico">🧠</div><h4>Se entiende al instante</h4><p>Si entro en una web y está en mi idioma, me siento cómodo y no me voy. Si está en otro idioma, me asusto y cierro.</p></div>
+      <div class="mini"><div class="ico">📈</div><h4>Llega a más gente</h4><p>Una app en 5 idiomas puede usarla muchísima más gente que una solo en español. Más usuarios, sin reescribir el código.</p></div>
+      <div class="mini"><div class="ico">🎯</div><h4>Se adapta a cada país</h4><p>Puedes mostrar precios en la moneda local y mensajes pensados para cada región.</p></div>
+      <div class="mini"><div class="ico">⚖️</div><h4>A veces es obligatorio</h4><p>Algunos países exigen por ley que ciertas apps estén disponibles en su idioma oficial.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ 2. CONCEPTOS ============ -->
+  <section class="card" id="conceptos">
+    <div class="sec-head"><div class="sec-num">2</div><h2>Dos palabras que verás todo el rato: i18n y l10n</h2></div>
+    <p class="sec-sub">Se parecen, se confunden, pero no son lo mismo.</p>
+
+    <p class="lead" style="margin-bottom:16px">Igual que "i18n", existe <span class="pill">l10n</span> (de <b>l</b> + 10 letras + <b>n</b> = <b>localización</b>). Una analogía para no liarse:</p>
+
+    <div class="note" style="margin-top:0"><b>🍽️ Piensa en un restaurante:</b> <b>i18n</b> es construir la cocina para que pueda preparar platos de cualquier país. <b>l10n</b> es cocinar de verdad el plato concreto: la paella española, el sushi japonés… Primero montas la cocina (una vez), luego cocinas cada plato (uno por idioma).</div>
+
+    <div class="row2" style="gap:16px;margin-top:18px">
+      <div class="mini" style="border-color:var(--c-cyan)">
+        <div class="ico">🌐</div>
+        <h4>i18n — Internacionalización</h4>
+        <p>El trabajo <b>técnico</b> de preparar la app: que los textos no estén "pegados" al código, que sepa manejar fechas y monedas de forma flexible. Lo haces <b>una sola vez</b>, al principio.</p>
+      </div>
+      <div class="mini" style="border-color:var(--c-ok)">
+        <div class="ico">🗣️</div>
+        <h4>l10n — Localización</h4>
+        <p>Adaptar la app <b>a un país concreto</b>: traducir los textos al francés, poner los precios en yenes, elegir imágenes apropiadas… Lo repites <b>por cada idioma</b> que añadas.</p>
+      </div>
+    </div>
+    <div class="note">En resumen: <b>i18n</b> hace que tu app <i>pueda</i> hablar otros idiomas; <b>l10n</b> es el acto de <i>enseñarle</i> cada idioma.</div>
+  </section>
+
+  <!-- ============ 3. LOCALE ============ -->
+  <section class="card" id="locale">
+    <div class="sec-head"><div class="sec-num">3</div><h2>El "locale": la pieza más importante</h2></div>
+    <p class="sec-sub">Una etiqueta cortita que le dice a la app "habla así, para esta persona".</p>
+
+    <p class="lead">Un <span class="term">locale</span> (se pronuncia "locál") es simplemente <b>una etiqueta que indica idioma y, si hace falta, el país</b>. Es como ponerle una pegatina a cada usuario: "este quiere español de España", "este, inglés de EE.UU.".</p>
+
+    <p class="lead" style="margin-top:14px">Estas etiquetas siguen un estándar mundial llamado <span class="pill">BCP 47</span> (no necesitas memorizar el nombre, solo saber que es "la forma oficial de escribirlas"). Tienen esta pinta: <code>es</code>, <code>es-ES</code>, <code>en-US</code>… La parte de antes del guion es el <b>idioma</b>; la de después, la <b>región</b>.</p>
+
+    <div class="note"><b>¿Por qué importa la región?</b> Porque el español de España (<code>es-ES</code>) y el de México (<code>es-MX</code>) son el mismo idioma, pero cambian palabras, el formato del dinero y las fechas. La región afina los detalles.</div>
+
+    <p class="lead" style="margin-top:18px">👇 <b>Pruébalo tú:</b> arma una etiqueta eligiendo idioma y región, y mira abajo qué significa y cómo afecta a un número:</p>
+
+    <div class="demo">
+      <div class="demo-bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span>&nbsp; Constructor de etiqueta BCP 47</div>
+      <div class="demo-body">
+        <div class="row2">
+          <div>
+            <label class="field">Idioma (obligatorio)</label>
+            <select id="bcp-lang">
+              <option value="es">es · español</option>
+              <option value="en">en · inglés</option>
+              <option value="zh">zh · chino</option>
+              <option value="ar">ar · árabe</option>
+              <option value="de">de · alemán</option>
+            </select>
+          </div>
+          <div>
+            <label class="field">Región (opcional)</label>
+            <select id="bcp-region">
+              <option value="">— ninguna —</option>
+              <option value="ES">ES · España</option>
+              <option value="MX">MX · México</option>
+              <option value="US">US · Estados Unidos</option>
+              <option value="TW">TW · Taiwán</option>
+              <option value="EG">EG · Egipto</option>
+            </select>
+          </div>
+        </div>
+        <div class="row2">
+          <div>
+            <label class="field">Escritura (opcional)</label>
+            <select id="bcp-script">
+              <option value="">— ninguna —</option>
+              <option value="Latn">Latn · latina</option>
+              <option value="Hant">Hant · china tradicional</option>
+              <option value="Hans">Hans · china simplificada</option>
+              <option value="Arab">Arab · árabe</option>
+            </select>
+          </div>
+          <div>
+            <label class="field">Etiqueta resultante</label>
+            <input type="text" id="bcp-out" readonly value="es" style="font-family:inherit;font-weight:700;color:var(--c-deep)">
+          </div>
+        </div>
+        <div class="output" id="bcp-desc"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. NEGOCIACIÓN ============ -->
+  <section class="card" id="negociacion">
+    <div class="sec-head"><div class="sec-num">4</div><h2>¿Cómo sabe la app qué idioma mostrarte?</h2></div>
+    <p class="sec-sub">A esto se le llama "negociación de locale". Suena complicado, pero es solo seguir una lista de prioridades.</p>
+
+    <p class="lead">Cuando entras en una web multilingüe, alguien tiene que decidir en qué idioma te la enseña. La app revisa varias <b>pistas</b>, una por una, en orden de importancia, y se queda con <b>la primera que encuentra</b>. A ese proceso se le llama <b>negociación</b>.</p>
+
+    <p class="lead" style="margin-top:14px">Las pistas típicas son: lo que pone en la dirección web (la URL), una <b>cookie</b> (un dato que el navegador guarda de tu visita anterior), tus preferencias de cuenta si has iniciado sesión, y lo que tu navegador dice que prefieres (la cabecera <code>Accept-Language</code>).</p>
+
+    <p class="lead" style="margin-top:14px">👇 <b>Juega con las pistas:</b> activa o quita cada una y observa cuál "gana":</p>
+
+    <div class="demo">
+      <div class="demo-bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span>&nbsp; Simulador de negociación</div>
+      <div class="demo-body">
+        <div class="neg-controls">
+          <div>
+            <label class="field">1 · URL (path o subdominio)</label>
+            <select id="neg-url"><option value="">(sin locale en la URL)</option><option value="es-ES">/es-ES/…</option><option value="en-US" selected>/en-US/…</option><option value="fr-FR">/fr-FR/…</option></select>
+          </div>
+          <div>
+            <label class="field">2 · Cookie persistente</label>
+            <select id="neg-cookie"><option value="">(sin cookie)</option><option value="es-ES" selected>NEXT_LOCALE=es-ES</option><option value="de-DE">NEXT_LOCALE=de-DE</option></select>
+          </div>
+          <div>
+            <label class="field">3 · Preferencia de cuenta</label>
+            <select id="neg-account"><option value="">(no logueado)</option><option value="es-MX">cuenta → es-MX</option><option value="it-IT">cuenta → it-IT</option></select>
+          </div>
+          <div>
+            <label class="field">4 · Cabecera Accept-Language</label>
+            <select id="neg-header"><option value="fr-FR" selected>fr-FR, fr;q=0.9</option><option value="en-GB">en-GB, en;q=0.8</option><option value="">(ausente)</option></select>
+          </div>
+        </div>
+        <div class="flow" id="neg-flow"></div>
+        <div class="result-line" id="neg-result"></div>
+        <div class="note" style="margin-bottom:0"><b>¿Por qué seguir siempre el mismo orden?</b> Para que sea <b>predecible</b>: si recargas la página, debes ver el mismo idioma, no uno distinto cada vez. Si fuera aleatorio, sería confuso y Google tampoco sabría en qué idioma guardar tu página (malo para que te encuentren en buscadores).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5. API INTL ============ -->
+  <section class="card" id="intl">
+    <div class="sec-head"><div class="sec-num">5</div><h2>Tu ayudante secreto: <code>Intl</code></h2></div>
+    <p class="sec-sub">Una herramienta que ya viene incluida en JavaScript. No tienes que instalar nada.</p>
+
+    <p class="lead"><code>Intl</code> (de "internacional") es una <b>herramienta que ya viene de fábrica en JavaScript</b>, el lenguaje que usan las páginas web. No hay que descargarla ni instalarla: ya está ahí, lista para usar.</p>
+
+    <p class="lead" style="margin-top:14px">Su trabajo es <b>formatear cosas según el idioma</b>: le dices "formatéame este número como dinero en español" y te lo devuelve perfecto, con el € detrás y las comas y puntos donde van. Lo mejor: <b>tú escribes el código una vez</b> y funciona para todos los idiomas.</p>
+
+    <div class="note"><b>Esto no es un dibujo:</b> lo de abajo se ejecuta de verdad en tu navegador ahora mismo, con la misma herramienta que usarías en un proyecto real. Cambia el idioma y mira cómo el mismo número se escribe distinto en cada uno.</div>
+
+    <div class="demo">
+      <div class="demo-bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span>&nbsp; Intl en vivo</div>
+      <div class="demo-body">
+        <div class="locale-switch" id="intl-switch">
+          <button data-loc="es-ES" class="active"><span class="flag">🇪🇸</span> es-ES</button>
+          <button data-loc="en-US"><span class="flag">🇺🇸</span> en-US</button>
+          <button data-loc="de-DE"><span class="flag">🇩🇪</span> de-DE</button>
+          <button data-loc="ja-JP"><span class="flag">🇯🇵</span> ja-JP</button>
+          <button data-loc="ar-EG"><span class="flag">🇪🇬</span> ar-EG</button>
+        </div>
+        <div class="row2" style="margin-top:14px">
+          <div>
+            <label class="field">Número a formatear</label>
+            <input type="number" id="intl-num" value="1234567.89" step="any">
+          </div>
+          <div>
+            <label class="field">Moneda</label>
+            <select id="intl-cur"><option>EUR</option><option>USD</option><option>JPY</option><option>GBP</option></select>
+          </div>
+        </div>
+        <div class="output" id="intl-out"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6. NEXT.JS ============ -->
+  <section class="card" id="nextjs">
+    <div class="sec-head"><div class="sec-num">6</div><h2>Por fin: cómo se hace en Next.js</h2></div>
+    <p class="sec-sub">Next.js es una herramienta muy popular para crear webs con React. Vamos a ver la idea, sin agobios.</p>
+
+    <p class="lead">La forma más habitual es <b>meter el idioma dentro de la propia dirección web</b>. Fíjate: <code>miapp.com/<b>es-ES</b>/inicio</code> o <code>miapp.com/<b>en-US</b>/inicio</code>. Esa parte que cambia (<code>es-ES</code>, <code>en-US</code>…) le dice a la página en qué idioma mostrarse.</p>
+
+    <p class="lead" style="margin-top:14px">En Next.js esa "parte que cambia" se consigue con una carpeta especial llamada <code>[locale]</code> (con los corchetes incluidos). Es como decir: "aquí va a ir un idioma, y puede ser cualquiera de los que yo permita".</p>
+
+    <div class="note"><b>¿Qué es eso de "SSG"?</b> Significa <i>Static Site Generation</i> (generación de sitio estático). En cristiano: en lugar de construir la página cada vez que alguien la visita, Next.js la <b>fabrica una sola vez de antemano</b> — una versión ya lista por cada idioma. Resultado: páginas rapidísimas y que aparecen bien en Google.</div>
+
+    <p class="lead" style="margin-top:18px">👇 <b>Pulsa los idiomas</b> en el móvil de mentira y mira cómo cambian a la vez la dirección, los textos, la fecha y el precio:</p>
+
+    <div class="phone-wrap" style="margin-top:18px">
+      <div class="phone">
+        <div class="screen">
+          <div class="topbar"><span>● Mi App SSG</span><span id="ph-lang">ES</span></div>
+          <div class="url" id="ph-url">miapp.com/es-ES</div>
+          <div class="content">
+            <h5 id="ph-title">Bienvenido</h5>
+            <p class="sub" id="ph-sub">Tu panel, en tu idioma.</p>
+            <button class="btn" id="ph-btn">Empezar</button>
+            <div class="meta">
+              <div><span>Fecha:</span><span id="ph-date">—</span></div>
+              <div><span>Precio:</span><span id="ph-price">—</span></div>
+              <div><span>Generada:</span><span style="color:var(--c-ok)">antes de tu visita</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-side">
+        <div class="locale-switch" id="next-switch">
+          <button data-loc="es-ES" class="active"><span class="flag">🇪🇸</span> es-ES</button>
+          <button data-loc="en-US"><span class="flag">🇺🇸</span> en-US</button>
+          <button data-loc="fr-FR"><span class="flag">🇫🇷</span> fr-FR</button>
+          <button data-loc="ja-JP"><span class="flag">🇯🇵</span> ja-JP</button>
+        </div>
+        <div class="note" style="margin-top:14px">Cada idioma es una <b>dirección web diferente</b> (<code>/es-ES</code>, <code>/en-US</code>…). Como las páginas ya están fabricadas de antemano, cargan al instante. Y la etiqueta <code>Generada: en build</code> de abajo te recuerda justo eso: se creó antes, no en el momento de visitarla.</div>
+      </div>
+    </div>
+
+    <h3>¿Y cómo es el código por dentro?</h3>
+    <p class="lead" style="margin-bottom:4px">No hace falta que lo entiendas todo ahora mismo — solo échale un vistazo para perderle el miedo. Cada pestaña muestra un trozo del proyecto con comentarios explicando qué hace:</p>
+    <div class="tabs" id="code-tabs">
+      <button class="active" data-tab="struct">📁 Estructura</button>
+      <button data-tab="layout">layout.tsx</button>
+      <button data-tab="page">page.tsx</button>
+      <button data-tab="dict">Diccionarios</button>
+      <button data-tab="mw">middleware.ts</button>
+    </div>
+
+    <div class="tab-panel active" data-panel="struct">
+<pre><span class="cm">// La carpeta [locale] = "aquí dentro va el idioma"</span>
+app/
+└─ <span class="nm">[locale]</span>/            <span class="cm">// p.ej. es-ES, en-US...</span>
+   ├─ layout.tsx       <span class="cm">// el "marco" comun de la pagina</span>
+   ├─ page.tsx         <span class="cm">// la pagina en si</span>
+   └─ generateStaticParams.ts  <span class="cm">// lista de idiomas a fabricar</span>
+dictionaries/          <span class="cm">// las traducciones, una por idioma</span>
+   ├─ <span class="st">es-ES.json</span>          <span class="cm">// textos en espanol</span>
+   ├─ <span class="st">en-US.json</span>          <span class="cm">// textos en ingles</span>
+   └─ <span class="st">fr-FR.json</span>          <span class="cm">// textos en frances</span>
+middleware.ts          <span class="cm">// el "portero": decide el idioma al entrar</span></pre>
+    </div>
+
+    <div class="tab-panel" data-panel="layout">
+<pre><span class="cm">// app/[locale]/layout.tsx</span>
+<span class="kw">export async function</span> <span class="fn">generateStaticParams</span>() {
+  <span class="cm">// SSG: pre-genera una página por cada locale</span>
+  <span class="kw">return</span> [{ locale: <span class="st">'es-ES'</span> }, { locale: <span class="st">'en-US'</span> }, { locale: <span class="st">'fr-FR'</span> }];
+}
+
+<span class="kw">export default function</span> <span class="fn">RootLayout</span>({ children, params }) {
+  <span class="kw">return</span> (
+    &lt;<span class="nm">html</span> lang={params.locale}&gt;
+      &lt;<span class="nm">body</span>&gt;{children}&lt;/<span class="nm">body</span>&gt;
+    &lt;/<span class="nm">html</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <div class="tab-panel" data-panel="page">
+<pre><span class="cm">// app/[locale]/page.tsx</span>
+<span class="kw">import</span> { getDictionary } <span class="kw">from</span> <span class="st">'@/lib/dictionaries'</span>;
+
+<span class="kw">export default async function</span> <span class="fn">Home</span>({ params }) {
+  <span class="kw">const</span> t = <span class="kw">await</span> <span class="fn">getDictionary</span>(params.locale);
+  <span class="kw">const</span> precio = <span class="kw">new</span> <span class="fn">Intl.NumberFormat</span>(params.locale, {
+    style: <span class="st">'currency'</span>, currency: <span class="st">'EUR'</span>
+  }).<span class="fn">format</span>(<span class="nm">29.99</span>);
+
+  <span class="kw">return</span> (
+    &lt;<span class="nm">main</span>&gt;
+      &lt;<span class="nm">h1</span>&gt;{t.welcome}&lt;/<span class="nm">h1</span>&gt;
+      &lt;<span class="nm">button</span>&gt;{t.cta}&lt;/<span class="nm">button</span>&gt;
+      &lt;<span class="nm">p</span>&gt;{precio}&lt;/<span class="nm">p</span>&gt;
+    &lt;/<span class="nm">main</span>&gt;
+  );
+}</pre>
+    </div>
+
+    <div class="tab-panel" data-panel="dict">
+<pre><span class="cm">// Un "diccionario" es solo un archivo con los textos</span>
+<span class="cm">// traducidos. La misma clave ("welcome") en cada idioma.</span>
+
+<span class="cm">// dictionaries/es-ES.json</span>
+{ <span class="st">"welcome"</span>: <span class="st">"Bienvenido"</span>, <span class="st">"cta"</span>: <span class="st">"Empezar"</span> }
+
+<span class="cm">// dictionaries/en-US.json</span>
+{ <span class="st">"welcome"</span>: <span class="st">"Welcome"</span>, <span class="st">"cta"</span>: <span class="st">"Get started"</span> }
+
+<span class="cm">// En el codigo pides t.welcome y, segun el idioma,</span>
+<span class="cm">// sale "Bienvenido" o "Welcome". Magia. ✨</span></pre>
+    </div>
+
+    <div class="tab-panel" data-panel="mw">
+<pre><span class="cm">// middleware.ts — negocia el locale y redirige</span>
+<span class="kw">import</span> { match } <span class="kw">from</span> <span class="st">'@formatjs/intl-localematcher'</span>;
+
+<span class="kw">export function</span> <span class="fn">middleware</span>(request) {
+  <span class="kw">const</span> { pathname } = request.nextUrl;
+  <span class="cm">// 1. ¿ya hay locale en la URL? → no hacer nada</span>
+  <span class="kw">const</span> hasLocale = locales.<span class="fn">some</span>(l =&gt; pathname.<span class="fn">startsWith</span>(<span class="st">`/${l}`</span>));
+  <span class="kw">if</span> (hasLocale) <span class="kw">return</span>;
+
+  <span class="cm">// 2. negocia desde Accept-Language y redirige</span>
+  <span class="kw">const</span> locale = <span class="fn">match</span>(languages, locales, <span class="st">'es-ES'</span>);
+  request.nextUrl.pathname = <span class="st">`/${locale}${pathname}`</span>;
+  <span class="kw">return</span> <span class="fn">Response.redirect</span>(request.nextUrl);
+}</pre>
+    </div>
+  </section>
+
+  <!-- ============ 7. QUIZ ============ -->
+  <section class="card quiz" id="quiz">
+    <div class="sec-head"><div class="sec-num">7</div><h2>Repaso rápido</h2></div>
+    <p class="sec-sub">Comprueba lo aprendido. Pulsa una respuesta.</p>
+    <div id="quiz-host"></div>
+  </section>
+
+  <footer>
+    <p><b>Tema 8 · Internacionalización</b> — playground interactivo generado a partir del material del Aula Virtual.</p>
+    <p>Conceptos cubiertos: <span class="tag">i18n</span><span class="tag">l10n</span><span class="tag">locale</span><span class="tag">BCP 47</span><span class="tag">negociación</span><span class="tag">Intl</span><span class="tag">Next.js SSG</span></p>
+  </footer>
+</main>
+
+<script>
+/* ============ 3. BCP 47 builder ============ */
+const langNames={es:"español",en:"inglés",zh:"chino",ar:"árabe",de:"alemán"};
+const regNames={ES:"España",MX:"México",US:"Estados Unidos",TW:"Taiwán",EG:"Egipto"};
+const scrNames={Latn:"escritura latina",Hant:"chino tradicional",Hans:"chino simplificado",Arab:"escritura árabe"};
+function buildBCP(){
+  const l=document.getElementById('bcp-lang').value;
+  const s=document.getElementById('bcp-script').value;
+  const r=document.getElementById('bcp-region').value;
+  const tag=[l,s,r].filter(Boolean).join('-');
+  document.getElementById('bcp-out').value=tag;
+  let parts=[`<div class="line"><span class="k">idioma</span><span class="v">${langNames[l]}</span></div>`];
+  if(s)parts.push(`<div class="line"><span class="k">escritura</span><span class="v">${scrNames[s]}</span></div>`);
+  if(r)parts.push(`<div class="line"><span class="k">región</span><span class="v">${regNames[r]}</span></div>`);
+  let ej;try{ej=new Intl.NumberFormat(tag).format(1234.5);}catch(e){ej="—";}
+  parts.push(`<div class="line"><span class="k">así formatea 1234.5</span><span class="v">${ej}</span></div>`);
+  document.getElementById('bcp-desc').innerHTML=parts.join('');
+}
+['bcp-lang','bcp-script','bcp-region'].forEach(id=>document.getElementById(id).addEventListener('change',buildBCP));
+buildBCP();
+
+/* ============ 4. Negociación ============ */
+const negDefs=[
+  {id:'neg-url',label:'En la dirección web (URL)',hint:'la pista más clara y la mejor para buscadores'},
+  {id:'neg-cookie',label:'Cookie guardada',hint:'recuerda el idioma que elegiste la última vez'},
+  {id:'neg-account',label:'Preferencia de tu cuenta',hint:'solo cuenta si has iniciado sesión'},
+  {id:'neg-header',label:'Idioma del navegador',hint:'lo que tu navegador dice que prefieres'},
+];
+function negotiate(){
+  const flow=document.getElementById('neg-flow');flow.innerHTML='';
+  let winner=null;
+  negDefs.forEach((d,i)=>{
+    const val=document.getElementById(d.id).value;
+    const isWin=!winner&&val;
+    if(isWin)winner=val;
+    const cls=isWin?'win':(winner?'skip':'');
+    flow.innerHTML+=`<div class="step ${cls}">
+      <div class="badge">${i+1}</div>
+      <div class="body"><b>${d.label}</b><span>${d.hint}</span></div>
+      <div class="val">${val||'—'}</div>
+    </div>`;
+  });
+  const res=document.getElementById('neg-result');
+  if(winner)res.innerHTML=`Idioma elegido → <b>${winner}</b>. Se usó la <b>primera pista disponible</b> de la lista.`;
+  else res.innerHTML=`No había ninguna pista → la app usa su <b>idioma por defecto</b> (el de reserva, por si todo lo demás falla).`;
+}
+negDefs.forEach(d=>document.getElementById(d.id).addEventListener('change',negotiate));
+negotiate();
+
+/* ============ 5. Intl en vivo ============ */
+let intlLoc='es-ES';
+function renderIntl(){
+  const num=parseFloat(document.getElementById('intl-num').value)||0;
+  const cur=document.getElementById('intl-cur').value;
+  const now=new Date(2026,5,8,14,30);
+  const fmt=(opts,v=num)=>{try{return new Intl.NumberFormat(intlLoc,opts).format(v);}catch(e){return '—';}};
+  const dt=(opts)=>{try{return new Intl.DateTimeFormat(intlLoc,opts).format(now);}catch(e){return '—';}};
+  let list='—';try{list=new Intl.ListFormat(intlLoc,{type:'conjunction'}).format(['rojo','verde','azul']);}catch(e){}
+  let rel='—';try{rel=new Intl.RelativeTimeFormat(intlLoc,{numeric:'auto'}).format(-2,'day');}catch(e){}
+  document.getElementById('intl-out').innerHTML=`
+    <div class="line"><span class="k">Número</span><span class="v">${fmt({})}</span></div>
+    <div class="line"><span class="k">Moneda (${cur})</span><span class="v">${fmt({style:'currency',currency:cur})}</span></div>
+    <div class="line"><span class="k">Porcentaje (0.156)</span><span class="v">${fmt({style:'percent'},0.156)}</span></div>
+    <div class="line"><span class="k">Fecha larga</span><span class="v">${dt({dateStyle:'full'})}</span></div>
+    <div class="line"><span class="k">Hora</span><span class="v">${dt({timeStyle:'short'})}</span></div>
+    <div class="line"><span class="k">Lista</span><span class="v">${list}</span></div>
+    <div class="line"><span class="k">Tiempo relativo</span><span class="v">${rel}</span></div>`;
+}
+document.querySelectorAll('#intl-switch button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#intl-switch button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');intlLoc=b.dataset.loc;renderIntl();
+}));
+document.getElementById('intl-num').addEventListener('input',renderIntl);
+document.getElementById('intl-cur').addEventListener('change',renderIntl);
+renderIntl();
+
+/* ============ 6. Next.js phone ============ */
+const nextDict={
+  'es-ES':{t:'Bienvenido',s:'Tu panel, en tu idioma.',b:'Empezar',flag:'ES',cur:'EUR'},
+  'en-US':{t:'Welcome',s:'Your dashboard, in your language.',b:'Get started',flag:'EN',cur:'USD'},
+  'fr-FR':{t:'Bienvenue',s:'Votre tableau de bord, dans votre langue.',b:'Commencer',flag:'FR',cur:'EUR'},
+  'ja-JP':{t:'ようこそ',s:'あなたの言語で、あなたのダッシュボード。',b:'始める',flag:'JA',cur:'JPY'},
+};
+function renderNext(loc){
+  const d=nextDict[loc];const now=new Date(2026,5,8);
+  document.getElementById('ph-url').textContent='miapp.com/'+loc;
+  document.getElementById('ph-lang').textContent=d.flag;
+  document.getElementById('ph-title').textContent=d.t;
+  document.getElementById('ph-sub').textContent=d.s;
+  document.getElementById('ph-btn').textContent=d.b;
+  document.getElementById('ph-date').textContent=new Intl.DateTimeFormat(loc,{dateStyle:'medium'}).format(now);
+  document.getElementById('ph-price').textContent=new Intl.NumberFormat(loc,{style:'currency',currency:d.cur}).format(29.99);
+}
+document.querySelectorAll('#next-switch button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#next-switch button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');renderNext(b.dataset.loc);
+}));
+renderNext('es-ES');
+
+/* ============ Code tabs ============ */
+document.querySelectorAll('#code-tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#code-tabs button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelector(`.tab-panel[data-panel="${b.dataset.tab}"]`).classList.add('active');
+}));
+
+/* ============ 7. Quiz ============ */
+const quiz=[
+  {q:'¿Qué significa la abreviatura "i18n"?',
+   opts:['Internacionalización (i + 18 letras + n)','Una versión de internet','Un formato de fecha ISO'],
+   a:0,fb:'Correcto: 18 es el número de letras entre la "i" y la "n" de internationalization.'},
+  {q:'¿Cuál es la diferencia entre i18n y l10n?',
+   opts:['Son sinónimos exactos','i18n prepara la app para idiomas; l10n es la adaptación concreta a un mercado','l10n se hace antes que i18n'],
+   a:1,fb:'Exacto: i18n es el diseño técnico (una vez), l10n es la localización por cada locale.'},
+  {q:'La etiqueta "es-MX" describe…',
+   opts:['Solo el idioma español','Español de México (idioma + región, BCP 47)','Un huso horario'],
+   a:1,fb:'Bien: idioma "es" + región "MX", siguiendo el estándar BCP 47.'},
+  {q:'¿Por qué la app debe elegir el idioma siempre con el mismo orden de pistas?',
+   opts:['Para gastar menos batería','Para que sea predecible: al recargar ves el mismo idioma, y Google te encuentra mejor','Porque lo obliga React'],
+   a:1,fb:'Correcto: si fuera aleatorio sería confuso y los buscadores no sabrían en qué idioma guardar tu página.'},
+  {q:'Con "SSG" en Next.js, ¿cuándo se fabrican las páginas de cada idioma?',
+   opts:['Cada vez que un usuario las visita','Una sola vez de antemano (así cargan rapidísimo)','Nunca, no existen'],
+   a:1,fb:'Eso es: SSG prepara una versión por idioma antes de las visitas, por eso son tan rápidas.'},
+];
+const host=document.getElementById('quiz-host');
+quiz.forEach((item,qi)=>{
+  const wrap=document.createElement('div');
+  wrap.style.marginBottom='22px';
+  wrap.innerHTML=`<div class="q">${qi+1}. ${item.q}</div>`;
+  item.opts.forEach((o,oi)=>{
+    const btn=document.createElement('button');
+    btn.className='opt';btn.textContent=o;
+    btn.addEventListener('click',()=>{
+      const fb=wrap.querySelector('.fb');
+      [...wrap.querySelectorAll('.opt')].forEach(x=>x.style.pointerEvents='none');
+      if(oi===item.a){btn.classList.add('right');fb.className='fb show ok';fb.textContent='✓ '+item.fb;}
+      else{btn.classList.add('wrong');wrap.querySelectorAll('.opt')[item.a].classList.add('right');
+        fb.className='fb show no';fb.textContent='✗ Respuesta correcta: '+item.opts[item.a]+'. '+item.fb;}
+    });
+    wrap.appendChild(btn);
+  });
+  const fb=document.createElement('div');fb.className='fb';wrap.appendChild(fb);
+  host.appendChild(wrap);
+});
+</script>
+</body>
+</html>
