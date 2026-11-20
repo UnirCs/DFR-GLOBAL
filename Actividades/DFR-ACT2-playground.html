@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DFR · Actividad 2 — API REST con Next.js (Playground)</title>
+<style>
+:root{
+  --bg:#f5f6fb;--card:#fff;--ink:#1b2033;--muted:#5d6580;--line:#e2e5f0;--soft:#eef0f9;
+  --accent:#4f46e5;--accent-ink:#fff;--teal:#0d9488;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;
+  --code-bg:#0f1424;--code-ink:#dfe5ff;--code-dim:#7f8bb3;--shadow:0 1px 2px rgba(20,25,60,.06),0 4px 14px rgba(20,25,60,.05);
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0d1020;--card:#151931;--ink:#e8ebfa;--muted:#9aa3c7;--line:#262c4d;--soft:#1c2142;
+  --accent:#8a86ff;--accent-ink:#0d1020;--teal:#2dd4bf;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;
+  --code-bg:#0a0d1a;--shadow:none;
+}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1,h2,h3{line-height:1.2;margin:0}
+h2{font-size:21px;margin:0 0 6px}h3{font-size:16px;margin:22px 0 8px}
+p{margin:0 0 10px}
+code,.mono{font-family:var(--mono);font-size:.88em}
+:not(pre)>code{background:var(--soft);padding:1px 6px;border-radius:5px}
+a{color:var(--accent)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 14px}
+header.top{padding:22px 0 10px}
+.eyebrow{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+header.top h1{font-size:26px;margin:8px 0 4px}
+header.top p{color:var(--muted);margin:0;max-width:720px}
+nav.tabs{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);margin-top:10px}
+nav.tabs .wrap{display:flex;gap:6px;overflow-x:auto;padding:8px 14px;scrollbar-width:thin}
+.tab{flex:none;display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--card);color:var(--muted);
+  padding:7px 12px 7px 8px;border-radius:999px;font:600 13px/1 inherit;cursor:pointer;white-space:nowrap}
+.tab .n{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);font:700 11px var(--mono);color:var(--muted)}
+.tab[aria-selected=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tab[aria-selected=true] .n{background:rgba(255,255,255,.25);color:inherit}
+main{padding:18px 0 60px}
+.panel{display:none}.panel.on{display:block;animation:fade .18s ease}
+@keyframes fade{from{opacity:.4;transform:translateY(3px)}to{opacity:1;transform:none}}
+.lead{color:var(--muted);max-width:760px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.step{display:flex;gap:12px;text-align:left;cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:14px;color:inherit;font:inherit;box-shadow:var(--shadow)}
+.step:hover{border-color:var(--accent)}
+.step .bubble{flex:none;width:34px;height:34px;border-radius:10px;background:var(--soft);display:grid;place-items:center;font:700 15px var(--mono);color:var(--accent)}
+.step b{display:block;font-size:15px}.step small{color:var(--muted);display:block;margin-top:2px}
+.pts{display:inline-block;margin-top:6px;font:600 11px var(--mono);color:var(--accent);background:var(--soft);padding:2px 8px;border-radius:999px}
+.rubric{display:flex;height:34px;border-radius:9px;overflow:hidden;border:1px solid var(--line);margin:10px 0 6px}
+.rubric div{display:grid;place-items:center;font:700 11px var(--mono);color:#fff;white-space:nowrap;overflow:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+details.guion{border:1px dashed var(--accent);border-radius:12px;padding:10px 14px;margin:14px 0;background:color-mix(in srgb,var(--accent) 6%,transparent)}
+details.guion summary{cursor:pointer;font-weight:700;color:var(--accent)}
+details.guion ul{margin:8px 0 2px;padding-left:20px}details.guion li{margin:4px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.m{display:inline-block;min-width:54px;text-align:center;font:700 11px var(--mono);padding:3px 7px;border-radius:6px;color:#fff}
+.m.GET{background:#0f766e}.m.POST{background:#4f46e5}.m.DELETE{background:#b91c1c}.m.PUT{background:#b45309}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 11px;border-radius:999px;font:600 12.5px inherit;cursor:pointer}
+.chip.on,.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip.on{background:var(--soft)}
+.btn{border:0;background:var(--accent);color:var(--accent-ink);padding:9px 16px;border-radius:10px;font:700 14px inherit;cursor:pointer}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.btn.sm{padding:5px 10px;font-size:12px;border-radius:8px}
+.btn:disabled{opacity:.55;cursor:wait}
+.code{border-radius:12px;overflow:hidden;background:var(--code-bg);margin:8px 0 14px;border:1px solid #1d2442}
+.code .bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px 6px 14px;background:#151b33;color:var(--code-dim);font:600 12px var(--mono)}
+.code pre{margin:0;padding:12px 14px;overflow:auto;max-height:440px;color:var(--code-ink);font:12.5px/1.55 var(--mono);tab-size:2}
+.code .cm{color:var(--code-dim);font-style:italic}
+.code .bar .btn{background:#262e55;color:#dfe5ff}
+.note{border-left:4px solid var(--teal);background:color-mix(in srgb,var(--teal) 9%,transparent);padding:10px 14px;border-radius:0 10px 10px 0;margin:10px 0;font-size:14px}
+.note.warn{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,transparent)}
+.er{width:100%;overflow-x:auto}
+.er svg{min-width:760px;width:100%;height:auto;display:block}
+.er .box{fill:var(--card);stroke:var(--line)}
+.er .head{fill:var(--accent)}
+.er .hd{fill:var(--accent-ink);font:700 13px var(--mono)}
+.er .col{fill:var(--ink);font:12px var(--mono)}
+.er .typ{fill:var(--muted);font:10.5px var(--mono)}
+.er .key{font:700 9.5px var(--mono)}
+.er .rel{stroke:var(--muted);stroke-width:1.6;fill:none}
+.er .rel.hl{stroke:var(--accent);stroke-width:3.2}
+.er .card-l{fill:var(--accent);font:700 13px var(--mono)}
+.rels .r{cursor:default;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--card)}
+.rels .r:hover,.rels .r.hl{border-color:var(--accent);background:var(--soft)}
+.rels .r b{font-family:var(--mono);font-size:13px}
+.rels .r span.k{font:700 11px var(--mono);color:var(--accent);margin-left:6px}
+.rels p{margin:5px 0 0;font-size:13.5px;color:var(--muted)}
+textarea,input[type=text],input[type=number],select{width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:9px 11px;font:13px var(--mono)}
+textarea{resize:vertical;min-height:110px;line-height:1.5}
+label{font:600 12px inherit;color:var(--muted);display:block;margin:0 0 4px}
+.sqlres{overflow:auto;max-height:340px;border:1px solid var(--line);border-radius:10px;margin-top:10px}
+.sqlres table{font:12.5px var(--mono)}
+.sqlres th{position:sticky;top:0;background:var(--soft)}
+.err{color:var(--bad);font:600 13px var(--mono);margin-top:10px;padding:10px 12px;border:1px solid var(--bad);border-radius:10px;background:color-mix(in srgb,var(--bad) 8%,transparent)}
+.pg{display:grid;grid-template-columns:270px 1fr;gap:14px;align-items:start}
+@media(max-width:820px){.pg{grid-template-columns:1fr}}
+.coll{max-height:620px;overflow:auto;padding:0}
+.coll h4{margin:0;padding:10px 12px 4px;font:700 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);position:sticky;top:0;background:var(--card)}
+.coll button{display:flex;gap:8px;align-items:center;width:100%;text-align:left;border:0;background:none;color:var(--ink);padding:7px 12px;font:13px inherit;cursor:pointer;border-top:1px solid var(--line)}
+.coll button:hover,.coll button.on{background:var(--soft)}
+.coll .m{min-width:46px;font-size:10px;padding:2px 5px}
+.reqrow{display:flex;gap:8px}
+.reqrow select{width:110px;flex:none;font-weight:700}
+.reqrow .urlbox{display:flex;flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
+.urlbox span{padding:9px 0 9px 11px;color:var(--muted);font:13px var(--mono);white-space:nowrap}
+.urlbox input{border:0;border-radius:0;padding-left:0;min-width:0}
+.status{display:inline-flex;gap:8px;align-items:center;font:700 13px var(--mono)}
+.pill{padding:3px 10px;border-radius:999px;color:#fff}
+.pill.s2{background:#15803d}.pill.s4{background:#b45309}.pill.s5{background:#b91c1c}
+.json{margin:0;padding:12px;overflow:auto;max-height:380px;background:var(--code-bg);color:var(--code-ink);border-radius:10px;font:12.5px/1.5 var(--mono);white-space:pre-wrap;word-break:break-word}
+.json .k{color:#8ab4ff}.json .s{color:#9be9a8}.json .n{color:#ffb86c}.json .b{color:#ff7ab2}
+.hdrs{font:12px var(--mono);color:var(--muted);margin:8px 0}
+.hdrs b{color:var(--ink)}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kv div{background:var(--soft);border-radius:10px;padding:10px 12px}
+.kv b{display:block;font:700 22px var(--mono);color:var(--accent)}
+.kv small{color:var(--muted)}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}
+.chk input{margin-top:3px;width:17px;height:17px;accent-color:var(--accent);flex:none}
+.prog{height:12px;border-radius:99px;background:var(--soft);overflow:hidden;margin:6px 0}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));width:0;transition:width .25s}
+.tl{display:flex;height:42px;border-radius:10px;overflow:hidden;margin:10px 0}
+.tl div{display:grid;place-items:center;color:#fff;font:700 12px var(--mono);text-align:center}
+.seg{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:10px 0;font-size:14px}
+.seg i{width:12px;height:12px;border-radius:3px;margin-top:6px}
+.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+footer{color:var(--muted);font-size:12px;text-align:center;padding:20px 14px 40px}
+
+.gl{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.gl div{font-size:13.5px;color:var(--muted)}.gl b{display:block;font:700 12.5px var(--mono);color:var(--accent);margin-bottom:2px}
+
+</style></head><body>
+<header class="top"><div class="wrap">
+  <div class="eyebrow">DFR · Actividad 2 · Laboratorio</div>
+  <h1>API REST y acceso a datos con Next.js</h1>
+  <p>Playground paso a paso sobre el proyecto Nexus (librería + co-working). Todo lo que ves se ejecuta en tu navegador: un mini PostgreSQL de juguete y una API simulada con la misma lógica que los Route Handlers reales.</p>
+</div></header>
+
+<nav class="tabs"><div class="wrap" id="tabs" role="tablist"></div></nav>
+
+<main class="wrap">
+
+<!-- 0 · RUTA -->
+<section class="panel" id="p0">
+  <h2>Ruta de la actividad</h2>
+  <p class="lead">Dos objetivos: <b>diseñar el modelo relacional en PostgreSQL</b> y <b>exponerlo con una API REST hecha con Route Handlers</b> (todo menos el login simulado). Funciona solo en local. Pulsa un paso para ir a él.</p>
+  <div class="grid g2" id="steps"></div>
+
+  <h3>Dónde están los puntos</h3>
+  <div class="rubric" id="rubric"></div>
+  <div class="legend" id="rubleg"></div>
+
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><b>Qué se entrega</b><p style="margin:6px 0 0;color:var(--muted)">Un único ZIP: proyecto Next.js (sin <code>node_modules</code>), archivo <code>.sql</code> con el DDL, vídeo memoria MP4 (≈15 min) y <code>Autores.txt</code> si es en grupo.</p></div>
+    <div class="card"><b>Qué cambia en la Actividad 3</b><p style="margin:6px 0 0;color:var(--muted)">Los Client Components consumirán esta API; los Server Components irán directos a la capa de datos. Por eso el SQL va en <code>lib/data/</code> y no dentro del handler.</p></div>
+  </div>
+</section>
+
+<!-- 1 · MODELO -->
+<section class="panel" id="p1">
+  <h2>1 · Modelo de datos</h2>
+  <p class="lead">Método: subraya los <b>sustantivos</b> del enunciado (candidatos a entidad), decide cuáles son entidades y cuáles atributos, y luego pregúntate «¿cuántos de A tiene un B?» en ambos sentidos para fijar la cardinalidad.</p>
+
+  <h3>De los requisitos a las entidades</h3>
+  <div class="card tscroll"><table>
+    <tr><th>Requisito del enunciado</th><th>Qué dato necesita</th><th>Entidad</th></tr>
+    <tr><td>Landing con los 10 libros más vendidos</td><td>Qué se ha comprado y cuándo</td><td><code>pedidos</code> + <code>pedido_lineas</code></td></tr>
+    <tr><td>Menú de categorías de libros y revistas</td><td>Categorías; libro y revista con mismos campos</td><td><code>categorias</code>, <code>publicaciones</code> (<code>tipo</code>)</td></tr>
+    <tr><td>Filtro por año de publicación</td><td>Año como columna indexable</td><td><code>publicaciones.anio_publicacion</code></td></tr>
+    <tr><td>Libros adquiridos por el usuario</td><td>Quién compró qué</td><td><code>usuarios</code> → <code>pedidos</code></td></tr>
+    <tr><td>Espacios de co-working ocupados/libres, desde cuándo, hasta cuándo y quién</td><td>Espacios y reservas con intervalo y usuario</td><td><code>espacios</code>, <code>reservas</code></td></tr>
+  </table></div>
+
+  <h3>Vocabulario para leer el diagrama</h3>
+  <div class="card"><div class="gl"><div><b>Tabla</b>Como una hoja de Excel: una por cada «cosa» (usuarios, pedidos…). Cada fila es un registro y cada columna, un dato.</div><div><b>PK · clave primaria</b>La columna que identifica cada fila sin confusión (normalmente <code>id</code>). No se repite.</div><div><b>FK · clave foránea</b>Columna que apunta a una fila de otra tabla. Ej.: <code>usuario_id</code> en pedidos dice de qué usuario es el pedido.</div><div><b>UQ · único</b>El valor no se puede repetir: dos usuarios no pueden tener el mismo email.</div><div><b>1 : N · uno a muchos</b>Un usuario tiene muchos pedidos, pero cada pedido es de un solo usuario.</div><div><b>Tipos de dato</b><code>INTEGER</code> número entero · <code>SERIAL</code> entero que se numera solo (1, 2, 3…) · <code>VARCHAR</code> texto corto · <code>TEXT</code> texto largo · <code>NUMERIC</code> número con decimales (precios) · <code>TIMESTAMPTZ</code> fecha y hora · <code>CHECK</code> regla que debe cumplir el valor</div></div></div>
+  <h3>Diagrama entidad–relación</h3>
+  <p class="lead" style="margin-bottom:6px">Pasa el ratón (o toca) una relación de la lista de abajo para resaltarla.</p>
+  <div class="card er" id="er"></div>
+
+  <h3>Relaciones y cardinalidades (lo que hay que justificar en el vídeo)</h3>
+  <div class="grid g2 rels" id="rels"></div>
+
+  <h3>Decisiones de diseño</h3>
+  <div class="grid g2">
+    <div class="card"><b>Libros y revistas en una tabla</b><p style="color:var(--muted);margin:6px 0 0">Comparten casi todos los datos, así que una columna <code>tipo</code> (libro o revista) los distingue.</p></div>
+    <div class="card"><b>Categoría 1:N</b><p style="color:var(--muted);margin:6px 0 0">Cada publicación en una sola categoría (simple y suficiente). Si quisieras varias, haría falta una tabla intermedia.</p></div>
+    <div class="card"><b><code>precio_unitario</code> en la línea</b><p style="color:var(--muted);margin:6px 0 0">Si mañana cambia el precio del libro, los pedidos antiguos deben conservar lo que costó entonces.</p></div>
+    <div class="card"><b>Cancelar sin borrar</b><p style="color:var(--muted);margin:6px 0 0">Cancelar una reserva es marcarla como <code>cancelada</code>; así se conserva el histórico.</p></div>
+  </div>
+</section>
+
+<!-- 2 · BD -->
+<section class="panel" id="p2">
+  <h2>2 · Crear la base de datos e ingestar datos</h2>
+  <p class="lead">Tres entregables: <code>schema.sql</code> (DDL), <code>seed.sql</code> (datos de prueba) y una BD local funcionando. El DDL y los INSERT los puedes generar con IA, pero hay que <b>revisarlos</b> (ver paso 6).</p>
+
+  <h3>Vocabulario</h3>
+  <div class="card"><div class="gl"><div><b>PostgreSQL</b>El programa de base de datos donde viven las tablas.</div><div><b>DDL</b>Las instrucciones que <b>crean</b> las tablas (<code>CREATE TABLE</code>).</div><div><b>INSERT / seed</b>Instrucciones que <b>rellenan</b> las tablas con datos de ejemplo.</div><div><b>Docker</b>Forma rápida de arrancar PostgreSQL en tu ordenador sin instalarlo a mano.</div><div><b>SELECT</b>Consulta para <b>leer</b> datos de una o varias tablas.</div><div><b>JOIN</b>Unir dos tablas siguiendo una FK (p. ej. cada pedido con su usuario).</div><div><b>GROUP BY + SUM</b>Agrupar filas y sumar (p. ej. total de unidades vendidas por libro).</div></div></div>
+  <h3>2.1 DDL — estructura</h3>
+  <div class="code" data-src="code-ddl" data-lang="sql" data-title="db/schema.sql"></div>
+  <h3>2.2 Levantar PostgreSQL en local</h3>
+  <div class="code" data-src="code-docker" data-lang="sh" data-title="terminal"></div>
+  <h3>2.3 Datos de prueba</h3>
+  <div class="code" data-src="seed" data-lang="sql" data-title="db/seed.sql"></div>
+
+  <h3>2.4 Pruébalo en vivo</h3>
+  <p class="lead" style="margin-bottom:6px">Mini ejecutor de <code>SELECT</code> sobre estos mismos datos: soporta <code>JOIN</code>/<code>LEFT JOIN</code>, <code>WHERE</code> (<code>AND/OR/LIKE/IN/IS NULL</code>), <code>GROUP BY</code>, <code>COUNT/SUM/AVG/MIN/MAX</code>, <code>ORDER BY</code>, <code>LIMIT</code> y <code>NOW()</code> (aquí fijado a 2026-11-04 17:00). Modifica la consulta y pulsa Ejecutar.</p>
+  <div class="card">
+    <div class="chips" id="sqlchips"></div>
+    <textarea id="sqlq" spellcheck="false" aria-label="Consulta SQL"></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+      <button class="btn" id="sqlrun">Ejecutar ▶</button>
+      <span style="color:var(--muted);font-size:12px">Ctrl/⌘ + Enter</span>
+      <span id="sqlmeta" style="color:var(--muted);font-size:12px;margin-left:auto"></span>
+    </div>
+    <div id="sqlout"></div>
+    <div class="chips" id="sqltables" style="margin-top:12px"></div>
+  </div>
+</section>
+
+<!-- 3 · DISEÑO API -->
+<section class="panel" id="p3">
+  <h2>3 · Diseño de la API REST</h2>
+  <p class="lead">Un endpoint por cada necesidad de pantalla. Reglas: <b>recursos en plural</b> (sustantivos), el verbo lo pone el método HTTP, los <b>filtros van en query params</b> y la identidad del recurso en el <b>path</b>.</p>
+  <div class="chips" id="epfilter"></div>
+  <div class="card tscroll"><table id="eptable"></table></div>
+
+  <h3>Vocabulario</h3>
+  <div class="card"><div class="gl"><div><b>API REST</b>Conjunto de direcciones (URLs) a las que la web pide o envía datos.</div><div><b>Endpoint</b>Cada una de esas direcciones, p. ej. <code>/api/publicaciones</code>.</div><div><b>Método HTTP</b><code>GET</code> leer · <code>POST</code> crear · <code>DELETE</code> borrar.</div><div><b>Path param</b>Parte de la dirección que identifica algo: <code>/publicaciones/4</code> (el libro 4).</div><div><b>Query param</b>Filtros después del <code>?</code>: <code>?tipo=libro&amp;anioDesde=2010</code>.</div><div><b>JSON</b>Formato de texto en el que la API devuelve los datos.</div><div><b>Código de estado</b>Número que dice qué pasó: 200 bien, 201 creado, 400 petición mal hecha, 404 no existe, 409 conflicto…</div></div></div>
+  <h3>Buenas prácticas que puntúan en el criterio 3</h3>
+  <div class="grid g3">
+    <div class="card"><b>Nombres</b><p style="color:var(--muted);margin:6px 0 0"><code>/publicaciones</code> sí; <code>/getLibros</code> o <code>/obtener-libros</code> no.</p></div>
+    <div class="card"><b>Path vs query</b><p style="color:var(--muted);margin:6px 0 0"><code>/publicaciones/42</code> identifica; <code>?tipo=libro&amp;anioDesde=2010</code> filtra, ordena y pagina.</p></div>
+    <div class="card"><b>Anidado con criterio</b><p style="color:var(--muted);margin:6px 0 0"><code>/usuarios/1/compras</code> expresa «las compras DE ese usuario». No más de 2 niveles.</p></div>
+    <div class="card"><b>Estático antes que dinámico</b><p style="color:var(--muted);margin:6px 0 0"><code>/publicaciones/mas-vendidos</code> y <code>/publicaciones/[id]</code> conviven: Next prioriza la carpeta estática.</p></div>
+    <div class="card"><b>Error uniforme</b><p style="color:var(--muted);margin:6px 0 0">Siempre <code>{ error: { code, message, details } }</code>. El cliente solo necesita un parser.</p></div>
+    <div class="card"><b>Paginación</b><p style="color:var(--muted);margin:6px 0 0"><code>page</code> + <code>limit</code> (con máximo) y <code>meta.total</code> + cabecera <code>X-Total-Count</code>.</p></div>
+  </div>
+
+  <h3>Códigos de estado: cuál usar</h3>
+  <div class="card tscroll"><table>
+    <tr><th>Código</th><th>Cuándo</th><th>Ejemplo en Nexus</th></tr>
+    <tr><td><b>200</b> OK</td><td>Lectura correcta</td><td>GET de libros</td></tr>
+    <tr><td><b>201</b> Created</td><td>Se creó algo (+ cabecera <code>Location</code>)</td><td>POST pedido / reserva</td></tr>
+    <tr><td><b>204</b> No Content</td><td>Hecho, nada que devolver</td><td>DELETE reserva</td></tr>
+    <tr><td><b>400</b> Bad Request</td><td>La petición está mal formada</td><td><code>id=abc</code>, JSON roto, <code>limit=500</code></td></tr>
+    <tr><td><b>404</b> Not Found</td><td>Formato bien, pero no existe</td><td>Libro 999</td></tr>
+    <tr><td><b>405</b> Method Not Allowed</td><td>Ruta existe, método no</td><td>DELETE /api/categorias</td></tr>
+    <tr><td><b>409</b> Conflict</td><td>Choca con el estado actual</td><td>Sin stock · espacio ya reservado</td></tr>
+    <tr><td><b>422</b> Unprocessable</td><td>Sintaxis OK pero regla de negocio no</td><td>Capacidad excedida · fin &lt; inicio</td></tr>
+    <tr><td><b>500</b> Server Error</td><td>Fallo nuestro (BD caída…)</td><td>Capturar y no filtrar detalles internos</td></tr>
+  </table></div>
+</section>
+
+<!-- 4 · HANDLERS -->
+<section class="panel" id="p4">
+  <h2>4 · Implementar los Route Handlers</h2>
+  <p class="lead">Cada carpeta con un <code>route.ts</code> es un endpoint; exportas una función por método HTTP (<code>GET</code>, <code>POST</code>…). Patrón de todos los handlers: <b>validar → llamar a la capa de datos → responder con el código correcto</b>.</p>
+  <h3>Vocabulario</h3>
+  <div class="card"><div class="gl"><div><b>Route Handler</b>Archivo <code>route.ts</code> de Next.js que responde a una dirección <code>/api/…</code>.</div><div><b>Capa de datos</b>Funciones que hacen las consultas SQL, separadas del handler para poder reutilizarlas.</div><div><b>Pool</b>Conjunto de conexiones a la base de datos que se reutilizan.</div><div><b>$1, $2…</b>Forma segura de meter valores en una consulta SQL (evita que alguien «inyecte» SQL).</div><div><b>Transacción</b>Varias operaciones que se hacen <b>todas o ninguna</b> (la compra: crear pedido y bajar stock).</div><div><b>async / await</b>Esperar a que la base de datos responda antes de seguir.</div></div></div>
+  <div class="code" data-src="code-tree" data-lang="" data-title="Estructura del proyecto"></div>
+  <h3>Código (elige un archivo)</h3>
+  <div class="chips" id="filechips"></div>
+  <div id="filecode"></div>
+</section>
+
+<!-- 5 · PROBAR -->
+<section class="panel" id="p5">
+  <h2>5 · Probar la API (como en Postman)</h2>
+  <p class="lead">Este cliente habla con la API simulada que vive en esta página. Las peticiones <b>POST/DELETE modifican los datos</b>: compra un libro y verás bajar el stock, reserva y verás cambiar el estado del espacio. «Reiniciar datos» lo deja todo como al principio.</p>
+  <h3>Vocabulario</h3>
+  <div class="card"><div class="gl"><div><b>Send</b>Lanza la petición a la API.</div><div><b>Body</b>Los datos que se envían en un POST (en formato JSON).</div><div><b>Status</b>El código de estado de la respuesta (verde = bien, naranja = error del cliente).</div><div><b>Postman</b>Programa que hace esto mismo contra tu proyecto real.</div></div></div>
+  <div class="pg">
+    <div class="card coll" id="coll"></div>
+    <div>
+      <div class="card">
+        <div class="reqrow">
+          <select id="rqm" aria-label="Método"><option>GET</option><option>POST</option><option>DELETE</option><option>PUT</option></select>
+          <div class="urlbox"><span>localhost:3000</span><input type="text" id="rqu" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Ruta"></div>
+        </div>
+        <div id="rqbwrap" style="margin-top:10px"><label for="rqb">Body (JSON)</label><textarea id="rqb" spellcheck="false"></textarea></div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn" id="rqsend">Send ▶</button>
+          <button class="btn ghost" id="rqcurl">Copiar curl</button>
+          <button class="btn ghost" id="rqreset">Reiniciar datos</button>
+        </div>
+      </div>
+      <div class="card" id="resp"><p style="color:var(--muted);margin:0">Elige una petición de la izquierda y pulsa Send.</p></div>
+      <div class="card"><div class="kv" id="state"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · IA -->
+<section class="panel" id="p6">
+  <h2>6 · Uso de IA (obligatorio)</h2>
+  <p class="lead">La IA se usa para dos tareas: <b>generar el DDL</b> y <b>generar los INSERT</b>. El criterio 6 evalúa que lo documentes con honestidad: prompts, resultados y métricas.</p>
+  <h3>Prompt 1 · DDL</h3>
+  <div class="code" data-src="code-prompt-ddl" data-lang="" data-title="Prompt (ChatGPT / Claude / Copilot agente)"></div>
+  <h3>Prompt 2 · Datos de prueba</h3>
+  <div class="code" data-src="code-prompt-seed" data-lang="" data-title="Prompt (en el mismo chat, con el DDL ya generado)"></div>
+
+  <h3>Qué revisar siempre en la respuesta</h3>
+  <div class="card" id="aichk"></div>
+
+  <h3>Calculadora de métricas para la memoria</h3>
+  <div class="card">
+    <div class="three">
+      <div><label for="m_tot">Respuestas de IA evaluadas</label><input type="number" id="m_tot" value="10" min="0"></div>
+      <div><label for="m_ok">Correctas</label><input type="number" id="m_ok" value="5" min="0"></div>
+      <div><label for="m_par">Parcialmente correctas</label><input type="number" id="m_par" value="3" min="0"></div>
+      <div><label for="m_bad">Incorrectas</label><input type="number" id="m_bad" value="2" min="0"></div>
+      <div><label for="m_loc">Líneas generadas con IA</label><input type="number" id="m_loc" value="350" min="0"></div>
+      <div><label for="m_h0">Horas estimadas sin IA</label><input type="number" id="m_h0" value="10" min="0" step="0.5"></div>
+      <div><label for="m_h1">Horas reales con IA</label><input type="number" id="m_h1" value="4" min="0" step="0.5"></div>
+    </div>
+    <div class="kv" id="mout" style="margin-top:14px"></div>
+    <p id="mwarn" style="color:var(--warn);font-size:13px;margin:10px 0 0"></p>
+  </div>
+</section>
+
+<!-- 7 · ENTREGA -->
+<section class="panel" id="p7">
+  <h2>7 · Vídeo memoria y entrega</h2>
+  <p class="lead">≈15 minutos, todos los integrantes con tiempos similares. Reparto orientativo:</p>
+  <div class="tl" id="tl"></div>
+  <div class="seg" id="seg"></div>
+
+  <h3>Checklist de entrega</h3>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><b>Cobertura de la rúbrica</b><span class="mono" id="covtxt"></span></div>
+    <div class="prog"><i id="covbar"></i></div>
+    <div id="deliv"></div>
+  </div>
+</section>
+
+</main>
+<footer>Playground didáctico · los datos y el «ahora» (2026-11-04 17:00) son simulados.</footer>
+
+<!-- Bloques de código (text/plain): evitan escapar comillas/backticks -->
+<script type="text/plain" id="code-ddl">
+-- db/schema.sql · PostgreSQL 16 · Nexus (librería + co-working)
+
+CREATE TABLE usuarios (
+  id      SERIAL PRIMARY KEY,
+  email   VARCHAR(255) NOT NULL UNIQUE,
+  nombre  VARCHAR(120) NOT NULL
+);
+
+CREATE TABLE categorias (
+  id      SERIAL PRIMARY KEY,
+  nombre  VARCHAR(80) NOT NULL UNIQUE,
+  slug    VARCHAR(80) NOT NULL UNIQUE            -- para URLs: /categoria/informatica
+);
+
+-- Libros y revistas comparten estructura: una tabla con discriminador "tipo"
+CREATE TABLE publicaciones (
+  id                SERIAL PRIMARY KEY,
+  tipo              VARCHAR(10)  NOT NULL CHECK (tipo IN ('libro', 'revista')),
+  titulo            VARCHAR(200) NOT NULL,
+  autor             VARCHAR(150) NOT NULL,
+  anio_publicacion  SMALLINT     NOT NULL CHECK (anio_publicacion BETWEEN 1000 AND 2100),
+  precio            NUMERIC(8,2) NOT NULL CHECK (precio >= 0),
+  stock             INTEGER      NOT NULL DEFAULT 0 CHECK (stock >= 0),
+  descripcion       TEXT,
+  categoria_id      INTEGER      NOT NULL REFERENCES categorias(id) ON DELETE RESTRICT
+);
+
+CREATE TABLE pedidos (
+  id          SERIAL PRIMARY KEY,
+  usuario_id  INTEGER       NOT NULL REFERENCES usuarios(id) ON DELETE RESTRICT,
+  fecha       TIMESTAMPTZ   NOT NULL DEFAULT now(),
+  total       NUMERIC(10,2) NOT NULL CHECK (total >= 0)
+);
+
+-- Relación N:M pedidos <-> publicaciones resuelta con tabla intermedia
+CREATE TABLE pedido_lineas (
+  pedido_id        INTEGER      NOT NULL REFERENCES pedidos(id) ON DELETE CASCADE,
+  publicacion_id   INTEGER      NOT NULL REFERENCES publicaciones(id) ON DELETE RESTRICT,
+  cantidad         INTEGER      NOT NULL CHECK (cantidad > 0),
+  precio_unitario  NUMERIC(8,2) NOT NULL CHECK (precio_unitario >= 0),  -- precio histórico
+  PRIMARY KEY (pedido_id, publicacion_id)
+);
+
+CREATE TABLE espacios (
+  id           SERIAL PRIMARY KEY,
+  nombre       VARCHAR(80) NOT NULL UNIQUE,
+  capacidad    INTEGER     NOT NULL CHECK (capacidad > 0),
+  descripcion  TEXT
+);
+
+CREATE TABLE reservas (
+  id          SERIAL PRIMARY KEY,
+  espacio_id  INTEGER     NOT NULL REFERENCES espacios(id) ON DELETE RESTRICT,
+  usuario_id  INTEGER     NOT NULL REFERENCES usuarios(id) ON DELETE RESTRICT,
+  inicio      TIMESTAMPTZ NOT NULL,
+  fin         TIMESTAMPTZ NOT NULL,
+  personas    INTEGER     NOT NULL CHECK (personas > 0),
+  estado      VARCHAR(12) NOT NULL DEFAULT 'confirmada' CHECK (estado IN ('confirmada', 'cancelada')),
+  CHECK (fin > inicio)
+);
+
+-- Índices para los filtros que usará la API
+CREATE INDEX idx_publicaciones_categoria ON publicaciones (categoria_id);
+CREATE INDEX idx_publicaciones_anio      ON publicaciones (anio_publicacion);
+CREATE INDEX idx_pedidos_usuario         ON pedidos (usuario_id);
+CREATE INDEX idx_reservas_espacio_inicio ON reservas (espacio_id, inicio);
+
+-- (EXTRA) La propia BD impide solapes de reservas confirmadas:
+-- CREATE EXTENSION IF NOT EXISTS btree_gist;
+-- ALTER TABLE reservas ADD CONSTRAINT reservas_sin_solape
+--   EXCLUDE USING gist (espacio_id WITH =, tstzrange(inicio, fin) WITH &&)
+--   WHERE (estado = 'confirmada');
+</script>
+
+<script type="text/plain" id="code-docker">
+# 1) PostgreSQL local con Docker (no hace falta BD remota)
+docker run --name nexus-db -e POSTGRES_PASSWORD=nexus -e POSTGRES_DB=nexus \
+  -p 5432:5432 -d postgres:16
+
+# 2) Crear tablas y cargar datos
+psql postgresql://postgres:nexus@localhost:5432/nexus -f db/schema.sql
+psql postgresql://postgres:nexus@localhost:5432/nexus -f db/seed.sql
+
+# 3) Comprobar
+psql postgresql://postgres:nexus@localhost:5432/nexus -c "SELECT count(*) FROM publicaciones;"
+</script>
+
+<script type="text/plain" id="code-tree">
+nexus/
+├── Autores.txt                  (solo si es en grupo)
+├── db/
+│   ├── schema.sql               ← DDL (entregable obligatorio)
+│   └── seed.sql                 ← INSERT de prueba
+├── .env.local                   DATABASE_URL=postgresql://postgres:nexus@localhost:5432/nexus
+├── src/
+│   ├── lib/
+│   │   ├── db.ts                Pool de conexiones (una sola)
+│   │   ├── http.ts              apiError(), parseId()
+│   │   └── data/                ← capa de acceso a datos (la reutilizarán los Server Components)
+│   │       ├── publicaciones.ts
+│   │       └── espacios.ts
+│   └── app/
+│       └── api/
+│           ├── categorias/route.ts
+│           ├── publicaciones/
+│           │   ├── route.ts                 GET lista + filtros
+│           │   ├── mas-vendidos/route.ts    GET (ruta ESTÁTICA)
+│           │   └── [id]/route.ts            GET detalle
+│           ├── usuarios/[id]/compras/route.ts
+│           ├── pedidos/route.ts             POST compra (transacción)
+│           ├── espacios/
+│           │   ├── route.ts                 GET estado de todos
+│           │   └── [id]/route.ts            GET detalle
+│           └── reservas/route.ts            POST reserva (409 si solapa)
+└── (sin node_modules en el ZIP)
+</script>
+
+<script type="text/plain" id="code-lib-db">
+// src/lib/db.ts
+import { Pool } from "pg";
+
+declare global {
+  // eslint-disable-next-line no-var
+  var pgPool: Pool | undefined;
+}
+
+// Una única Pool, aunque Next recargue módulos en desarrollo (HMR)
+export const pool =
+  global.pgPool ?? new Pool({ connectionString: process.env.DATABASE_URL });
+
+if (process.env.NODE_ENV !== "production") global.pgPool = pool;
+
+// npm i pg && npm i -D @types/pg
+</script>
+
+<script type="text/plain" id="code-lib-http">
+// src/lib/http.ts
+import { NextResponse } from "next/server";
+
+// Formato de error ÚNICO para toda la API
+export function apiError(status: number, code: string, message: string, details?: string[]) {
+  return NextResponse.json({ error: { code, message, details } }, { status });
+}
+
+export function parseId(value: string): number | null {
+  return /^\d+$/.test(value) ? Number(value) : null;
+}
+</script>
+
+<script type="text/plain" id="code-lib-data">
+// src/lib/data/publicaciones.ts  → capa de acceso a datos (SQL vive AQUÍ, no en el handler)
+import { pool } from "@/lib/db";
+
+export type Filters = {
+  tipo?: string | null; categoria?: string | null; q?: string | null;
+  anioDesde?: number | null; anioHasta?: number | null;
+  sort: string; page: number; limit: number;
+};
+
+// Lista blanca: NUNCA interpolar texto del usuario en ORDER BY
+const ORDER: Record<string, string> = {
+  precio: "p.precio", anio: "p.anio_publicacion", titulo: "p.titulo",
+};
+
+export async function listPublicaciones(f: Filters) {
+  const where: string[] = [];
+  const params: unknown[] = [];
+  const add = (sql: string, value: unknown) => {
+    params.push(value);
+    where.push(sql.replaceAll("?", "$" + params.length)); // parámetros → anti SQL injection
+  };
+
+  if (f.tipo) add("p.tipo = ?", f.tipo);
+  if (f.categoria) add("c.slug = ?", f.categoria);
+  if (f.anioDesde) add("p.anio_publicacion >= ?", f.anioDesde);
+  if (f.anioHasta) add("p.anio_publicacion <= ?", f.anioHasta);
+  if (f.q) add("(p.titulo ILIKE ? OR p.autor ILIKE ?)", "%" + f.q + "%");
+
+  const whereSql = where.length ? "WHERE " + where.join(" AND ") : "";
+  const desc = f.sort.startsWith("-");
+  const orderBy = ORDER[f.sort.replace(/^-/, "")] + (desc ? " DESC" : " ASC");
+
+  const base = "FROM publicaciones p JOIN categorias c ON c.id = p.categoria_id " + whereSql;
+
+  const total = await pool.query("SELECT count(*)::int AS n " + base, params);
+  const rows = await pool.query(
+    `SELECT p.id, p.tipo, p.titulo, p.autor,
+            p.anio_publicacion AS "anioPublicacion",
+            p.precio::float AS precio,          -- pg devuelve NUMERIC como string
+            p.stock, c.nombre AS categoria
+     ${base}
+     ORDER BY ${orderBy}
+     LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+    [...params, f.limit, (f.page - 1) * f.limit]
+  );
+  return { rows: rows.rows, total: total.rows[0].n as number };
+}
+
+export async function getPublicacionById(id: number) {
+  const { rows } = await pool.query(
+    `SELECT p.id, p.tipo, p.titulo, p.autor, p.anio_publicacion AS "anioPublicacion",
+            p.precio::float AS precio, p.stock, p.descripcion, c.nombre AS categoria
+     FROM publicaciones p JOIN categorias c ON c.id = p.categoria_id
+     WHERE p.id = $1`,
+    [id]
+  );
+  return rows[0] ?? null;
+}
+</script>
+
+<script type="text/plain" id="code-pub-list">
+// src/app/api/publicaciones/route.ts   →   GET /api/publicaciones?tipo=&categoria=&q=&anioDesde=&sort=&page=&limit=
+import { NextRequest, NextResponse } from "next/server";
+import { listPublicaciones } from "@/lib/data/publicaciones";
+import { apiError } from "@/lib/http";
+
+const SORTS = ["precio", "anio", "titulo"];
+
+export async function GET(req: NextRequest) {
+  const sp = req.nextUrl.searchParams;
+  const details: string[] = [];
+
+  // 1) VALIDAR los query params y devolver 400 con todos los fallos juntos
+  const tipo = sp.get("tipo");
+  if (tipo && !["libro", "revista"].includes(tipo)) details.push('tipo debe ser "libro" o "revista"');
+
+  const page = Number(sp.get("page") ?? 1);
+  const limit = Number(sp.get("limit") ?? 10);
+  if (!Number.isInteger(page) || page < 1) details.push("page debe ser un entero >= 1");
+  if (!Number.isInteger(limit) || limit < 1 || limit > 50) details.push("limit debe estar entre 1 y 50");
+
+  const sort = sp.get("sort") ?? "titulo";
+  if (!SORTS.includes(sort.replace(/^-/, ""))) details.push("sort no válido");
+
+  if (details.length) return apiError(400, "PARAMETROS_INVALIDOS", "Parámetros de consulta no válidos", details);
+
+  // 2) Delegar en la capa de datos
+  const { rows, total } = await listPublicaciones({
+    tipo, sort, page, limit,
+    categoria: sp.get("categoria"),
+    q: sp.get("q"),
+    anioDesde: sp.get("anioDesde") ? Number(sp.get("anioDesde")) : null,
+    anioHasta: sp.get("anioHasta") ? Number(sp.get("anioHasta")) : null,
+  });
+
+  // 3) Respuesta: datos + metadatos de paginación
+  return NextResponse.json(
+    { data: rows, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } },
+    { headers: { "X-Total-Count": String(total) } }
+  );
+}
+</script>
+
+<script type="text/plain" id="code-pub-id">
+// src/app/api/publicaciones/[id]/route.ts   →   GET /api/publicaciones/42
+import { NextRequest, NextResponse } from "next/server";
+import { getPublicacionById } from "@/lib/data/publicaciones";
+import { apiError, parseId } from "@/lib/http";
+
+// En Next 15+ "params" es una Promise → hay que hacer await
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: raw } = await params;
+
+  const id = parseId(raw);
+  if (id === null) return apiError(400, "ID_INVALIDO", "El id debe ser un entero positivo"); // 400: la petición está mal
+
+  const pub = await getPublicacionById(id);
+  if (!pub) return apiError(404, "NO_ENCONTRADO", "No existe la publicación " + id);          // 404: está bien pero no existe
+
+  return NextResponse.json(pub); // 200
+}
+</script>
+
+<script type="text/plain" id="code-pub-top">
+// src/app/api/publicaciones/mas-vendidos/route.ts   →   GET /api/publicaciones/mas-vendidos?semanas=4&limit=10
+// OJO: esta carpeta ESTÁTICA convive con [id]; Next da prioridad a la estática, así que
+// "mas-vendidos" nunca se interpreta como un id.
+import { NextRequest, NextResponse } from "next/server";
+import { pool } from "@/lib/db";
+import { apiError } from "@/lib/http";
+
+export async function GET(req: NextRequest) {
+  const sp = req.nextUrl.searchParams;
+  const semanas = Number(sp.get("semanas") ?? 4);
+  const limit = Number(sp.get("limit") ?? 10);
+  if (!Number.isInteger(semanas) || semanas < 1 || semanas > 52 || !Number.isInteger(limit) || limit < 1 || limit > 50)
+    return apiError(400, "PARAMETROS_INVALIDOS", "semanas (1-52) y limit (1-50) deben ser enteros");
+
+  const { rows } = await pool.query(
+    `SELECT p.id, p.titulo, p.autor, p.tipo, p.precio::float AS precio,
+            SUM(l.cantidad)::int AS "unidadesVendidas"
+     FROM pedido_lineas l
+     JOIN pedidos o       ON o.id = l.pedido_id
+     JOIN publicaciones p ON p.id = l.publicacion_id
+     WHERE o.fecha >= now() - make_interval(weeks => $1)
+     GROUP BY p.id
+     ORDER BY "unidadesVendidas" DESC, p.titulo
+     LIMIT $2`,
+    [semanas, limit]
+  );
+  return NextResponse.json({ data: rows.map((r, i) => ({ ranking: i + 1, ...r })) });
+}
+</script>
+
+<script type="text/plain" id="code-compras">
+// src/app/api/usuarios/[id]/compras/route.ts   →   GET /api/usuarios/1/compras   (recurso anidado)
+import { NextRequest, NextResponse } from "next/server";
+import { pool } from "@/lib/db";
+import { apiError, parseId } from "@/lib/http";
+
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const id = parseId((await params).id);
+  if (id === null) return apiError(400, "ID_INVALIDO", "El id debe ser un entero positivo");
+
+  const user = await pool.query("SELECT 1 FROM usuarios WHERE id = $1", [id]);
+  if (!user.rowCount) return apiError(404, "NO_ENCONTRADO", "No existe el usuario " + id);
+
+  const { rows } = await pool.query(
+    `SELECT o.id AS "pedidoId", o.fecha, l.cantidad, l.precio_unitario::float AS "precioUnitario",
+            p.id AS "publicacionId", p.titulo, p.autor, p.tipo
+     FROM pedidos o
+     JOIN pedido_lineas l ON l.pedido_id = o.id
+     JOIN publicaciones p ON p.id = l.publicacion_id
+     WHERE o.usuario_id = $1
+     ORDER BY o.fecha DESC`,
+    [id]
+  );
+  return NextResponse.json({ data: rows });
+}
+</script>
+
+<script type="text/plain" id="code-pedidos">
+// src/app/api/pedidos/route.ts   →   POST /api/pedidos   (compra = TRANSACCIÓN)
+import { NextRequest, NextResponse } from "next/server";
+import { pool } from "@/lib/db";
+import { apiError } from "@/lib/http";
+
+type Item = { publicacionId: number; cantidad: number };
+
+export async function POST(req: NextRequest) {
+  const body = await req.json().catch(() => null);           // JSON mal formado → null
+  if (!body) return apiError(400, "BODY_INVALIDO", "El cuerpo debe ser un JSON válido");
+
+  const details: string[] = [];
+  if (!Number.isInteger(body.usuarioId)) details.push("usuarioId debe ser un entero");
+  if (!Array.isArray(body.items) || !body.items.length) details.push("items debe ser un array no vacío");
+  else (body.items as Item[]).forEach((it, i) => {
+    if (!Number.isInteger(it.publicacionId)) details.push("items[" + i + "].publicacionId debe ser entero");
+    if (!Number.isInteger(it.cantidad) || it.cantidad < 1) details.push("items[" + i + "].cantidad debe ser entero >= 1");
+  });
+  if (details.length) return apiError(400, "VALIDACION", "El cuerpo no es válido", details);
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const u = await client.query("SELECT 1 FROM usuarios WHERE id = $1", [body.usuarioId]);
+    if (!u.rowCount) { await client.query("ROLLBACK"); return apiError(404, "NO_ENCONTRADO", "No existe el usuario"); }
+
+    let total = 0;
+    const lineas: { id: number; cantidad: number; precio: number }[] = [];
+    for (const it of body.items as Item[]) {
+      // FOR UPDATE bloquea la fila: dos compras simultáneas no pueden vender el mismo stock
+      const { rows } = await client.query(
+        "SELECT id, titulo, precio::float AS precio, stock FROM publicaciones WHERE id = $1 FOR UPDATE",
+        [it.publicacionId]
+      );
+      const p = rows[0];
+      if (!p) { await client.query("ROLLBACK"); return apiError(404, "NO_ENCONTRADO", "No existe la publicación " + it.publicacionId); }
+      if (p.stock < it.cantidad) {
+        await client.query("ROLLBACK");
+        return apiError(409, "STOCK_INSUFICIENTE", 'Stock insuficiente para "' + p.titulo + '"',
+          ["solicitado: " + it.cantidad, "disponible: " + p.stock]);
+      }
+      total += p.precio * it.cantidad;
+      lineas.push({ id: p.id, cantidad: it.cantidad, precio: p.precio });
+    }
+
+    const ped = await client.query(
+      "INSERT INTO pedidos (usuario_id, total) VALUES ($1, $2) RETURNING id, fecha",
+      [body.usuarioId, total.toFixed(2)]
+    );
+    for (const l of lineas) {
+      await client.query("INSERT INTO pedido_lineas VALUES ($1, $2, $3, $4)", [ped.rows[0].id, l.id, l.cantidad, l.precio]);
+      await client.query("UPDATE publicaciones SET stock = stock - $1 WHERE id = $2", [l.cantidad, l.id]);
+    }
+    await client.query("COMMIT");
+
+    // 201 Created + cabecera Location con la URL del nuevo recurso
+    return NextResponse.json(
+      { id: ped.rows[0].id, total: Number(total.toFixed(2)), lineas },
+      { status: 201, headers: { Location: "/api/pedidos/" + ped.rows[0].id } }
+    );
+  } catch (e) {
+    await client.query("ROLLBACK");
+    console.error(e);
+    return apiError(500, "ERROR_INTERNO", "No se pudo completar la compra");
+  } finally {
+    client.release();                                        // ¡siempre devolver la conexión al pool!
+  }
+}
+</script>
+
+<script type="text/plain" id="code-espacios">
+// src/app/api/espacios/route.ts   →   GET /api/espacios?estado=libre&capacidadMin=4&en=2026-11-04T17:00
+// El estado (libre / ocupado) NO se guarda: se DEDUCE de las reservas en ese instante.
+import { NextRequest, NextResponse } from "next/server";
+import { pool } from "@/lib/db";
+import { apiError } from "@/lib/http";
+
+export async function GET(req: NextRequest) {
+  const sp = req.nextUrl.searchParams;
+  const estado = sp.get("estado");
+  if (estado && !["libre", "ocupado"].includes(estado))
+    return apiError(400, "PARAMETROS_INVALIDOS", 'estado debe ser "libre" u "ocupado"');
+
+  const en = sp.get("en") ? new Date(sp.get("en")!) : new Date();
+  if (Number.isNaN(en.getTime())) return apiError(400, "PARAMETROS_INVALIDOS", "en no es una fecha válida");
+
+  const { rows } = await pool.query(
+    `SELECT e.id, e.nombre, e.capacidad,
+            CASE WHEN r.id IS NULL THEN 'libre' ELSE 'ocupado' END AS estado,
+            u.nombre AS "ocupadoPor", r.inicio AS "ocupadoDesde", r.fin AS "libreA"
+     FROM espacios e
+     LEFT JOIN reservas r
+            ON r.espacio_id = e.id AND r.estado = 'confirmada'
+           AND r.inicio <= $1 AND r.fin > $1
+     LEFT JOIN usuarios u ON u.id = r.usuario_id
+     ORDER BY e.id`,
+    [en]
+  );
+  const data = rows
+    .filter((r) => !estado || r.estado === estado)
+    .filter((r) => !sp.get("capacidadMin") || r.capacidad >= Number(sp.get("capacidadMin")));
+  return NextResponse.json({ data, meta: { en } }, { headers: { "X-Total-Count": String(data.length) } });
+}
+</script>
+
+<script type="text/plain" id="code-reservas">
+// src/app/api/reservas/route.ts   →   POST /api/reservas
+import { NextRequest, NextResponse } from "next/server";
+import { pool } from "@/lib/db";
+import { apiError } from "@/lib/http";
+
+export async function POST(req: NextRequest) {
+  const b = await req.json().catch(() => null);
+  if (!b) return apiError(400, "BODY_INVALIDO", "El cuerpo debe ser un JSON válido");
+
+  const inicio = new Date(b.inicio), fin = new Date(b.fin);
+  const details: string[] = [];
+  if (!Number.isInteger(b.espacioId)) details.push("espacioId debe ser un entero");
+  if (!Number.isInteger(b.usuarioId)) details.push("usuarioId debe ser un entero");
+  if (Number.isNaN(inicio.getTime())) details.push("inicio no es una fecha válida");
+  if (Number.isNaN(fin.getTime())) details.push("fin no es una fecha válida");
+  if (!Number.isInteger(b.personas) || b.personas < 1) details.push("personas debe ser un entero >= 1");
+  if (details.length) return apiError(400, "VALIDACION", "El cuerpo no es válido", details);
+
+  // Reglas de NEGOCIO → 422 (la sintaxis es correcta pero el contenido no tiene sentido)
+  if (fin <= inicio) return apiError(422, "RANGO_INVALIDO", "fin debe ser posterior a inicio");
+
+  const esp = await pool.query("SELECT capacidad, nombre FROM espacios WHERE id = $1", [b.espacioId]);
+  if (!esp.rowCount) return apiError(404, "NO_ENCONTRADO", "No existe el espacio " + b.espacioId);
+  if (b.personas > esp.rows[0].capacidad)
+    return apiError(422, "CAPACIDAD_EXCEDIDA", esp.rows[0].nombre + " admite " + esp.rows[0].capacidad + " personas como máximo");
+
+  // Conflicto de estado → 409. Dos rangos se solapan si: nuevo.inicio < existente.fin Y nuevo.fin > existente.inicio
+  const choque = await pool.query(
+    `SELECT id, inicio, fin FROM reservas
+     WHERE espacio_id = $1 AND estado = 'confirmada' AND inicio < $3 AND fin > $2`,
+    [b.espacioId, inicio, fin]
+  );
+  if (choque.rowCount) return apiError(409, "ESPACIO_OCUPADO", "El espacio ya está reservado en ese tramo");
+
+  const { rows } = await pool.query(
+    `INSERT INTO reservas (espacio_id, usuario_id, inicio, fin, personas)
+     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+    [b.espacioId, b.usuarioId, inicio, fin, b.personas]
+  );
+  return NextResponse.json({ id: rows[0].id, ...b }, { status: 201, headers: { Location: "/api/reservas/" + rows[0].id } });
+}
+</script>
+
+<script type="text/plain" id="code-prompt-ddl">
+Actúa como un DBA experto en PostgreSQL. Genera el DDL (solo SQL ejecutable, con comentarios breves) para "Nexus", una librería universitaria con zona de co-working.
+
+ENTIDADES Y ATRIBUTOS
+- usuarios: id, email (único), nombre
+- categorias: id, nombre (único), slug (único)
+- publicaciones (libros Y revistas en una sola tabla con campo tipo): id, tipo, titulo, autor, anio_publicacion, precio, stock, descripcion, categoria_id
+- pedidos: id, usuario_id, fecha, total
+- pedido_lineas: pedido_id, publicacion_id, cantidad, precio_unitario (precio histórico)
+- espacios (co-working, una sola planta): id, nombre, capacidad, descripcion
+- reservas: id, espacio_id, usuario_id, inicio, fin, personas, estado
+
+RELACIONES
+- Un usuario realiza N pedidos. Un pedido tiene N líneas. Una publicación aparece en N líneas (N:M pedidos-publicaciones).
+- Una categoría tiene N publicaciones.
+- Un usuario hace N reservas. Un espacio tiene N reservas.
+
+REQUISITOS
+- PK SERIAL, FKs con ON DELETE explícito, CHECK para tipo/estado/valores no negativos y fin > inicio.
+- Índices para filtrar por categoría, año de publicación y por espacio+fecha.
+- Nombres en snake_case.
+</script>
+
+<script type="text/plain" id="code-prompt-seed">
+A partir del DDL anterior, genera un script de INSERT para poblar la base de datos:
+- 6 categorías, 4 usuarios, 14 publicaciones (12 libros y 2-3 revistas reales, años entre 1960 y 2026, precios y stock realistas).
+- 8 pedidos de las últimas 4 semanas con sus líneas; el total de cada pedido debe ser EXACTAMENTE la suma de cantidad x precio_unitario.
+- 6 espacios de co-working (salas, mesas compartidas y cabinas individuales) y 6 reservas, algunas en curso y otras futuras, SIN solapes en el mismo espacio.
+- Respeta el orden de las claves foráneas e incluye al final los setval() para realinear las secuencias SERIAL.
+- Devuelve solo SQL.
+</script>
+
+<script>
+/* ===== Datos de Nexus (misma información que el seed SQL) ===== */
+const NOW = '2026-11-04 17:00'; // "ahora" simulado para que el co-working sea determinista
+
+function makeDB() {
+  const usuarios = [
+    { id: 1, email: 'laura@nexus.es', nombre: 'Laura Gómez' },
+    { id: 2, email: 'carlos@nexus.es', nombre: 'Carlos Ruiz' },
+    { id: 3, email: 'ana@nexus.es', nombre: 'Ana Torres' },
+    { id: 4, email: 'mario@nexus.es', nombre: 'Mario Vega' },
+  ];
+  const categorias = [
+    { id: 1, nombre: 'Informática', slug: 'informatica' },
+    { id: 2, nombre: 'Ciencia', slug: 'ciencia' },
+    { id: 3, nombre: 'Literatura', slug: 'literatura' },
+    { id: 4, nombre: 'Economía', slug: 'economia' },
+    { id: 5, nombre: 'Revistas tecnológicas', slug: 'revistas-tech' },
+    { id: 6, nombre: 'Divulgación', slug: 'divulgacion' },
+  ];
+  const P = (id, tipo, titulo, autor, anio, precio, stock, cat) =>
+    ({ id, tipo, titulo, autor, anio_publicacion: anio, precio, stock, categoria_id: cat });
+  const publicaciones = [
+    P(1, 'libro', 'Clean Code', 'Robert C. Martin', 2008, 34.90, 12, 1),
+    P(2, 'libro', 'Eloquent JavaScript', 'Marijn Haverbeke', 2018, 29.50, 8, 1),
+    P(3, 'libro', 'Learning React', 'Alex Banks', 2020, 39.95, 10, 1),
+    P(4, 'libro', 'Cosmos', 'Carl Sagan', 1980, 18.90, 15, 2),
+    P(5, 'libro', 'Breve historia del tiempo', 'Stephen Hawking', 1988, 16.50, 9, 2),
+    P(6, 'libro', 'Cien años de soledad', 'Gabriel García Márquez', 1967, 21.00, 20, 3),
+    P(7, 'libro', 'La sombra del viento', 'Carlos Ruiz Zafón', 2001, 19.95, 14, 3),
+    P(8, 'libro', 'Padre rico, padre pobre', 'Robert Kiyosaki', 1997, 15.90, 11, 4),
+    P(9, 'libro', 'Sapiens', 'Yuval Noah Harari', 2011, 24.90, 18, 6),
+    P(10, 'libro', 'Design Patterns', 'Gamma et al.', 1994, 49.00, 5, 1),
+    P(11, 'revista', 'Wired España · Nº 42', 'Redacción Wired', 2026, 6.50, 30, 5),
+    P(12, 'revista', 'Muy Interesante · Octubre', 'Redacción', 2026, 4.95, 25, 6),
+    P(13, 'revista', 'Computer Hoy · Nº 612', 'Redacción', 2025, 3.95, 22, 5),
+    P(14, 'libro', 'Pro Git', 'Scott Chacon', 2014, 27.00, 7, 1),
+  ];
+  const espacios = [
+    { id: 1, nombre: 'Sala Turing', capacidad: 6, descripcion: 'Sala de reuniones con pizarra y pantalla' },
+    { id: 2, nombre: 'Sala Lovelace', capacidad: 4, descripcion: 'Sala pequeña para equipos' },
+    { id: 3, nombre: 'Mesa Compartida A', capacidad: 8, descripcion: 'Mesa abierta con enchufes' },
+    { id: 4, nombre: 'Mesa Compartida B', capacidad: 8, descripcion: 'Mesa abierta junto a la cafetería' },
+    { id: 5, nombre: 'Cabina Silencio 1', capacidad: 1, descripcion: 'Cabina individual insonorizada' },
+    { id: 6, nombre: 'Cabina Silencio 2', capacidad: 1, descripcion: 'Cabina individual insonorizada' },
+  ];
+  const R = (id, e, u, ini, fin, pers, estado = 'confirmada') =>
+    ({ id, espacio_id: e, usuario_id: u, inicio: ini, fin, personas: pers, estado });
+  const reservas = [
+    R(1, 1, 1, '2026-11-04 16:00', '2026-11-04 19:00', 4),
+    R(2, 3, 2, '2026-11-04 09:00', '2026-11-04 13:00', 5),
+    R(3, 5, 3, '2026-11-04 15:30', '2026-11-04 18:30', 1),
+    R(4, 2, 4, '2026-11-05 10:00', '2026-11-05 12:00', 3),
+    R(5, 1, 2, '2026-11-05 17:00', '2026-11-05 19:00', 5),
+    R(6, 4, 3, '2026-11-04 17:00', '2026-11-04 20:00', 2),
+  ];
+  // pedidos: [id, usuario, fecha, [[publicacion, cantidad], ...]]
+  const rawPedidos = [
+    [1, 1, '2026-10-12 11:20', [[1, 1], [9, 1]]],
+    [2, 2, '2026-10-15 18:05', [[1, 2]]],
+    [3, 3, '2026-10-20 09:40', [[6, 1], [7, 1]]],
+    [4, 1, '2026-10-24 16:30', [[3, 1]]],
+    [5, 4, '2026-10-27 12:10', [[9, 2], [4, 1]]],
+    [6, 2, '2026-10-30 19:00', [[11, 1], [2, 1]]],
+    [7, 3, '2026-11-02 10:15', [[1, 1], [12, 1]]],
+    [8, 4, '2026-11-03 17:45', [[6, 1], [9, 1]]],
+  ];
+  const pedidos = [], pedido_lineas = [];
+  for (const [id, u, fecha, items] of rawPedidos) {
+    let total = 0;
+    for (const [pid, cant] of items) {
+      const pr = publicaciones.find(p => p.id === pid).precio;
+      pedido_lineas.push({ pedido_id: id, publicacion_id: pid, cantidad: cant, precio_unitario: pr });
+      total += pr * cant;
+    }
+    pedidos.push({ id, usuario_id: u, fecha, total: Math.round(total * 100) / 100 });
+  }
+  return { usuarios, categorias, publicaciones, pedidos, pedido_lineas, espacios, reservas };
+}
+
+let DB = makeDB();
+function resetDB() { DB = makeDB(); }
+
+/* ===== API simulada: misma lógica que los Route Handlers de Next.js ===== */
+const jsonRes = (status, body, headers = {}) =>
+  ({ status, body, headers: { 'Content-Type': 'application/json; charset=utf-8', ...headers } });
+const apiErr = (status, code, message, details) =>
+  jsonRes(status, { error: { code, message, ...(details && details.length ? { details } : {}) } });
+const isInt = s => /^\d+$/.test(String(s));
+const validDT = s => /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}$/.test(String(s));
+const normDT = s => String(s).replace('T', ' ');
+const round2 = n => Math.round(n * 100) / 100;
+
+function pubOut(p) {
+  const c = DB.categorias.find(c => c.id === p.categoria_id);
+  return {
+    id: p.id, tipo: p.tipo, titulo: p.titulo, autor: p.autor,
+    anioPublicacion: p.anio_publicacion, precio: p.precio, stock: p.stock,
+    categoria: { id: c.id, nombre: c.nombre, slug: c.slug },
+  };
+}
+
+/* --- Librería --- */
+function getCategorias() {
+  const data = DB.categorias.map(c => ({
+    ...c, totalPublicaciones: DB.publicaciones.filter(p => p.categoria_id === c.id).length,
+  }));
+  return jsonRes(200, { data }, { 'X-Total-Count': String(data.length) });
+}
+
+function getPublicaciones(q) {
+  const d = [];
+  const tipo = q.get('tipo');
+  if (tipo && !['libro', 'revista'].includes(tipo)) d.push('tipo debe ser "libro" o "revista"');
+  const intParam = (name, def, min, max) => {
+    const raw = q.get(name);
+    if (raw === null || raw === '') return def;
+    if (!isInt(raw) || Number(raw) < min || (max && Number(raw) > max)) {
+      d.push(name + ' debe ser un entero' + (max ? ' entre ' + min + ' y ' + max : ' >= ' + min)); return def;
+    }
+    return Number(raw);
+  };
+  const page = intParam('page', 1, 1), limit = intParam('limit', 10, 1, 50);
+  const desde = intParam('anioDesde', null, 0), hasta = intParam('anioHasta', null, 0);
+  const sort = q.get('sort') || 'titulo';
+  if (!['precio', 'anio', 'titulo'].includes(sort.replace(/^-/, ''))) d.push('sort debe ser precio, anio o titulo (prefijo - para descendente)');
+  if (d.length) return apiErr(400, 'PARAMETROS_INVALIDOS', 'Parámetros de consulta no válidos', d);
+
+  let rows = DB.publicaciones.slice();
+  if (tipo) rows = rows.filter(p => p.tipo === tipo);
+  const cat = q.get('categoria');
+  if (cat) rows = rows.filter(p => DB.categorias.find(c => c.id === p.categoria_id).slug === cat);
+  if (desde !== null) rows = rows.filter(p => p.anio_publicacion >= desde);
+  if (hasta !== null) rows = rows.filter(p => p.anio_publicacion <= hasta);
+  const txt = (q.get('q') || '').toLowerCase();
+  if (txt) rows = rows.filter(p => (p.titulo + ' ' + p.autor).toLowerCase().includes(txt));
+
+  const key = { precio: 'precio', anio: 'anio_publicacion', titulo: 'titulo' }[sort.replace(/^-/, '')];
+  const dir = sort.startsWith('-') ? -1 : 1;
+  rows.sort((a, b) => (typeof a[key] === 'number' ? a[key] - b[key] : a[key].localeCompare(b[key], 'es')) * dir);
+
+  const total = rows.length;
+  const data = rows.slice((page - 1) * limit, page * limit).map(pubOut);
+  return jsonRes(200, { data, meta: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) } },
+    { 'X-Total-Count': String(total) });
+}
+
+function getMasVendidos(q) {
+  const d = [];
+  const num = (n, def, min, max) => {
+    const raw = q.get(n); if (raw === null) return def;
+    if (!isInt(raw) || Number(raw) < min || Number(raw) > max) { d.push(n + ' debe ser un entero entre ' + min + ' y ' + max); return def; }
+    return Number(raw);
+  };
+  const semanas = num('semanas', 4, 1, 52), limit = num('limit', 10, 1, 50);
+  if (d.length) return apiErr(400, 'PARAMETROS_INVALIDOS', 'Parámetros de consulta no válidos', d);
+  const corte = new Date(new Date(NOW.replace(' ', 'T') + ':00Z').getTime() - semanas * 7 * 864e5)
+    .toISOString().slice(0, 16).replace('T', ' ');
+  const vend = {};
+  for (const l of DB.pedido_lineas) {
+    const ped = DB.pedidos.find(p => p.id === l.pedido_id);
+    if (ped.fecha >= corte) vend[l.publicacion_id] = (vend[l.publicacion_id] || 0) + l.cantidad;
+  }
+  const data = Object.entries(vend)
+    .map(([id, u]) => ({ p: DB.publicaciones.find(p => p.id === Number(id)), u }))
+    .sort((a, b) => b.u - a.u || a.p.titulo.localeCompare(b.p.titulo, 'es'))
+    .slice(0, limit)
+    .map((x, i) => ({ ranking: i + 1, ...pubOut(x.p), unidadesVendidas: x.u }));
+  return jsonRes(200, { data, meta: { semanas, desde: corte } });
+}
+
+function getPublicacion(q, [id]) {
+  if (!isInt(id)) return apiErr(400, 'ID_INVALIDO', 'El id debe ser un entero positivo');
+  const p = DB.publicaciones.find(p => p.id === Number(id));
+  if (!p) return apiErr(404, 'NO_ENCONTRADO', 'No existe la publicación ' + id);
+  return jsonRes(200, pubOut(p));
+}
+
+function getCompras(q, [id]) {
+  if (!isInt(id)) return apiErr(400, 'ID_INVALIDO', 'El id debe ser un entero positivo');
+  if (!DB.usuarios.find(u => u.id === Number(id))) return apiErr(404, 'NO_ENCONTRADO', 'No existe el usuario ' + id);
+  const data = [];
+  for (const ped of DB.pedidos.filter(p => p.usuario_id === Number(id))) {
+    for (const l of DB.pedido_lineas.filter(l => l.pedido_id === ped.id)) {
+      const p = DB.publicaciones.find(p => p.id === l.publicacion_id);
+      data.push({ pedidoId: ped.id, fecha: ped.fecha, publicacion: { id: p.id, tipo: p.tipo, titulo: p.titulo, autor: p.autor }, cantidad: l.cantidad, precioUnitario: l.precio_unitario });
+    }
+  }
+  data.sort((a, b) => b.fecha.localeCompare(a.fecha));
+  return jsonRes(200, { data }, { 'X-Total-Count': String(data.length) });
+}
+
+function pedidoOut(ped) {
+  return {
+    id: ped.id, usuarioId: ped.usuario_id, fecha: ped.fecha, total: ped.total,
+    lineas: DB.pedido_lineas.filter(l => l.pedido_id === ped.id).map(l => ({
+      publicacionId: l.publicacion_id, titulo: DB.publicaciones.find(p => p.id === l.publicacion_id).titulo,
+      cantidad: l.cantidad, precioUnitario: l.precio_unitario,
+    })),
+  };
+}
+function getPedido(q, [id]) {
+  const ped = DB.pedidos.find(p => p.id === Number(id));
+  return ped ? jsonRes(200, pedidoOut(ped)) : apiErr(404, 'NO_ENCONTRADO', 'No existe el pedido ' + id);
+}
+
+function postPedido(q, _, body) {
+  if (!body || typeof body !== 'object') return apiErr(400, 'BODY_INVALIDO', 'El cuerpo debe ser un JSON válido');
+  const d = [];
+  if (!Number.isInteger(body.usuarioId)) d.push('usuarioId debe ser un entero');
+  if (!Array.isArray(body.items) || !body.items.length) d.push('items debe ser un array con al menos un elemento');
+  else body.items.forEach((it, i) => {
+    if (!it || !Number.isInteger(it.publicacionId)) d.push('items[' + i + '].publicacionId debe ser un entero');
+    if (!it || !Number.isInteger(it.cantidad) || it.cantidad < 1) d.push('items[' + i + '].cantidad debe ser un entero >= 1');
+  });
+  if (d.length) return apiErr(400, 'VALIDACION', 'El cuerpo de la petición no es válido', d);
+  if (!DB.usuarios.find(u => u.id === body.usuarioId)) return apiErr(404, 'NO_ENCONTRADO', 'No existe el usuario ' + body.usuarioId);
+
+  const merged = {}; // si repiten publicación, sumamos cantidades (PK compuesta)
+  body.items.forEach(it => { merged[it.publicacionId] = (merged[it.publicacionId] || 0) + it.cantidad; });
+  const lines = [];
+  for (const [pid, cant] of Object.entries(merged)) {
+    const p = DB.publicaciones.find(p => p.id === Number(pid));
+    if (!p) return apiErr(404, 'NO_ENCONTRADO', 'No existe la publicación ' + pid);
+    if (p.stock < cant) return apiErr(409, 'STOCK_INSUFICIENTE', 'Stock insuficiente para "' + p.titulo + '"', ['solicitado: ' + cant, 'disponible: ' + p.stock]);
+    lines.push({ p, cant });
+  }
+  // "transacción": solo se aplica si TODAS las líneas son válidas
+  const id = Math.max(0, ...DB.pedidos.map(p => p.id)) + 1;
+  let total = 0;
+  for (const { p, cant } of lines) {
+    p.stock -= cant; total += p.precio * cant;
+    DB.pedido_lineas.push({ pedido_id: id, publicacion_id: p.id, cantidad: cant, precio_unitario: p.precio });
+  }
+  const ped = { id, usuario_id: body.usuarioId, fecha: NOW, total: round2(total) };
+  DB.pedidos.push(ped);
+  return jsonRes(201, pedidoOut(ped), { Location: '/api/pedidos/' + id });
+}
+
+/* --- Co-working --- */
+function ocupacion(e, at) {
+  return DB.reservas.find(r => r.espacio_id === e.id && r.estado === 'confirmada' && r.inicio <= at && at < r.fin);
+}
+function espOut(e, at) {
+  const r = ocupacion(e, at);
+  const o = { id: e.id, nombre: e.nombre, capacidad: e.capacidad, descripcion: e.descripcion, estado: r ? 'ocupado' : 'libre' };
+  if (r) {
+    o.ocupadoPor = DB.usuarios.find(u => u.id === r.usuario_id).nombre;
+    o.ocupadoDesde = r.inicio; o.libreA = r.fin; o.personas = r.personas;
+  } else {
+    const next = DB.reservas.filter(x => x.espacio_id === e.id && x.estado === 'confirmada' && x.inicio > at).sort((a, b) => a.inicio.localeCompare(b.inicio))[0];
+    if (next) o.proximaReserva = { inicio: next.inicio, fin: next.fin };
+  }
+  return o;
+}
+function resOut(r) {
+  return {
+    id: r.id, espacio: { id: r.espacio_id, nombre: DB.espacios.find(e => e.id === r.espacio_id).nombre },
+    usuarioId: r.usuario_id, inicio: r.inicio, fin: r.fin, personas: r.personas, estado: r.estado,
+  };
+}
+
+function getEspacios(q) {
+  const d = []; let at = NOW;
+  if (q.get('en')) { if (validDT(q.get('en'))) at = normDT(q.get('en')); else d.push('en debe tener formato YYYY-MM-DDTHH:MM'); }
+  const estado = q.get('estado');
+  if (estado && !['libre', 'ocupado'].includes(estado)) d.push('estado debe ser "libre" u "ocupado"');
+  const cap = q.get('capacidadMin');
+  if (cap && !isInt(cap)) d.push('capacidadMin debe ser un entero');
+  if (d.length) return apiErr(400, 'PARAMETROS_INVALIDOS', 'Parámetros de consulta no válidos', d);
+  let data = DB.espacios.map(e => espOut(e, at));
+  if (estado) data = data.filter(e => e.estado === estado);
+  if (cap) data = data.filter(e => e.capacidad >= Number(cap));
+  return jsonRes(200, { data, meta: { en: at } }, { 'X-Total-Count': String(data.length) });
+}
+
+function getEspacio(q, [id]) {
+  if (!isInt(id)) return apiErr(400, 'ID_INVALIDO', 'El id debe ser un entero positivo');
+  const e = DB.espacios.find(e => e.id === Number(id));
+  if (!e) return apiErr(404, 'NO_ENCONTRADO', 'No existe el espacio ' + id);
+  const futuras = DB.reservas.filter(r => r.espacio_id === e.id && r.estado === 'confirmada' && r.fin > NOW)
+    .sort((a, b) => a.inicio.localeCompare(b.inicio)).map(r => ({ ...resOut(r), reservadoPor: DB.usuarios.find(u => u.id === r.usuario_id).nombre }));
+  return jsonRes(200, { ...espOut(e, NOW), reservas: futuras });
+}
+
+function getReservasEspacio(q, [id]) {
+  if (!isInt(id)) return apiErr(400, 'ID_INVALIDO', 'El id debe ser un entero positivo');
+  if (!DB.espacios.find(e => e.id === Number(id))) return apiErr(404, 'NO_ENCONTRADO', 'No existe el espacio ' + id);
+  const f = q.get('fecha');
+  if (f && !/^\d{4}-\d{2}-\d{2}$/.test(f)) return apiErr(400, 'PARAMETROS_INVALIDOS', 'Parámetros de consulta no válidos', ['fecha debe tener formato YYYY-MM-DD']);
+  const data = DB.reservas.filter(r => r.espacio_id === Number(id) && r.estado === 'confirmada' && (!f || r.inicio.startsWith(f)))
+    .sort((a, b) => a.inicio.localeCompare(b.inicio)).map(resOut);
+  return jsonRes(200, { data }, { 'X-Total-Count': String(data.length) });
+}
+
+function getReservasUsuario(q, [id]) {
+  if (!isInt(id)) return apiErr(400, 'ID_INVALIDO', 'El id debe ser un entero positivo');
+  if (!DB.usuarios.find(u => u.id === Number(id))) return apiErr(404, 'NO_ENCONTRADO', 'No existe el usuario ' + id);
+  const data = DB.reservas.filter(r => r.usuario_id === Number(id)).sort((a, b) => a.inicio.localeCompare(b.inicio)).map(resOut);
+  return jsonRes(200, { data }, { 'X-Total-Count': String(data.length) });
+}
+
+function getReserva(q, [id]) {
+  const r = DB.reservas.find(r => r.id === Number(id));
+  return r ? jsonRes(200, resOut(r)) : apiErr(404, 'NO_ENCONTRADO', 'No existe la reserva ' + id);
+}
+
+function postReserva(q, _, body) {
+  if (!body || typeof body !== 'object') return apiErr(400, 'BODY_INVALIDO', 'El cuerpo debe ser un JSON válido');
+  const d = [];
+  if (!Number.isInteger(body.espacioId)) d.push('espacioId debe ser un entero');
+  if (!Number.isInteger(body.usuarioId)) d.push('usuarioId debe ser un entero');
+  if (!validDT(body.inicio)) d.push('inicio debe tener formato YYYY-MM-DDTHH:MM');
+  if (!validDT(body.fin)) d.push('fin debe tener formato YYYY-MM-DDTHH:MM');
+  if (!Number.isInteger(body.personas) || body.personas < 1) d.push('personas debe ser un entero >= 1');
+  if (d.length) return apiErr(400, 'VALIDACION', 'El cuerpo de la petición no es válido', d);
+  const ini = normDT(body.inicio), fin = normDT(body.fin);
+  const e = DB.espacios.find(e => e.id === body.espacioId);
+  if (!e) return apiErr(404, 'NO_ENCONTRADO', 'No existe el espacio ' + body.espacioId);
+  if (!DB.usuarios.find(u => u.id === body.usuarioId)) return apiErr(404, 'NO_ENCONTRADO', 'No existe el usuario ' + body.usuarioId);
+  if (fin <= ini) return apiErr(422, 'RANGO_INVALIDO', 'fin debe ser posterior a inicio');
+  if (body.personas > e.capacidad) return apiErr(422, 'CAPACIDAD_EXCEDIDA', 'El espacio "' + e.nombre + '" admite como máximo ' + e.capacidad + ' personas');
+  // solape: nuevo.inicio < existente.fin  Y  nuevo.fin > existente.inicio
+  const choque = DB.reservas.find(r => r.espacio_id === e.id && r.estado === 'confirmada' && ini < r.fin && fin > r.inicio);
+  if (choque) return apiErr(409, 'ESPACIO_OCUPADO', 'El espacio ya está reservado en ese tramo', ['choca con la reserva ' + choque.id + ': ' + choque.inicio + ' → ' + choque.fin]);
+  const r = { id: Math.max(0, ...DB.reservas.map(r => r.id)) + 1, espacio_id: e.id, usuario_id: body.usuarioId, inicio: ini, fin, personas: body.personas, estado: 'confirmada' };
+  DB.reservas.push(r);
+  return jsonRes(201, resOut(r), { Location: '/api/reservas/' + r.id });
+}
+
+function deleteReserva(q, [id]) {
+  if (!isInt(id)) return apiErr(400, 'ID_INVALIDO', 'El id debe ser un entero positivo');
+  const r = DB.reservas.find(r => r.id === Number(id));
+  if (!r) return apiErr(404, 'NO_ENCONTRADO', 'No existe la reserva ' + id);
+  r.estado = 'cancelada'; // borrado lógico: conservamos el histórico
+  return { status: 204, headers: {}, body: null };
+}
+
+/* --- Router (el orden importa: rutas estáticas antes que [id]) --- */
+const ROUTES = [
+  ['GET', /^\/api\/categorias$/, getCategorias],
+  ['GET', /^\/api\/publicaciones$/, getPublicaciones],
+  ['GET', /^\/api\/publicaciones\/mas-vendidos$/, getMasVendidos],
+  ['GET', /^\/api\/publicaciones\/([^/]+)$/, getPublicacion],
+  ['GET', /^\/api\/usuarios\/([^/]+)\/compras$/, getCompras],
+  ['GET', /^\/api\/usuarios\/([^/]+)\/reservas$/, getReservasUsuario],
+  ['POST', /^\/api\/pedidos$/, postPedido],
+  ['GET', /^\/api\/pedidos\/([^/]+)$/, getPedido],
+  ['GET', /^\/api\/espacios$/, getEspacios],
+  ['GET', /^\/api\/espacios\/([^/]+)$/, getEspacio],
+  ['GET', /^\/api\/espacios\/([^/]+)\/reservas$/, getReservasEspacio],
+  ['POST', /^\/api\/reservas$/, postReserva],
+  ['GET', /^\/api\/reservas\/([^/]+)$/, getReserva],
+  ['DELETE', /^\/api\/reservas\/([^/]+)$/, deleteReserva],
+];
+
+function callAPI(method, rawUrl, bodyText) {
+  let u;
+  try { u = new URL(rawUrl, 'http://localhost:3000'); } catch (e) { return apiErr(400, 'URL_INVALIDA', 'URL no válida'); }
+  const path = u.pathname.replace(/\/+$/, '') || '/';
+  let body;
+  if (bodyText && bodyText.trim()) {
+    try { body = JSON.parse(bodyText); } catch (e) { return apiErr(400, 'BODY_INVALIDO', 'El cuerpo no es JSON válido: ' + e.message); }
+  }
+  const allowed = [];
+  for (const [m, re, fn] of ROUTES) {
+    const mt = path.match(re);
+    if (!mt) continue;
+    if (m === method) return fn(u.searchParams, mt.slice(1), body);
+    allowed.push(m);
+  }
+  if (allowed.length) return apiErr(405, 'METODO_NO_PERMITIDO', 'Método ' + method + ' no permitido en ' + path, ['Allow: ' + allowed.join(', ')]);
+  return apiErr(404, 'RUTA_NO_ENCONTRADA', 'No existe ' + method + ' ' + path);
+}
+
+/* ===== Mini ejecutor SQL (subconjunto de SELECT) sobre las mismas tablas ===== */
+function splitTop(str, sep) { // separa por coma ignorando paréntesis y comillas
+  const out = []; let depth = 0, q = false, cur = '';
+  for (const ch of str) {
+    if (ch === "'") q = !q;
+    if (!q && ch === '(') depth++;
+    if (!q && ch === ')') depth--;
+    if (!q && depth === 0 && ch === sep) { out.push(cur.trim()); cur = ''; } else cur += ch;
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
+
+function sqlGet(ctx, name) {
+  if (name.includes('.')) {
+    const [a, c] = name.split('.');
+    if (!(a in ctx)) throw new Error('Alias desconocido: "' + a + '"');
+    const row = ctx[a];
+    if (row && !(c in row)) throw new Error('La columna ' + a + '.' + c + ' no existe');
+    return row ? row[c] : null;
+  }
+  const hits = Object.keys(ctx).filter(a => ctx[a] && name in ctx[a]);
+  const any = Object.keys(ctx).some(a => ctx[a] === null);
+  if (hits.length > 1) throw new Error('La columna "' + name + '" es ambigua: usa alias.columna');
+  if (!hits.length) {
+    if (any) return null;
+    throw new Error('La columna "' + name + '" no existe');
+  }
+  return ctx[hits[0]][name];
+}
+
+function sqlVal(tok, ctx) {
+  tok = tok.trim();
+  let m;
+  if ((m = tok.match(/^'(.*)'$/))) return m[1];
+  if (/^-?\d+(\.\d+)?$/.test(tok)) return Number(tok);
+  if (/^now\(\)$/i.test(tok)) return NOW;
+  if (/^null$/i.test(tok)) return null;
+  if ((m = tok.match(/^(.+?)\s*\*\s*(.+)$/))) return sqlVal(m[1], ctx) * sqlVal(m[2], ctx);
+  return sqlGet(ctx, tok);
+}
+
+function likeToRe(pat, ci) {
+  return new RegExp('^' + pat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/%/g, '.*').replace(/_/g, '.') + '$', ci ? 'i' : '');
+}
+
+function sqlCond(cond, ctx) {
+  let m;
+  if ((m = cond.match(/^(.+?)\s+is\s+(not\s+)?null$/i))) { const v = sqlVal(m[1], ctx); return m[2] ? v !== null && v !== undefined : v === null || v === undefined; }
+  if ((m = cond.match(/^(.+?)\s+(not\s+)?(i?like)\s+(.+)$/i))) {
+    const v = sqlVal(m[1], ctx); const ok = v !== null && likeToRe(String(sqlVal(m[4], ctx)), m[3].toLowerCase() === 'ilike').test(String(v));
+    return m[2] ? !ok : ok;
+  }
+  if ((m = cond.match(/^(.+?)\s+(not\s+)?in\s*\((.+)\)$/i))) {
+    const v = sqlVal(m[1], ctx); const ok = splitTop(m[3], ',').some(t => sqlVal(t, ctx) == v);
+    return m[2] ? !ok : ok;
+  }
+  if ((m = cond.match(/^(.+?)\s*(>=|<=|<>|!=|=|>|<)\s*(.+)$/))) {
+    const a = sqlVal(m[1], ctx), b = sqlVal(m[3], ctx);
+    if (a === null || a === undefined || b === null || b === undefined) return false;
+    switch (m[2]) {
+      case '=': return a == b; case '<>': case '!=': return a != b;
+      case '>': return a > b; case '<': return a < b; case '>=': return a >= b; default: return a <= b;
+    }
+  }
+  throw new Error('Condición no soportada en este mini-ejecutor: "' + cond + '"');
+}
+
+const AGG = /^(count|sum|avg|min|max)\(\s*(distinct\s+)?(.+?)\s*\)$/i;
+function aggCompute(expr, ctxs) {
+  const m = expr.match(AGG); const fn = m[1].toLowerCase(), arg = m[3];
+  if (fn === 'count' && arg === '*') return ctxs.length;
+  let vals = ctxs.map(c => sqlVal(arg, c)).filter(v => v !== null && v !== undefined);
+  if (m[2]) vals = [...new Set(vals)];
+  if (fn === 'count') return vals.length;
+  if (!vals.length) return null;
+  if (fn === 'sum') return round2(vals.reduce((a, b) => a + Number(b), 0));
+  if (fn === 'avg') return round2(vals.reduce((a, b) => a + Number(b), 0) / vals.length);
+  if (fn === 'min') return vals.reduce((a, b) => (a < b ? a : b));
+  return vals.reduce((a, b) => (a > b ? a : b));
+}
+
+function runSQL(sqlIn) {
+  let sql = sqlIn.trim().replace(/;+\s*$/, '').replace(/\s+/g, ' ');
+  if (!/^select\s/i.test(sql)) throw new Error('Este mini-ejecutor solo admite SELECT. Para el resto usa tu PostgreSQL real.');
+  sql = sql.replace(/\bleft\s+join\b/ig, 'ljoin').replace(/\binner\s+join\b/ig, 'join');
+  const parts = sql.split(/\s(?=(?:from|where|group by|order by|limit|ljoin|join)\s)/i);
+  const sel = parts[0].replace(/^select\s+/i, '');
+  let from = null, joins = [], where = null, group = null, order = null, limit = null;
+  for (const p of parts.slice(1)) {
+    const m = p.match(/^(from|where|group by|order by|limit|ljoin|join)\s+(.*)$/i);
+    const k = m[1].toLowerCase(), rest = m[2];
+    if (k === 'from') {
+      const f = rest.match(/^(\w+)(?:\s+(?:as\s+)?(\w+))?$/i); if (!f) throw new Error('FROM no válido: ' + rest);
+      from = { t: f[1].toLowerCase(), a: (f[2] || f[1]).toLowerCase() };
+    } else if (k === 'join' || k === 'ljoin') {
+      const j = rest.match(/^(\w+)(?:\s+(?:as\s+)?(?!on\b)(\w+))?\s+on\s+([\w.]+)\s*=\s*([\w.]+)$/i);
+      if (!j) throw new Error('JOIN no válido (usa: JOIN tabla alias ON a.col = b.col): ' + rest);
+      joins.push({ left: k === 'ljoin', t: j[1].toLowerCase(), a: (j[2] || j[1]).toLowerCase(), l: j[3], r: j[4] });
+    } else if (k === 'where') where = rest;
+    else if (k === 'group by') group = splitTop(rest, ',');
+    else if (k === 'order by') order = splitTop(rest, ',');
+    else limit = Number(rest);
+  }
+  if (!from) throw new Error('Falta la cláusula FROM');
+  const tables = Object.keys(DB);
+  const need = t => { if (!DB[t]) throw new Error('La tabla "' + t + '" no existe. Tablas: ' + tables.join(', ')); return DB[t]; };
+
+  let rows = need(from.t).map(r => ({ [from.a]: r }));
+  for (const j of joins) {
+    const right = need(j.t);
+    const nulls = right.length ? Object.fromEntries(Object.keys(right[0]).map(k => [k, null])) : {};
+    const next = [];
+    for (const ctx of rows) {
+      const hit = right.filter(r2 => { const c2 = { ...ctx, [j.a]: r2 }; return sqlGet(c2, j.l) == sqlGet(c2, j.r); });
+      if (hit.length) hit.forEach(r2 => next.push({ ...ctx, [j.a]: r2 }));
+      else if (j.left) next.push({ ...ctx, [j.a]: nulls });
+    }
+    rows = next;
+  }
+  if (where) rows = rows.filter(ctx => where.split(/\s+or\s+/i).some(orp => orp.split(/\s+and\s+/i).every(c => sqlCond(c.trim(), ctx))));
+
+  // columnas de salida
+  const items = splitTop(sel, ',').map(raw => {
+    const m = raw.match(/^(.+?)(?:\s+as\s+(\w+))?$/i);
+    const expr = m[1].trim();
+    return { expr, alias: m[2] || null, agg: AGG.test(expr), star: expr === '*' || /^\w+\.\*$/.test(expr) };
+  });
+  const grouped = !!group || items.some(i => i.agg);
+  if (grouped) {
+    const gset = (group || []).map(g => g.toLowerCase().replace(/^\w+\./, ''));
+    items.forEach(i => { if (!i.agg && (i.star || !gset.includes(i.expr.toLowerCase().replace(/^\w+\./, '')))) throw new Error('"' + i.expr + '" debe aparecer en GROUP BY o usarse dentro de una función de agregado'); });
+  }
+  const outName = i => i.alias || (i.agg ? i.expr.toLowerCase().replace(/\s+/g, '') : i.expr.replace(/^\w+\./, ''));
+  let cols = [], res = [];
+  if (grouped) {
+    const map = new Map();
+    for (const ctx of rows) {
+      const key = JSON.stringify((group || []).map(g => sqlVal(g, ctx)));
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(ctx);
+    }
+    if (!group && !map.size) map.set('[]', []);
+    cols = items.map(outName);
+    for (const ctxs of map.values()) res.push({ ctxs, vals: items.map(i => (i.agg ? aggCompute(i.expr, ctxs) : sqlVal(i.expr, ctxs[0]))) });
+  } else {
+    const aliases = Object.keys(rows[0] || { [from.a]: null, ...Object.fromEntries(joins.map(j => [j.a, null])) });
+    const build = ctx => {
+      const vals = [];
+      items.forEach(i => {
+        if (i.expr === '*') aliases.forEach(a => Object.values(ctx[a] || {}).forEach(v => vals.push(v)));
+        else if (i.star) Object.values(ctx[i.expr.split('.')[0]] || {}).forEach(v => vals.push(v));
+        else vals.push(sqlVal(i.expr, ctx));
+      });
+      return vals;
+    };
+    const first = rows[0] || null;
+    items.forEach(i => {
+      if (i.expr === '*') (need(from.t).length ? [from, ...joins] : []).forEach(t => cols.push(...Object.keys(DB[t.t][0] || {})));
+      else if (i.star) { const t = [from, ...joins].find(t => t.a === i.expr.split('.')[0].toLowerCase()); if (!t) throw new Error('Alias desconocido: ' + i.expr); cols.push(...Object.keys(DB[t.t][0] || {})); }
+      else cols.push(outName(i));
+    });
+    res = rows.map(ctx => ({ ctxs: [ctx], vals: build(ctx) }));
+  }
+  if (order) {
+    const specs = order.map(o => { const m = o.match(/^(.+?)(?:\s+(asc|desc))?$/i); return { e: m[1].trim(), d: (m[2] || 'asc').toLowerCase() === 'desc' ? -1 : 1 }; });
+    const key = (r, e) => {
+      const idx = cols.findIndex(c => c.toLowerCase() === e.toLowerCase().replace(/^\w+\./, '')); // por nombre de salida
+      if (idx >= 0 && !(e.includes('.') && !cols.includes(e.replace(/^\w+\./, '')))) return r.vals[idx];
+      if (AGG.test(e)) return aggCompute(e, r.ctxs);
+      return sqlVal(e, r.ctxs[0]);
+    };
+    res.sort((a, b) => {
+      for (const s of specs) {
+        const x = key(a, s.e), y = key(b, s.e);
+        if (x === y) continue;
+        if (x === null || x === undefined) return 1;
+        if (y === null || y === undefined) return -1;
+        const c = typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'es');
+        if (c) return c * s.d;
+      }
+      return 0;
+    });
+  }
+  if (limit !== null && !Number.isNaN(limit)) res = res.slice(0, limit);
+  return { cols, rows: res.map(r => r.vals) };
+}
+
+/* Generador del script de datos (INSERT) a partir de los mismos datos */
+function sqlLit(v) { return typeof v === 'number' ? String(v) : "'" + String(v).replace(/'/g, "''") + "'"; }
+function buildSeed() {
+  const base = makeDB();
+  const ins = (t, cols, rows) =>
+    'INSERT INTO ' + t + ' (' + cols.join(', ') + ') VALUES\n' +
+    rows.map(r => '  (' + cols.map(c => sqlLit(r[c])).join(', ') + ')').join(',\n') + ';\n';
+  const seq = (t) => "SELECT setval(pg_get_serial_sequence('" + t + "', 'id'), (SELECT MAX(id) FROM " + t + "));";
+  return [
+    '-- Datos de prueba (orden respetando claves foráneas)',
+    ins('usuarios', ['id', 'email', 'nombre'], base.usuarios),
+    ins('categorias', ['id', 'nombre', 'slug'], base.categorias),
+    ins('publicaciones', ['id', 'tipo', 'titulo', 'autor', 'anio_publicacion', 'precio', 'stock', 'categoria_id'], base.publicaciones),
+    ins('pedidos', ['id', 'usuario_id', 'fecha', 'total'], base.pedidos),
+    ins('pedido_lineas', ['pedido_id', 'publicacion_id', 'cantidad', 'precio_unitario'], base.pedido_lineas),
+    ins('espacios', ['id', 'nombre', 'capacidad', 'descripcion'], base.espacios),
+    ins('reservas', ['id', 'espacio_id', 'usuario_id', 'inicio', 'fin', 'personas', 'estado'], base.reservas),
+    '-- Como hemos insertado ids a mano, hay que realinear las secuencias SERIAL',
+    ['usuarios', 'categorias', 'publicaciones', 'pedidos', 'espacios', 'reservas'].map(seq).join('\n'),
+  ].join('\n');
+}
+
+/* ===== Interfaz ===== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const getCode = id => (document.getElementById(id).textContent || '').replace(/^\n/, '').replace(/\s+$/, '');
+
+function copyText(txt, btn) {
+  const done = ok => { const o = btn.dataset.o || btn.textContent; btn.dataset.o = o; btn.textContent = ok ? 'Copiado ✓' : 'Selecciona y copia'; setTimeout(() => { btn.textContent = o; }, 1500); };
+  const fb = () => {
+    try { const t = document.createElement('textarea'); t.value = txt; t.style.position = 'fixed'; t.style.opacity = '0'; document.body.appendChild(t); t.select(); const ok = document.execCommand('copy'); t.remove(); done(ok); } catch (e) { done(false); }
+  };
+  try { navigator.clipboard.writeText(txt).then(() => done(true), fb); } catch (e) { fb(); }
+}
+
+function hl(text, lang) {
+  let h = esc(text);
+  const re = lang === 'sql' ? /(--.*$)/gm : lang === 'sh' ? /(#.*$)/gm : lang === 'ts' ? /(\/\/.*$)/gm : null;
+  return re ? h.replace(re, '<span class="cm">$1</span>') : h;
+}
+
+function renderCode(host, title, text, lang) {
+  host.classList.add('code');
+  host.innerHTML = '<div class="bar"><span></span><button class="btn sm" type="button">Copiar</button></div><pre></pre>';
+  $('.bar span', host).textContent = title;
+  $('pre', host).innerHTML = hl(text, lang);
+  $('button', host).onclick = e => copyText(text, e.currentTarget);
+}
+
+/* --- Pestañas --- */
+const TABS = ['Ruta', 'Modelo', 'Base de datos', 'Diseño API', 'Route Handlers', 'Probar API', 'Uso de IA', 'Entrega'];
+function goTab(i) {
+  $$('.tab').forEach((t, k) => t.setAttribute('aria-selected', k === i));
+  $$('.panel').forEach((p, k) => p.classList.toggle('on', k === i));
+  window.scrollTo({ top: 0 });
+  const t = $$('.tab')[i]; if (t && t.scrollIntoView) t.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+$('#tabs').innerHTML = TABS.map((t, i) => '<button class="tab" role="tab" data-i="' + i + '"><span class="n">' + i + '</span>' + t + '</button>').join('');
+$$('.tab').forEach(b => b.onclick = () => goTab(Number(b.dataset.i)));
+
+/* --- Ruta --- */
+const RUB = [
+  ['Diseño BD', 1.5, '#4f46e5', 1], ['Creación e ingesta', 2, '#0d9488', 2], ['Diseño API', 2, '#0891b2', 3],
+  ['Implementación API', 2, '#7c3aed', 4], ['Pruebas', 0.5, '#b45309', 5], ['Uso de IA', 1, '#be185d', 6], ['Vídeo memoria', 1, '#475569', 7],
+];
+const STEPDESC = [
+  'Entidades, relaciones y cardinalidades', 'DDL, seed y PostgreSQL en local', 'Endpoints, path/query params y códigos',
+  'Route Handlers + capa de acceso a datos', 'Postman o similar: casos felices y de error', 'Prompts, revisión y métricas', 'Guion de 15 min y ZIP final',
+];
+$('#steps').innerHTML = RUB.map((r, i) =>
+  '<button class="step" data-go="' + r[3] + '"><span class="bubble">' + (i + 1) + '</span><span><b>' + TABS[r[3]] + '</b><small>' + STEPDESC[i] + '</small><span class="pts">Criterio ' + (i + 1) + ' · ' + String(r[1]).replace('.', ',') + ' pts</span></span></button>').join('');
+$$('#steps .step').forEach(b => b.onclick = () => goTab(Number(b.dataset.go)));
+$('#rubric').innerHTML = RUB.map(r => '<div style="flex:' + r[1] + ';background:' + r[2] + '">' + String(r[1]).replace('.', ',') + '</div>').join('');
+$('#rubleg').innerHTML = RUB.map(r => '<span><i style="background:' + r[2] + '"></i>' + r[0] + '</span>').join('');
+
+/* --- Bloques de código estáticos --- */
+$$('[data-src]').forEach(h => {
+  const id = h.dataset.src;
+  renderCode(h, h.dataset.title, id === 'seed' ? buildSeed() : getCode(id), h.dataset.lang);
+});
+
+/* --- Diagrama ER --- */
+const ER = {
+  usuarios: { x: 10, y: 170, c: [['id', 'SERIAL', 'PK'], ['email', 'VARCHAR', 'UQ'], ['nombre', 'VARCHAR', '']] },
+  pedidos: { x: 270, y: 30, c: [['id', 'SERIAL', 'PK'], ['usuario_id', 'INTEGER', 'FK'], ['fecha', 'TIMESTAMPTZ', ''], ['total', 'NUMERIC', '']] },
+  pedido_lineas: { x: 530, y: 30, c: [['pedido_id', 'INTEGER', 'PK,FK'], ['publicacion_id', '', 'PK,FK'], ['cantidad', 'INTEGER', ''], ['precio_unitario', '', '']] },
+  publicaciones: { x: 800, y: 30, c: [['id', 'SERIAL', 'PK'], ['tipo', 'CHECK', ''], ['titulo', 'VARCHAR', ''], ['autor', 'VARCHAR', ''], ['anio_publicacion', '', ''], ['precio', 'NUMERIC', ''], ['stock', 'INTEGER', ''], ['descripcion', 'TEXT', ''], ['categoria_id', 'INTEGER', 'FK']] },
+  categorias: { x: 800, y: 330, c: [['id', 'SERIAL', 'PK'], ['nombre', 'VARCHAR', 'UQ'], ['slug', 'VARCHAR', 'UQ']] },
+  espacios: { x: 530, y: 300, c: [['id', 'SERIAL', 'PK'], ['nombre', 'VARCHAR', 'UQ'], ['capacidad', 'INTEGER', ''], ['descripcion', 'TEXT', '']] },
+  reservas: { x: 270, y: 260, c: [['id', 'SERIAL', 'PK'], ['espacio_id', 'INTEGER', 'FK'], ['usuario_id', 'INTEGER', 'FK'], ['inicio', 'TIMESTAMPTZ', ''], ['fin', 'TIMESTAMPTZ', ''], ['personas', 'INTEGER', ''], ['estado', 'CHECK', '']] },
+};
+const RELS = [
+  { id: 'r1', a: 'usuarios', b: 'pedidos', k: '1 : N', d: 'M200 190 H235 V80 H270', l: [['1', 204, 184], ['N', 252, 74]], t: 'Un usuario realiza muchos pedidos; cada pedido pertenece a un único usuario. La columna <code>usuario_id</code> de pedidos apunta a su usuario.' },
+  { id: 'r2', a: 'pedidos', b: 'pedido_lineas', k: '1 : N', d: 'M460 80 H530', l: [['1', 464, 74], ['N', 514, 74]], t: 'Un pedido se compone de varias líneas y una línea no existe sin su pedido: si se borra el pedido, se borran sus líneas.' },
+  { id: 'r3', a: 'pedido_lineas', b: 'publicaciones', k: 'N : 1', d: 'M720 80 H800', l: [['N', 724, 74], ['1', 786, 74]], t: 'Un pedido incluye varios libros y un libro aparece en muchos pedidos (relación de <b>muchos a muchos</b>). Para representarlo hace falta esta tabla intermedia, que además guarda la cantidad y el precio.' },
+  { id: 'r4', a: 'usuarios', b: 'reservas', k: '1 : N', d: 'M200 230 H235 V340 H270', l: [['1', 204, 224], ['N', 252, 334]], t: 'Un usuario puede hacer muchas reservas; cada reserva la hace un solo usuario. Permite mostrar «por quién está ocupado».' },
+  { id: 'r5', a: 'espacios', b: 'reservas', k: '1 : N', d: 'M530 340 H460', l: [['1', 514, 334], ['N', 464, 334]], t: 'Un espacio tiene muchas reservas a lo largo del tiempo; cada reserva es de un único espacio. El estado libre/ocupado se deduce de aquí.' },
+  { id: 'r6', a: 'categorias', b: 'publicaciones', k: '1 : N', d: 'M895 330 V236', l: [['1', 901, 322], ['N', 901, 256]], t: 'Una categoría agrupa muchas publicaciones; cada publicación pertenece a una categoría. No se puede borrar una categoría que aún tenga publicaciones.' },
+];
+(function drawER() {
+  const W = 190, HH = 26, RH = 20; let s = '<svg viewBox="0 0 1000 440" role="img" aria-label="Diagrama entidad relación de Nexus">';
+  RELS.forEach(r => { s += '<path class="rel" id="path-' + r.id + '" d="' + r.d + '"/>'; r.l.forEach(l => { s += '<text class="card-l" x="' + l[1] + '" y="' + l[2] + '">' + l[0] + '</text>'; }); });
+  for (const [name, t] of Object.entries(ER)) {
+    const h = HH + t.c.length * RH;
+    s += '<g><rect class="box" x="' + t.x + '" y="' + t.y + '" width="' + W + '" height="' + h + '" rx="8"/>' +
+      '<path class="head" d="M' + t.x + ' ' + (t.y + HH) + 'V' + (t.y + 8) + 'a8 8 0 0 1 8-8H' + (t.x + W - 8) + 'a8 8 0 0 1 8 8V' + (t.y + HH) + 'Z"/>' +
+      '<text class="hd" x="' + (t.x + 10) + '" y="' + (t.y + 17) + '">' + name + '</text>';
+    t.c.forEach((c, i) => {
+      const y = t.y + HH + i * RH + 14;
+      const col = c[2].includes('PK') ? '#b45309' : c[2].includes('FK') ? '#0d9488' : c[2] === 'UQ' ? '#7c3aed' : 'transparent';
+      s += (c[2] ? '<text class="key" x="' + (t.x + 8) + '" y="' + y + '" fill="' + col + '">' + c[2] + '</text>' : '') +
+        '<text class="col" x="' + (t.x + (c[2].length > 2 ? 44 : 30)) + '" y="' + y + '">' + c[0] + '</text>' +
+        '<text class="typ" x="' + (t.x + W - 6) + '" y="' + y + '" text-anchor="end">' + c[1] + '</text>';
+    });
+    s += '</g>';
+  }
+  $('#er').innerHTML = s + '</svg>';
+  $('#rels').innerHTML = RELS.map(r => '<div class="r" data-r="' + r.id + '"><b>' + r.a + ' → ' + r.b + '</b><span class="k">' + r.k + '</span><p>' + r.t + '</p></div>').join('');
+  $$('#rels .r').forEach(d => {
+    const on = v => { d.classList.toggle('hl', v); $('#path-' + d.dataset.r).classList.toggle('hl', v); };
+    d.onmouseenter = () => on(true); d.onmouseleave = () => on(false); d.onclick = () => { $$('#rels .r').forEach(x => { x.classList.remove('hl'); $('#path-' + x.dataset.r).classList.remove('hl'); }); on(true); };
+  });
+})();
+
+/* --- SQL runner --- */
+const SQLP = [
+  ['Catálogo ≥ 2010', "SELECT titulo, autor, anio_publicacion, precio\nFROM publicaciones\nWHERE anio_publicacion >= 2010\nORDER BY anio_publicacion DESC, titulo"],
+  ['Top ventas 4 semanas', "SELECT p.titulo, SUM(l.cantidad) AS unidades\nFROM pedido_lineas l\nJOIN pedidos o ON o.id = l.pedido_id\nJOIN publicaciones p ON p.id = l.publicacion_id\nWHERE o.fecha >= '2026-10-07'\nGROUP BY p.titulo\nORDER BY unidades DESC, p.titulo\nLIMIT 10"],
+  ['Libros del usuario 1', "SELECT o.fecha, p.titulo, l.cantidad, l.precio_unitario\nFROM pedidos o\nJOIN pedido_lineas l ON l.pedido_id = o.id\nJOIN publicaciones p ON p.id = l.publicacion_id\nWHERE o.usuario_id = 1\nORDER BY o.fecha DESC"],
+  ['Espacios ocupados ahora', "SELECT e.nombre, u.nombre AS ocupado_por, r.inicio, r.fin\nFROM espacios e\nJOIN reservas r ON r.espacio_id = e.id\nJOIN usuarios u ON u.id = r.usuario_id\nWHERE r.estado = 'confirmada' AND r.inicio <= NOW() AND r.fin > NOW()"],
+  ['Publicaciones por categoría', "SELECT c.nombre, COUNT(p.id) AS total\nFROM categorias c\nLEFT JOIN publicaciones p ON p.categoria_id = c.id\nGROUP BY c.nombre\nORDER BY total DESC"],
+  ['Gasto por usuario', "SELECT u.nombre, SUM(l.cantidad * l.precio_unitario) AS gastado\nFROM usuarios u\nJOIN pedidos o ON o.usuario_id = u.id\nJOIN pedido_lineas l ON l.pedido_id = o.id\nGROUP BY u.nombre\nORDER BY gastado DESC"],
+  ['⚠ Error: columna ambigua', "SELECT id, titulo\nFROM publicaciones p\nJOIN categorias c ON c.id = p.categoria_id"],
+];
+function sqlExec() {
+  const out = $('#sqlout'), meta = $('#sqlmeta');
+  try {
+    const t0 = performance.now(); const r = runSQL($('#sqlq').value); const ms = (performance.now() - t0).toFixed(1);
+    const fmt = v => (v === null || v === undefined) ? '<i style="color:var(--muted)">NULL</i>' : esc(v);
+    out.innerHTML = '<div class="sqlres"><table><tr>' + r.cols.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr>' +
+      r.rows.map(row => '<tr>' + row.map(v => '<td>' + fmt(v) + '</td>').join('') + '</tr>').join('') + '</table></div>';
+    meta.textContent = r.rows.length + (r.rows.length === 1 ? ' fila' : ' filas') + ' · ' + ms + ' ms';
+  } catch (e) { out.innerHTML = '<div class="err">ERROR: ' + esc(e.message) + '</div>'; meta.textContent = ''; }
+}
+function setSQL(q, run) { $('#sqlq').value = q; if (run) sqlExec(); }
+$('#sqlchips').innerHTML = SQLP.map((p, i) => '<button class="chip" data-i="' + i + '">' + p[0] + '</button>').join('');
+$$('#sqlchips .chip').forEach(b => b.onclick = () => { $$('#sqlchips .chip').forEach(x => x.classList.remove('on')); b.classList.add('on'); setSQL(SQLP[b.dataset.i][1], true); });
+$('#sqlrun').onclick = sqlExec;
+$('#sqlq').addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); sqlExec(); } });
+$('#sqltables').innerHTML = '<span style="font-size:12px;color:var(--muted);align-self:center">Tablas:</span>' +
+  Object.keys(DB).map(t => '<button class="chip" data-t="' + t + '" title="' + Object.keys(DB[t][0]).join(', ') + '">' + t + '</button>').join('');
+$$('#sqltables .chip').forEach(b => b.onclick = () => setSQL('SELECT * FROM ' + b.dataset.t + ' LIMIT 10', true));
+setSQL(SQLP[1][1], true); $$('#sqlchips .chip')[1].classList.add('on');
+
+/* --- Tabla de endpoints --- */
+const PRESETS = [
+  { g: 'Librería', t: 'Categorías (menú lateral)', m: 'GET', u: '/api/categorias', sql: 'SELECT c.id, c.nombre, c.slug, COUNT(p.id) AS total\nFROM categorias c\nLEFT JOIN publicaciones p ON p.categoria_id = c.id\nGROUP BY c.id, c.nombre, c.slug\nORDER BY c.id', n: 'Alimenta el menú desplegable. El LEFT JOIN garantiza que aparezcan también categorías sin publicaciones.' },
+  { g: 'Librería', t: 'Catálogo con filtros', m: 'GET', u: '/api/publicaciones?tipo=libro&categoria=informatica&sort=-precio&limit=3', sql: "SELECT p.id, p.titulo, p.precio\nFROM publicaciones p\nJOIN categorias c ON c.id = p.categoria_id\nWHERE p.tipo = 'libro' AND c.slug = 'informatica'\nORDER BY p.precio DESC\nLIMIT 3", n: 'Cada query param añade una condición al WHERE. Fíjate en la paginación en <code>meta</code> y en la cabecera <code>X-Total-Count</code>.' },
+  { g: 'Librería', t: 'Filtro por año (≥ 2010)', m: 'GET', u: '/api/publicaciones?anioDesde=2010&sort=anio', sql: 'SELECT titulo, anio_publicacion\nFROM publicaciones\nWHERE anio_publicacion >= 2010\nORDER BY anio_publicacion', n: 'El filtro lateral de la web. Prueba <code>anioHasta</code> también.' },
+  { g: 'Librería', t: 'Búsqueda de texto', m: 'GET', u: '/api/publicaciones?q=code', sql: "SELECT titulo, autor FROM publicaciones\nWHERE titulo ILIKE '%code%' OR autor ILIKE '%code%'", n: 'En PostgreSQL <code>ILIKE</code> ignora mayúsculas.' },
+  { g: 'Librería', t: 'Top 10 más vendidos', m: 'GET', u: '/api/publicaciones/mas-vendidos?limit=10', sql: "SELECT p.titulo, SUM(l.cantidad) AS unidades\nFROM pedido_lineas l\nJOIN pedidos o ON o.id = l.pedido_id\nJOIN publicaciones p ON p.id = l.publicacion_id\nWHERE o.fecha >= '2026-10-07'\nGROUP BY p.titulo\nORDER BY unidades DESC, p.titulo\nLIMIT 10", n: 'Ruta <b>estática</b> junto a <code>[id]</code>. Es un agregado: GROUP BY + SUM sobre las líneas de pedido recientes.' },
+  { g: 'Librería', t: 'Detalle de un libro', m: 'GET', u: '/api/publicaciones/4', sql: 'SELECT * FROM publicaciones WHERE id = 4', n: 'Path param = identidad del recurso.' },
+  { g: 'Librería', t: 'Libro inexistente → 404', m: 'GET', u: '/api/publicaciones/999', n: 'Formato correcto pero no existe → 404.' },
+  { g: 'Librería', t: 'Id inválido → 400', m: 'GET', u: '/api/publicaciones/abc', n: 'Ni siquiera es un id → 400, no 404.' },
+  { g: 'Librería', t: 'Parámetros inválidos → 400', m: 'GET', u: '/api/publicaciones?tipo=cd&limit=500&sort=color', n: 'Se devuelven <b>todos</b> los fallos a la vez en <code>details</code>.' },
+  { g: 'Librería', t: 'Libros comprados por el usuario 1', m: 'GET', u: '/api/usuarios/1/compras', sql: "SELECT o.fecha, p.titulo, l.cantidad, l.precio_unitario\nFROM pedidos o\nJOIN pedido_lineas l ON l.pedido_id = o.id\nJOIN publicaciones p ON p.id = l.publicacion_id\nWHERE o.usuario_id = 1\nORDER BY o.fecha DESC", n: 'Recurso anidado: «las compras de este usuario».' },
+  { g: 'Librería', t: 'Comprar (201)', m: 'POST', u: '/api/pedidos', b: '{\n  "usuarioId": 1,\n  "items": [\n    { "publicacionId": 4, "cantidad": 1 },\n    { "publicacionId": 14, "cantidad": 2 }\n  ]\n}', n: 'Crea pedido + líneas y <b>descuenta stock</b> en una transacción. Responde 201 con cabecera <code>Location</code>. Repite el GET del libro 4 después.' },
+  { g: 'Librería', t: 'Comprar sin stock → 409', m: 'POST', u: '/api/pedidos', b: '{\n  "usuarioId": 1,\n  "items": [ { "publicacionId": 10, "cantidad": 50 } ]\n}', n: 'Hay 5 unidades de Design Patterns. Conflicto con el estado actual → 409 y no se toca nada (rollback).' },
+  { g: 'Librería', t: 'Comprar con body inválido → 400', m: 'POST', u: '/api/pedidos', b: '{\n  "usuarioId": "uno",\n  "items": []\n}', n: 'Validación de entrada antes de tocar la BD.' },
+  { g: 'Co-working', t: 'Espacios ahora (libre/ocupado)', m: 'GET', u: '/api/espacios', sql: "SELECT e.nombre, u.nombre AS ocupado_por, r.inicio, r.fin\nFROM espacios e\nJOIN reservas r ON r.espacio_id = e.id\nJOIN usuarios u ON u.id = r.usuario_id\nWHERE r.estado = 'confirmada' AND r.inicio <= NOW() AND r.fin > NOW()", n: 'Estado <b>deducido</b>: ocupado si existe una reserva confirmada que cubra el instante. Incluye quién y hasta cuándo.' },
+  { g: 'Co-working', t: 'Solo libres con ≥ 2 plazas', m: 'GET', u: '/api/espacios?estado=libre&capacidadMin=2', n: 'Filtros combinables por query params.' },
+  { g: 'Co-working', t: 'Espacios a las 18:30', m: 'GET', u: '/api/espacios?en=2026-11-04T18:30', n: 'Parámetro <code>en</code>: consultar cualquier instante. A las 18:30 la Cabina 1 ya está libre; reserva la Sala Lovelace (18:00–20:00) y vuelve a lanzarla.' },
+  { g: 'Co-working', t: 'Detalle del espacio 1', m: 'GET', u: '/api/espacios/1', n: 'Estado actual + próximas reservas.' },
+  { g: 'Co-working', t: 'Reservas del espacio 1 hoy', m: 'GET', u: '/api/espacios/1/reservas?fecha=2026-11-04', n: 'Sub-recurso filtrado por fecha.' },
+  { g: 'Co-working', t: 'Reservar Sala Lovelace (201)', m: 'POST', u: '/api/reservas', b: '{\n  "espacioId": 2,\n  "usuarioId": 1,\n  "inicio": "2026-11-04T18:00",\n  "fin": "2026-11-04T20:00",\n  "personas": 3\n}', n: 'Crea la reserva. Ejecútalo dos veces: la segunda da 409 por solape consigo misma.' },
+  { g: 'Co-working', t: 'Reservar solapando → 409', m: 'POST', u: '/api/reservas', b: '{\n  "espacioId": 1,\n  "usuarioId": 2,\n  "inicio": "2026-11-04T18:00",\n  "fin": "2026-11-04T20:00",\n  "personas": 3\n}', n: 'La Sala Turing está reservada 16:00–19:00. Solape ⇔ <code>nuevo.inicio &lt; existente.fin</code> y <code>nuevo.fin &gt; existente.inicio</code>.' },
+  { g: 'Co-working', t: 'Más personas que plazas → 422', m: 'POST', u: '/api/reservas', b: '{\n  "espacioId": 5,\n  "usuarioId": 2,\n  "inicio": "2026-11-06T09:00",\n  "fin": "2026-11-06T11:00",\n  "personas": 3\n}', n: 'Regla de negocio incumplida → 422 (distinto del 409).' },
+  { g: 'Co-working', t: 'Reservas del usuario 2', m: 'GET', u: '/api/usuarios/2/reservas', n: 'Para la vista «mis reservas».' },
+  { g: 'Co-working', t: 'Cancelar reserva 5 (204)', m: 'DELETE', u: '/api/reservas/5', n: '204 sin cuerpo. Es un borrado lógico (<code>estado=\'cancelada\'</code>).' },
+  { g: 'Errores', t: 'Método no permitido → 405', m: 'DELETE', u: '/api/categorias', n: 'La ruta existe, pero solo exporta GET.' },
+  { g: 'Errores', t: 'Ruta inexistente → 404', m: 'GET', u: '/api/libros', n: 'Ojo al nombre: el recurso se llama <code>publicaciones</code>.' },
+];
+const EPS = [
+  ['lib', 'GET', '/api/categorias', 'Categorías del menú lateral', '—', '200', 'Menú de categorías', 0],
+  ['lib', 'GET', '/api/publicaciones', 'Libros y revistas: filtros, orden, paginación', 'tipo, categoria, q, anioDesde, anioHasta, sort, page, limit', '200 · 400', 'Categoría + filtros', 1],
+  ['lib', 'GET', '/api/publicaciones/mas-vendidos', 'Top ventas de las últimas N semanas', 'semanas, limit', '200 · 400', 'Landing: 10 más vendidos', 4],
+  ['lib', 'GET', '/api/publicaciones/{id}', 'Ficha de un libro o revista', '—', '200 · 400 · 404', 'Vista individual', 5],
+  ['lib', 'GET', '/api/usuarios/{id}/compras', 'Libros adquiridos por el usuario', '—', '200 · 400 · 404', 'Libros adquiridos', 9],
+  ['lib', 'POST', '/api/pedidos', 'Comprar: crea pedido y descuenta stock', 'body: usuarioId, items[]', '201 · 400 · 404 · 409', 'Compra de libros', 10],
+  ['cow', 'GET', '/api/espacios', 'Espacios con estado libre/ocupado, quién y hasta cuándo', 'estado, capacidadMin, en', '200 · 400', 'Vista de espacios', 13],
+  ['cow', 'GET', '/api/espacios/{id}', 'Ficha del espacio + próximas reservas', '—', '200 · 400 · 404', 'Info individual', 16],
+  ['cow', 'GET', '/api/espacios/{id}/reservas', 'Reservas de un espacio por día', 'fecha', '200 · 400 · 404', 'Ocupación horaria', 17],
+  ['cow', 'POST', '/api/reservas', 'Reservar un espacio', 'body: espacioId, usuarioId, inicio, fin, personas', '201 · 400 · 404 · 409 · 422', 'Reserva de espacios', 18],
+  ['cow', 'GET', '/api/usuarios/{id}/reservas', 'Reservas del usuario', '—', '200 · 400 · 404', 'Mis reservas', 21],
+  ['cow', 'DELETE', '/api/reservas/{id}', 'Cancelar una reserva', '—', '204 · 400 · 404', 'Cancelación (extra)', 22],
+];
+let epMod = 'all';
+function drawEPs() {
+  $('#eptable').innerHTML = '<tr><th>Método</th><th>Ruta</th><th>Para qué</th><th>Params</th><th>Códigos</th><th></th></tr>' +
+    EPS.filter(e => epMod === 'all' || e[0] === epMod).map(e =>
+      '<tr><td><span class="m ' + e[1] + '">' + e[1] + '</span></td><td class="mono">' + e[2] + '</td><td>' + e[3] + '<br><small style="color:var(--muted)">Pantalla: ' + e[6] + '</small></td><td class="mono" style="font-size:12px">' + e[4] + '</td><td class="mono" style="font-size:12px">' + e[5] + '</td><td><button class="btn sm ghost" data-p="' + e[7] + '">Probar</button></td></tr>').join('');
+  $$('#eptable [data-p]').forEach(b => b.onclick = () => { goTab(5); loadPreset(Number(b.dataset.p), true); });
+}
+$('#epfilter').innerHTML = [['all', 'Todos'], ['lib', 'Librería'], ['cow', 'Co-working']].map(f => '<button class="chip' + (f[0] === 'all' ? ' on' : '') + '" data-f="' + f[0] + '">' + f[1] + '</button>').join('');
+$$('#epfilter .chip').forEach(b => b.onclick = () => { epMod = b.dataset.f; $$('#epfilter .chip').forEach(x => x.classList.toggle('on', x === b)); drawEPs(); });
+drawEPs();
+
+/* --- Route Handlers: selector de archivos --- */
+const FILES = [
+  ['lib/db.ts', 'code-lib-db', 'Una única Pool de conexiones. Sin el truco de <code>global</code>, el hot-reload de Next abriría una Pool nueva en cada cambio y agotarías las conexiones.'],
+  ['lib/http.ts', 'code-lib-http', 'Helpers para que todos los handlers respondan con el mismo formato de error.'],
+  ['lib/data/publicaciones.ts', 'code-lib-data', 'Capa de acceso a datos: aquí vive el SQL. En la Actividad 3 los <b>Server Components</b> llamarán a estas mismas funciones sin pasar por HTTP.'],
+  ['GET /publicaciones', 'code-pub-list', 'Patrón estándar: validar → delegar → responder. Prueba en «Probar API»: <i>Parámetros inválidos → 400</i>.'],
+  ['GET /publicaciones/[id]', 'code-pub-id', 'Distingue 400 (id mal formado) de 404 (no existe). <code>params</code> es una Promise en Next 15+.'],
+  ['GET …/mas-vendidos', 'code-pub-top', 'Agregado con GROUP BY. Está en una carpeta estática que tiene prioridad sobre <code>[id]</code>.'],
+  ['GET /usuarios/[id]/compras', 'code-compras', 'Primero comprueba que el usuario existe (404) y luego consulta sus pedidos con JOIN.'],
+  ['POST /pedidos', 'code-pedidos', 'El handler más importante: <b>transacción</b> (BEGIN/COMMIT/ROLLBACK), <code>FOR UPDATE</code> contra condiciones de carrera, 201 + <code>Location</code> y <code>client.release()</code> en el <code>finally</code>.'],
+  ['GET /espacios', 'code-espacios', 'El estado no está en una columna: un <code>LEFT JOIN</code> con las reservas que cubren el instante lo deduce.'],
+  ['POST /reservas', 'code-reservas', 'Tres tipos de error con tres códigos: 400 (formato), 422 (regla de negocio), 409 (conflicto con el estado). Extra: la restricción <code>EXCLUDE</code> del DDL lo garantiza a nivel de BD.'],
+];
+$('#filechips').innerHTML = FILES.map((f, i) => '<button class="chip" data-i="' + i + '">' + f[0] + '</button>').join('');
+function showFile(i) {
+  $$('#filechips .chip').forEach((c, k) => c.classList.toggle('on', k === i));
+  renderCode($('#filecode'), FILES[i][0], getCode(FILES[i][1]), 'ts');
+}
+$$('#filechips .chip').forEach(b => b.onclick = () => showFile(Number(b.dataset.i)));
+showFile(3);
+
+/* --- Cliente tipo Postman --- */
+let curPreset = -1;
+function drawColl() {
+  let h = '', g = '';
+  PRESETS.forEach((p, i) => {
+    if (p.g !== g) { g = p.g; h += '<h4>' + g + '</h4>'; }
+    h += '<button data-i="' + i + '" class="' + (i === curPreset ? 'on' : '') + '"><span class="m ' + p.m + '">' + p.m + '</span><span>' + p.t + '</span></button>';
+  });
+  $('#coll').innerHTML = h;
+  $$('#coll button').forEach(b => b.onclick = () => loadPreset(Number(b.dataset.i), false));
+}
+function syncBody() { $('#rqbwrap').style.display = ['POST', 'PUT'].includes($('#rqm').value) ? '' : 'none'; }
+function loadPreset(i, send) {
+  curPreset = i; const p = PRESETS[i];
+  $('#rqm').value = p.m; $('#rqu').value = p.u; $('#rqb').value = p.b || ''; syncBody(); drawColl();
+  $('#resp').innerHTML = '<p style="margin:0;color:var(--muted)">Pulsa <b>Send</b>.</p>';
+  if (send) sendReq();
+}
+const jsonHL = t => esc(t).replace(/("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|(-?\d+\.?\d*(?:[eE][+-]?\d+)?)/g,
+  (m, str, colon, bool, num) => str ? (colon ? '<span class="k">' + str + '</span>' + colon : '<span class="s">' + str + '</span>') : bool ? '<span class="b">' + bool + '</span>' : '<span class="n">' + num + '</span>');
+async function sendReq() {
+  const btn = $('#rqsend'); btn.disabled = true; btn.textContent = 'Enviando…';
+  const m = $('#rqm').value, u = $('#rqu').value.trim() || '/', b = ['POST', 'PUT'].includes(m) ? $('#rqb').value : '';
+  const t0 = performance.now();
+  await new Promise(r => setTimeout(r, 90 + Math.random() * 120));
+  const res = callAPI(m, u, b); const ms = Math.round(performance.now() - t0);
+  const cls = res.status >= 500 ? 's5' : res.status >= 400 ? 's4' : 's2';
+  const names = { 200: 'OK', 201: 'Created', 204: 'No Content', 400: 'Bad Request', 404: 'Not Found', 405: 'Method Not Allowed', 409: 'Conflict', 422: 'Unprocessable Content', 500: 'Internal Server Error' };
+  const p = PRESETS[curPreset] && PRESETS[curPreset].u === u && PRESETS[curPreset].m === m ? PRESETS[curPreset] : null;
+  $('#resp').innerHTML = '<div class="status"><span class="pill ' + cls + '">' + res.status + ' ' + (names[res.status] || '') + '</span><span style="color:var(--muted)">' + ms + ' ms</span></div>' +
+    '<div class="hdrs">' + Object.entries(res.headers).map(([k, v]) => '<div><b>' + esc(k) + ':</b> ' + esc(v) + '</div>').join('') + '</div>' +
+    (res.body === null ? '<p style="color:var(--muted);margin:0">(sin cuerpo)</p>' : '<pre class="json">' + jsonHL(JSON.stringify(res.body, null, 2)) + '</pre>') +
+        (p && p.sql ? '<div style="margin-top:10px"><button class="btn sm ghost" id="tosql">Ver el SQL equivalente en el ejecutor →</button></div>' : '');
+  const ts = $('#tosql'); if (ts) ts.onclick = () => { goTab(2); setSQL(p.sql, true); $$('#sqlchips .chip').forEach(x => x.classList.remove('on')); $('#sqlq').scrollIntoView({ block: 'center' }); };
+  btn.disabled = false; btn.textContent = 'Send ▶'; drawState();
+}
+function drawState() {
+  const libre = DB.espacios.filter(e => !ocupacion(e, NOW)).length;
+  const stock = DB.publicaciones.reduce((a, p) => a + p.stock, 0);
+  $('#state').innerHTML = [['pedidos', DB.pedidos.length], ['reservas activas', DB.reservas.filter(r => r.estado === 'confirmada').length], ['espacios libres', libre + '/' + DB.espacios.length], ['stock total', stock]]
+    .map(k => '<div><b>' + k[1] + '</b><small>' + k[0] + '</small></div>').join('');
+}
+$('#rqm').onchange = syncBody;
+$('#rqsend').onclick = sendReq;
+$('#rqu').addEventListener('keydown', e => { if (e.key === 'Enter') sendReq(); });
+$('#rqreset').onclick = () => { resetDB(); drawState(); $('#resp').innerHTML = '<p style="margin:0;color:var(--ok)"><b>Datos reiniciados</b> al estado inicial.</p>'; };
+$('#rqcurl').onclick = e => {
+  const m = $('#rqm').value, u = $('#rqu').value.trim();
+  let c = 'curl -i -X ' + m + ' "http://localhost:3000' + u + '"';
+  if (['POST', 'PUT'].includes(m) && $('#rqb').value.trim()) c += ' \\\n  -H "Content-Type: application/json" \\\n  -d \'' + $('#rqb').value.replace(/\s*\n\s*/g, ' ').trim() + '\'';
+  copyText(c, e.currentTarget);
+};
+loadPreset(1, false); drawState();
+
+/* --- IA --- */
+const AIC = ['¿Cada tabla tiene PK y las FKs apuntan a la tabla correcta con un ON DELETE razonable?', '¿Los CHECK/UNIQUE reflejan reglas reales (stock ≥ 0, fin > inicio, email único)?', '¿Las cardinalidades coinciden con las que justificarás en el vídeo?', '¿El DDL se ejecuta entero en una BD vacía, sin errores?', '¿Los INSERT respetan el orden de las FKs?', '¿El total de cada pedido es exactamente la suma de sus líneas?', '¿Hay reservas solapadas en un mismo espacio? (no debería)', '¿Se han realineado las secuencias SERIAL con setval()?'];
+$('#aichk').innerHTML = AIC.map(t => '<label class="chk"><input type="checkbox"><span>' + t + '</span></label>').join('');
+function metrics() {
+  const g = id => Number($('#' + id).value) || 0;
+  const tot = g('m_tot'), ok = g('m_ok'), par = g('m_par'), bad = g('m_bad'), h0 = g('m_h0'), h1 = g('m_h1');
+  const pct = n => tot ? Math.round(n / tot * 100) + '%' : '—';
+  const saved = Math.max(0, h0 - h1);
+  $('#mout').innerHTML = [[pct(ok + par), 'correctas o parciales'], [pct(bad), 'incorrectas'], [g('m_loc').toLocaleString('es-ES'), 'líneas con IA'], [saved.toLocaleString('es-ES', { maximumFractionDigits: 1 }) + ' h', 'tiempo ahorrado' + (h0 ? ' (' + Math.round(saved / h0 * 100) + '%)' : '')]]
+    .map(k => '<div><b>' + k[0] + '</b><small>' + k[1] + '</small></div>').join('');
+  $('#mwarn').textContent = ok + par + bad !== tot ? 'Ojo: correctas + parciales + incorrectas (' + (ok + par + bad) + ') no suman el total (' + tot + ').' : '';
+}
+$$('#p6 input[type=number]').forEach(i => i.oninput = metrics); metrics();
+
+/* --- Entrega --- */
+const SEG = [['Modelo de datos', 4, '#4f46e5', 'ER en DataGrip/DBeaver, justificar relaciones y cardinalidades'], ['API REST', 4, '#0891b2', 'Endpoints diseñados e implementados y cómo acceden a los datos'], ['Pruebas de la API', 3, '#b45309', 'Postman: casos felices y de error (200, 201, 400, 404, 409)'], ['Uso de IA', 3, '#be185d', 'Prompts, resultados y las 4 métricas'], ['Conclusiones', 1, '#475569', 'Comentarios y feedback']];
+$('#tl').innerHTML = SEG.map(s => '<div style="flex:' + s[1] + ';background:' + s[2] + '">' + s[1] + '′</div>').join('');
+$('#seg').innerHTML = SEG.map(s => '<i style="background:' + s[2] + '"></i><span><b>' + s[0] + '</b> · ' + s[3] + '</span>').join('');
+const DEL = [
+  [0, 1.5, ['Las entidades cubren librería y co-working', 'Cardinalidades justificadas (también el N:M)', 'PK, FK, UNIQUE y CHECK donde corresponde']],
+  [1, 2, ['schema.sql se ejecuta sin errores en una BD vacía', 'seed.sql deja datos coherentes (totales, sin solapes)', 'Secuencias realineadas con setval()']],
+  [2, 2, ['Recursos en plural; filtros en query, identidad en path', 'Códigos de estado correctos (200/201/204/400/404/409/422)', 'Formato de error uniforme y paginación']],
+  [3, 2, ['Todos los endpoints con Route Handlers (excepto login)', 'SQL parametrizado y lista blanca en ORDER BY', 'Funciona solo en local con .env.local']],
+  [4, 0.5, ['Colección de Postman con casos felices y de error']],
+  [5, 1, ['Prompts y resultados mostrados', 'Porcentajes, líneas de código y tiempo ahorrado']],
+  [6, 1, ['≈15 min y todos los integrantes participan', 'Cubre modelo, API, pruebas, IA y conclusiones', 'MP4 o enlace OneDrive público (probado en incógnito)']],
+  [-1, 0, ['ZIP único', 'Autores.txt (solo en grupo)', 'Proyecto sin node_modules', 'Archivo .sql con el DDL']],
+];
+let dh = '';
+DEL.forEach((d, gi) => {
+  dh += '<h3 style="margin:14px 0 2px;font-size:14px">' + (d[0] >= 0 ? 'Criterio ' + (d[0] + 1) + ' · ' + RUB[d[0]][0] + ' (' + String(d[1]).replace('.', ',') + ' pts)' : 'Archivo ZIP') + '</h3>';
+  d[2].forEach((t, ii) => { dh += '<label class="chk"><input type="checkbox" data-g="' + gi + '"><span>' + t + '</span></label>'; });
+});
+$('#deliv').innerHTML = dh;
+function cov() {
+  let pts = 0;
+  DEL.forEach((d, gi) => { const bx = $$('#deliv input[data-g="' + gi + '"]'); if (d[1] && bx.length) pts += d[1] * bx.filter(b => b.checked).length / bx.length; });
+  $('#covtxt').textContent = pts.toFixed(1).replace('.', ',') + ' / 10';
+  $('#covbar').style.width = (pts * 10) + '%';
+}
+$$('#deliv input').forEach(i => i.onchange = cov); cov();
+
+goTab(0);
+
+</script>
+</body></html>
